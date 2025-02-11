@@ -23,7 +23,11 @@ Location::Location( std::string path )
 	this->_index = "./index.html";	
 }
 
-Location::Location( Location const &src ){(void)src;}
+Location::Location( Location const &src ): _path(src._path), \
+	_v_status_pages(deepCopyContainer(src._v_status_pages)), \
+	_client_max_body_size(src._client_max_body_size), \
+	_v_methods(src._v_methods), _m_redirections(src._m_redirections), \
+	_autoindex(src._autoindex), _index(src._index), _cgi(src._cgi), _root(src._root){}
 
 Location::~Location( void )
 {

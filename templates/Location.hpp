@@ -16,7 +16,7 @@
 # include <cctype>
 # include <cstdlib>
 # include "Status.hpp"
-# include "utils.hpp"
+# include "Utils.hpp"
 
 class Location
 {
@@ -32,13 +32,13 @@ class Location
 		std::string							_root;
 
 		Location( void );
-		Location( Location const &src );
 
 		Location	&operator=( Location const &src );
 
 		bool		_isDigit( std::string size );
 
 	public:
+		Location( Location const &src );
 		Location( std::string path );
 		~Location( void );
 

@@ -18,20 +18,36 @@ Server::Server( void )
 	this->_autoindex = false;
 	this->_index = "./index.html";	
 }
-Server::Server( Server const &src ){(void)src;}
+
+Server::Server( Server const &src )
+{
+	*this = src;	
+}
 
 Server::~Server( void )
 {
 	this->_v_listen.clear();
 	ft_clearContainer(this->_v_status_pages);
-	ft_clearContainer(this->_m_locations);
+	ft_clearContainer(this->_v_locations);
 	this->_m_redirections.clear();
 	
 }
 
 Server	&Server::operator=( Server const &src )
 {
-	(void)src;
+	if ( this != &src )
+	{
+		this->_server_name = src._server_name;
+		this->_v_listen = src._v_listen;
+		this->_v_status_pages = src._v_status_pages;
+		this->_client_max_body_size = src.getClienteMaxBodySize();
+		this->_v_locations = deepCopyContainer(src.getVLocations());
+		this->_m_redirections = src.getMRedirections();
+		this->_autoindex = src.getAutoindex();
+		this->_index = src.getIndex();
+		this->_cgi = src.getCgi();
+		this->_root = src.getRoot();
+	}
 	return( *this );
 }
 
@@ -55,15 +71,16 @@ unsigned int	const						&Server::getClienteMaxBodySize( void ) const
 	return ( this->_client_max_body_size );
 }
 
-std::vector<Location *> const				&Server::getMLocations( void ) const
+std::vector<Location *> const				&Server::getVLocations( void ) const
 {
-	return ( this->_m_locations );
+	return ( this->_v_locations );
 }
 
 std::map<std::string, std::string> const	&Server::getMRedirections( void ) const
 {
 	return ( this->_m_redirections );
 }
+
 bool const									&Server::getAutoindex( void ) const
 {
 	return ( this->_autoindex );
@@ -133,10 +150,10 @@ void										Server::setClienteMaxBodySize( std::string size )
 	
 }
 
-void										Server::addMLocation( std::string path)
+void										Server::addVLocation( std::string path)
 {
 	Location *new_location = new Location(path);
-	this->_m_locations.push_back(new_location);
+	this->_v_locations.push_back(new_location);
 }
 
 void										Server::addMRedirection( std::string from, std::string to)

@@ -18,18 +18,35 @@
 class Config
 {
 	private:
-		std::vector<Server*>		v_servers;
-		std::vector<Status*>		m_status_pages;
-		int							client_max_body;
-		bool						autoindex;
-		std::string					index;
-		std::string					cgi;
-		std::string					root;
+		std::vector<Server*>		_v_servers;
+		std::vector<Status*>		_v_status_pages;
+		unsigned int				_client_max_body_size;
+		bool						_autoindex;
+		std::string					_index;
+		std::string					_cgi;
+		std::string					_root;
+		
+		Config( Config const &src );
+		
+		Config	&operator=( Config const &src );
 
 	public:
 		Config( void );
-		Config( Config const &src );
 		~Config( void );
 
-		Config	&operator=( Config const &src );
+		std::vector<Server*> const					&getVServers( void )const;
+		std::vector<Status *> const					&getVStautsPages( void ) const;
+		unsigned int	const						&getClienteMaxBodySize( void ) const;
+		bool const									&getAutoindex( void )const;
+		std::string const							&getIndex( void )const;
+		std::string const							&getCgi( void )const;
+		std::string const							&getRoot( void )const;
+
+		void										addServer( Server const &server );
+		void										addStatusPage( int status_code, std::string page_path);
+		void										setClienteMaxBodySize( std::string size );
+		void										setAutoindex( bool autoindex );
+		void										setIndex( std::string index );
+		void										setCgi( std::string cgi );
+		void										setRoot( std::string root );
 };

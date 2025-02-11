@@ -26,13 +26,13 @@ class Status
 		std::string							_error_page_path;
 
 		Status( void );
-		Status( Status const &src );
 
 		Status	&operator=( Status const &src );
 		
 		static void							_setStatusResponses( void );
 		
 	public:
+		Status( Status const &src );
 		Status( int status_code, std::string error_page_path );
 		~Status( void );
 
