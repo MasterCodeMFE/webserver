@@ -16,4 +16,14 @@ void ft_clearContainer(Container& container)
     }
 }
 
+bool    isDigit( std::string size )
+{
+	for (std::string::const_iterator it = size.begin(); it != size.end(); ++it) {
+        if (!std::isdigit(*it)) {
+            return false;
+        }
+    }
+	return ( true );
+}
+
 #endif

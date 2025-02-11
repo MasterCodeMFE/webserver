@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Location.cpp                                       :+:      :+:    :+:   */
+/*   Server.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pabad-ap <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,86 +10,95 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-# include "Location.hpp"
+# include "Server.hpp"
 
-Location::Location( void ){}
-
-
-Location::Location( std::string path )
+Server::Server( void )
 {
-	this->_path = path;
 	this->_client_max_body_size = 1 * 1024 * 1024; // 1MB by default
 	this->_autoindex = false;
 	this->_index = "./index.html";	
 }
+Server::Server( Server const &src ){(void)src;}
 
-Location::Location( Location const &src ){(void)src;}
-
-Location::~Location( void )
+Server::~Server( void )
 {
+	this->_v_listen.clear();
 	ft_clearContainer(this->_v_status_pages);
-	this->_v_methods.clear();
+	ft_clearContainer(this->_m_locations);
 	this->_m_redirections.clear();
+	
 }
 
-Location	&Location::operator=( Location const &src )
+Server	&Server::operator=( Server const &src )
 {
 	(void)src;
 	return( *this );
 }
 
-std::string const							&Location::getPath( void ) const
+std::string const							&Server::getServerName( void )const
 {
-	return ( this->_path );
+	return ( this->_server_name );
 }
 
-std::vector<Status *> const					&Location::getVStautsPages( void ) const
+std::vector<std::string> const				&Server::getVListen( void )const
+{
+	return ( this->_v_listen );
+}	
+
+std::vector<Status *> const					&Server::getVStautsPages( void ) const
 {
 	return ( this->_v_status_pages );
 }
 
-unsigned int	const						&Location::getClienteMaxBodySize( void ) const
+unsigned int	const						&Server::getClienteMaxBodySize( void ) const
 {
 	return ( this->_client_max_body_size );
 }
 
-std::vector<std::string> const				&Location::getVMethos( void ) const
+std::vector<Location *> const				&Server::getMLocations( void ) const
 {
-	return ( this->_v_methods );
+	return ( this->_m_locations );
 }
 
-std::map<std::string, std::string> const	&Location::getMRedirections( void ) const
+std::map<std::string, std::string> const	&Server::getMRedirections( void ) const
 {
 	return ( this->_m_redirections );
 }
-
-bool const									&Location::getAutoindex( void ) const
+bool const									&Server::getAutoindex( void ) const
 {
 	return ( this->_autoindex );
 }
 
-std::string const							&Location::getIndex( void ) const
+std::string const							&Server::getIndex( void ) const
 {
 	return ( this->_index );
 }
-
-std::string const							&Location::getCgi( void ) const
+std::string const							&Server::getCgi( void ) const
 {
 	return ( this->_cgi );
 }
-
-std::string const							&Location::getRoot( void ) const
+std::string const							&Server::getRoot( void ) const
 {
 	return ( this->_root );
 }
 
-void										Location::addStatusPage( int status_code, std::string page_path)
+void										Server::setServerName( std::string server_name )
+{
+	this->_server_name = server_name;
+}
+
+void										Server::addListen( std::string listen )
+{
+	this->_v_listen.push_back(listen);
+}
+
+void										Server::addStatusPage( int status_code, std::string page_path)
 {
 	Status *new_status = new Status(status_code, page_path);
 	this->_v_status_pages.push_back(new_status);
 }
 
-void										Location::setClienteMaxBodySize( std::string size )
+void										Server::setClienteMaxBodySize( std::string size )
 {
 	unsigned int max_body_size = 0;
 
@@ -124,32 +133,33 @@ void										Location::setClienteMaxBodySize( std::string size )
 	
 }
 
-void										Location::addVMethod( std::string method)
+void										Server::addMLocation( std::string path)
 {
-	this->_v_methods.push_back(method);
+	Location *new_location = new Location(path);
+	this->_m_locations.push_back(new_location);
 }
 
-void										Location::addMRedirection( std::string from, std::string to)
+void										Server::addMRedirection( std::string from, std::string to)
 {
 	this->_m_redirections[from] = to;
 }
 
-void										Location::setAutoindex( bool autoindex )
+void										Server::setAutoindex( bool autoindex )
 {
 	this->_autoindex = autoindex;
 }
 
-void										Location::setIndex( std::string index )
+void										Server::setIndex( std::string index )
 {
 	this->_index = index;
 }
 
-void										Location::setCgi( std::string cgi )
+void										Server::setCgi( std::string cgi )
 {
 	this->_cgi = cgi;
 }
 
-void										Location::setRoot( std::string root )
+void										Server::setRoot( std::string root )
 {
 	this->_root = root;	
 }

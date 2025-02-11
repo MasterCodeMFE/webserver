@@ -21,6 +21,7 @@
 class Location
 {
 	private:
+		std::string							_path;
 		std::vector<Status*>				_v_status_pages;
 		unsigned int						_client_max_body_size;
 		std::vector<std::string>			_v_methods;	
@@ -30,22 +31,26 @@ class Location
 		std::string							_cgi;
 		std::string							_root;
 
+		Location( void );
 		Location( Location const &src );
+
 		Location	&operator=( Location const &src );
+
 		bool		_isDigit( std::string size );
 
 	public:
-		Location( void );
+		Location( std::string path );
 		~Location( void );
 
+		std::string const							&getPath( void ) const;
 		std::vector<Status *> const					&getVStautsPages( void ) const;
 		unsigned int	const						&getClienteMaxBodySize( void ) const;
 		std::vector<std::string> const				&getVMethos( void ) const;
 		std::map<std::string, std::string> const	&getMRedirections( void ) const;
-		bool const									&getAutoindex( void );
-		std::string const							&getIndex( void );
-		std::string const							&getCgi( void );
-		std::string const							&getRoot( void );
+		bool const									&getAutoindex( void ) const;
+		std::string const							&getIndex( void ) const;
+		std::string const							&getCgi( void ) const;
+		std::string const							&getRoot( void ) const;
 
 		void										addStatusPage( int status_code, std::string page_path);
 		void										setClienteMaxBodySize( std::string size );
