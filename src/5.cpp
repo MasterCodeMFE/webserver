@@ -37,7 +37,7 @@ HttpRequest parse_request(const std::string& request)
 
 int paso_cinco(int client_fd)
 {
-    std::vector<char> buffer(1024);
+    std::vector<char> buffer(4096);  // 🔹 Aumentar el buffer para capturar encabezados y cuerpo
     ssize_t bytes_received = recv(client_fd, &buffer[0], buffer.size() - 1, 0);
 
     if (bytes_received == 0)
@@ -54,8 +54,36 @@ int paso_cinco(int client_fd)
 
     buffer[bytes_received] = '\0';
     std::string request(&buffer[0], bytes_received);
+    
+    // 🔹 Parseamos la solicitud HTTP
     HttpRequest httpRequest = parse_request(request);
 
+    // 🔹 Verificamos si hay un cuerpo en la solicitud (Content-Length)
+    std::map<std::string, std::string>::iterator it = httpRequest.headers.find("Content-Length");
+    if (it != httpRequest.headers.end())
+    {
+        int content_length = 0;
+        std::istringstream(it->second) >> content_length;
+        std::string body;
+        body.reserve(content_length);
+
+        // Si el cuerpo no está completamente en el primer recv(), leemos el resto
+        int total_read = request.substr(request.find("\r\n\r\n") + 4).size();  // Ya leído
+        body = request.substr(request.find("\r\n\r\n") + 4); // Extraer datos ya recibidos
+
+        while (total_read < content_length)
+        {
+            std::vector<char> body_buffer(content_length - total_read);
+            int bytes = recv(client_fd, &body_buffer[0], content_length - total_read, 0);
+            if (bytes <= 0) break;
+            body.append(&body_buffer[0], bytes);
+            total_read += bytes;
+        }
+
+        httpRequest.body = body;
+    }
+
+    // 🔹 Pasamos la solicitud completa a `paso_seis`
     int res = paso_seis(client_fd, httpRequest);
     
     return res;

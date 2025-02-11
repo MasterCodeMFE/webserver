@@ -15,6 +15,8 @@
 #include <poll.h>
 #include <fcntl.h>
 #include <netinet/tcp.h>
+#include <filesystem>
+#include <cstdio>
 
 #define PORT 8080
 #ifndef MAXCLIENT
@@ -27,10 +29,12 @@ struct HttpRequest
     std::string path;
     std::string protocol;
     std::map<std::string, std::string> headers;
+    std::string body;  // 🔹 Agregar el cuerpo del mensaje
 };
 
 
 int create_socket();
+void close_client(int client_fd);
 int paso_dos(int server_fd);
 int paso_tres(int server_fd);
 int paso_cuatro(int server_fd);
