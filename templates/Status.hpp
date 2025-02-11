@@ -15,6 +15,7 @@
 # include <map>
 # include <string>
 # include <iostream>
+# include <fstream>
 # include <sstream>
 
 class Status
@@ -29,18 +30,19 @@ class Status
 
 		Status	&operator=( Status const &src );
 		
+		static void							_setStatusResponses( void );
+		
 	public:
 		Status( int status_code, std::string error_page_path );
 		~Status( void );
 
-		static void							setStatusResponses( void );
 
-		static std::string const 			&getStatusResponse( int status_code );
-		static std::string const			&getDefaultErrorPage( int status_code );
+		static std::string					getDefaultStatusResponse( int status_code );
+		static std::string 					getDefaultErrorPage( int status_code );
 		
 		int									getStatusCode( void ) const;
 		std::string const					&getErrorPagePath( void ) const;
-		std::string	const					&getErrorPage( int status_code ) const;
+		std::string	 						getErrorPage( void ) const;
 };
 
 std::ostream	&operator<<( std::ostream &o, Status &src);
