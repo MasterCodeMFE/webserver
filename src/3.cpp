@@ -2,14 +2,14 @@
 
 #include "test.hpp"
 
-int paso_tres(int server_fd)
+int paso_tres(int server_fd, Config *config)
 {
     if (listen(server_fd, SOMAXCONN) == -1)
     {
         std::cerr << "Error al poner a la escucha el socket: " << strerror(errno) << std::endl;
         return -1;
     }
-    std::cout << "Servidor en escucha en el puerto " << PORT << "..." << std::endl;
+    std::cout << "Servidor en escucha en el puerto " << config->v_servers[0]->v_listen[0] << "..." << std::endl;
 
     std::vector<pollfd> fds;
 
