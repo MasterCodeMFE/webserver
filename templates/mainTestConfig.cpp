@@ -2,6 +2,7 @@
 #include "Server.hpp"
 #include "Location.hpp"
 #include "Status.hpp"
+#include "./../src/test.hpp"
 
 int main ( void )
 {
@@ -58,11 +59,12 @@ int main ( void )
     config.addStatusPage(200, "/path/to/page/from/config");
     config.addServer(server);
     config.addServer(server2);
-    std::cout << "+++++" << std::endl;
     config.setCgi("CONF_CGI");
     config.setRoot("CONF_ROOT");
 
     std::cout << config << std::endl;
+
+    paso_uno(config);
 
     return (0);
 }

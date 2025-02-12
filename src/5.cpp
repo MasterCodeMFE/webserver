@@ -35,8 +35,9 @@ HttpRequest parse_request(const std::string& request)
     return httpRequest;
 }
 
-int paso_cinco(int client_fd)
+int paso_cinco(int client_fd, Config const &config)
 {
+    (void)config;
     std::vector<char> buffer(4096);  // 🔹 Aumentar el buffer para capturar encabezados y cuerpo
     ssize_t bytes_received = recv(client_fd, &buffer[0], buffer.size() - 1, 0);
 
@@ -110,7 +111,7 @@ int paso_cinco(int client_fd)
     }
 
     // 🔹 Pasamos la solicitud completa a `paso_seis`
-    int res = paso_seis(client_fd, httpRequest);
+    int res = paso_seis(client_fd, httpRequest, config);
     
     return res;
 }

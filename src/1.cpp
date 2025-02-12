@@ -27,49 +27,11 @@ int create_socket()
     return (server_fd);
 }
 
-Config *initializeConfig()
-{
-    Config *config = new Config();
 
-    // Crear un servidor por defecto
-    Server *server = new Server();
-
-    // Inicialización manual de los valores del servidor
-    server->server_name = "localhost";
-    server->v_listen.push_back("8080");
-    server->client_max_body = 1048576; // 1MB
-    server->autoindex = false;
-    server->index = "index.html";
-    server->cgi = "/usr/bin/php";
-    server->root = "/var/www/html";
-
-    // Configurar páginas de error por defecto
-    server->m_status_pages.push_back(new Status(404, "/errors/404.html"));
-    server->m_status_pages.push_back(new Status(500, "/errors/500.html"));
-
-    // Crear una ubicación por defecto
-    Location *location = new Location();
-    location->root = "/var/www/html";
-    location->index = "index.html";
-    location->autoindex = false;
-    location->v_methods.push_back("GET");
-    location->v_methods.push_back("POST");
-    location->v_methods.push_back("DELETE");
-
-    server->m_locations.push_back(location);
-
-    // Añadir el servidor a la configuración
-    config->v_servers.push_back(server);
-
-    return config;
-}
-
-
-int main()
+int paso_uno(Config const &config)
 {
 
     int server_fd;
-    Config *config = initializeConfig();
     server_fd = create_socket();
     if(server_fd == -1)
     {
@@ -80,6 +42,6 @@ int main()
         close_socket(server_fd);
         return(1);
     }
-    delete config;
     close_socket(server_fd);
+    return(0);
 }

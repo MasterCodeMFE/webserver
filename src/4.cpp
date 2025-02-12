@@ -2,8 +2,9 @@
 
 #include "test.hpp"
 
-int paso_cuatro(int server_fd)
+int paso_cuatro(int server_fd, Config const &config)
 {
+    (void)config;
     sockaddr_in client_addr;
     socklen_t client_len = sizeof(client_addr);
     int client_fd = accept(server_fd, (struct sockaddr *)&client_addr, &client_len);

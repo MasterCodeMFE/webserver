@@ -49,8 +49,9 @@ std::string get_content_type(const std::string& filepath)
 
 
 // 📌 Función que maneja las solicitudes GET
-std::string handle_get(const HttpRequest& request)
+std::string handle_get(const HttpRequest& request, Config const &config)
 {
+    (void)config;   
     std::string filepath = "www" + request.path;
     if (request.path == "/")
     {
@@ -60,7 +61,7 @@ std::string handle_get(const HttpRequest& request)
     std::string content = read_file(filepath);
     if (content.empty())
     {
-        return "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\nContent-Length: 16\r\n\r\nPagina no existe\n";
+        return Status::getDefaultErrorPage(400);
     }
 
     std::string content_type = get_content_type(filepath);
@@ -292,8 +293,9 @@ std::string handle_cgi(const std::string &script_path, const std::string &query_
 
 
 // 📌 Modificar paso_seis para incluir DELETE
-int paso_seis(int client_fd, const HttpRequest& httpRequest)
+int paso_seis(int client_fd, const HttpRequest& httpRequest, Config const &config)
 {
+    (void)config;
     std::string response;
 
     if (httpRequest.path.find("/cgi-bin/") == 0) // 📌 Si la ruta es de un CGI
@@ -302,7 +304,7 @@ int paso_seis(int client_fd, const HttpRequest& httpRequest)
     }
     else if (httpRequest.method == "GET")
     {
-        response = handle_get(httpRequest);
+        response = handle_get(httpRequest, config);
     }
     else if (httpRequest.method == "POST")
     {

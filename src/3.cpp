@@ -2,14 +2,14 @@
 
 #include "test.hpp"
 
-int paso_tres(int server_fd, Config *config)
+int paso_tres(int server_fd, Config const &config)
 {
     if (listen(server_fd, SOMAXCONN) == -1)
     {
         std::cerr << "Error al poner a la escucha el socket: " << strerror(errno) << std::endl;
         return -1;
     }
-    std::cout << "Servidor en escucha en el puerto " << config->v_servers[0]->v_listen[0] << "..." << std::endl;
+    std::cout << "Servidor en escucha en el puerto " << config.getVServers()[0]->getVListen()[0] << "..." << std::endl;
 
     std::vector<pollfd> fds;
 
@@ -30,7 +30,7 @@ int paso_tres(int server_fd, Config *config)
         // Comprobar si hay una nueva conexión
         if (fds[0].revents & POLLIN)
         {
-            int new_client_fd = paso_cuatro(server_fd);
+            int new_client_fd = paso_cuatro(server_fd, config);
             if (new_client_fd != -1)
             {
                 struct pollfd new_pollfd = {};
@@ -45,7 +45,7 @@ int paso_tres(int server_fd, Config *config)
         {
             if (fds[i].revents & (POLLIN | POLLHUP | POLLERR))
             {
-                int res = paso_cinco(fds[i].fd);
+                int res = paso_cinco(fds[i].fd, config);
                 if (res == -1) // Cliente desconectado
                 {
                     std::cout << "Cliente desconectado: " << fds[i].fd << "\n";

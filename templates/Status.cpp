@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Status.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pabad-ap <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/11 12:44:28 by pabad-ap          #+#    #+#             */
-/*   Updated: 2025/02/11 15:33:36 by pabad-ap         ###   ########.fr       */
+/*   Updated: 2025/02/12 17:23:38 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,34 +151,55 @@ std::string			Status::getDefaultStatusResponse( int status_code )
 	}
 	return ( response );
 }
-
-std::string		Status::getDefaultErrorPage( int status_code )
+std::string Status::getDefaultErrorPage(int status_code)
 {
-	std::stringstream	msg_page;
+    std::stringstream msg_page;
 
-	if ( Status::_m_status_responses.empty() )
-		Status::_setStatusResponses();
-	if (Status::_inErrorRange( status_code))
-	{
-		msg_page << "<!DOCTYPE html>\n"
-			<< "<html lang=\"en\">\n"
-			<< "<head>\n"
-			<< "\t<meta charset=\"utf-8\" /><meta http-equiv=\"X-UA-Compatible\" "
-				<< "content=\"IE=edge\" /><meta name=\"viewport\" "
-				<< "content=\"width=device-width, initial-scale=1\" />\n"
-			<< "\t<title>" << status_code 
-				<< " - " << Status::_m_status_responses[status_code] << "</title>\n"
-			<< "</head>\n"
-			<< "<body>\n"
-			<< "\t<div class=\"cover\"><h1>" << Status::_m_status_responses[status_code]
-				<< " " << status_code << "</h1>\n"
-			<< "\t<footer><p>Technical Contact: <a href=\"mailto:x@example.com\">"
-				<< "support@example.com</a></p></footer>\n"
-			<< "</body>\n"
-			<< "</html>\n";
-	}
-	return ( msg_page.str() );
+    if (Status::_m_status_responses.empty())
+        Status::_setStatusResponses();
+
+    std::string status_message = "Unknown Error";
+    if (Status::_m_status_responses.find(status_code) != Status::_m_status_responses.end())
+        status_message = Status::_m_status_responses[status_code];
+
+    msg_page << "<!DOCTYPE html>\n"
+             << "<html lang=\"en\">\n"
+             << "<head>\n"
+             << "\t<meta charset=\"utf-8\" />\n"
+             << "\t<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\" />\n"
+             << "\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n"
+             << "\t<title>" << status_code << " - " << status_message << "</title>\n"
+             << "\t<style>\n"
+             << "\t\tbody { font-family: Arial, sans-serif; background-color: #f8f8f8; text-align: center; padding: 50px; }\n"
+             << "\t\t.container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); }\n"
+             << "\t\th1 { font-size: 50px; color: #ff6b6b; }\n"
+             << "\t\tp { font-size: 18px; color: #333; }\n"
+             << "\t\t.footer { margin-top: 20px; font-size: 14px; color: #888; }\n"
+             << "\t\t@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }\n"
+             << "\t\t.cover { animation: fadeIn 1.5s ease-in-out; }\n"
+             << "\t</style>\n"
+             << "</head>\n"
+             << "<body>\n"
+             << "\t<div class=\"container cover\">\n"
+             << "\t\t<h1>" << status_code << "</h1>\n"
+             << "\t\t<p>" << status_message << "</p>\n"
+             << "\t</div>\n"
+             << "</body>\n"
+             << "</html>\n";
+
+    std::string body = msg_page.str();
+    std::stringstream response;
+
+    response << "HTTP/1.1 " << status_code << " " << status_message << "\r\n"
+             << "Content-Type: text/html\r\n"
+             << "Content-Length: " << body.size() << "\r\n"
+             << "Connection: close\r\n"
+             << "\r\n"
+             << body;
+
+    return response.str();
 }
+
 
 int		Status::getStatusCode( void ) const
 {
