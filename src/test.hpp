@@ -17,6 +17,9 @@
 #include <netinet/tcp.h>
 #include <filesystem>
 #include <cstdio>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <cstdlib>
 
 #define PORT 8080
 
@@ -29,7 +32,8 @@ struct HttpRequest
     std::string path;
     std::string protocol;
     std::map<std::string, std::string> headers;
-    std::string body;  // 🔹 Agregar el cuerpo del mensaje
+    std::string body;  // 🔹 Cuerpo del mensaje (para POST)
+    std::string query_string;  // 🔹 Parámetros en la URL (para CGI y GET)
 };
 
 

@@ -152,8 +152,29 @@ std::string handle_post(const HttpRequest& httpRequest)
         {
             return "HTTP/1.1 400 Bad Request\r\nContent-Type: text/plain\r\nContent-Length: 32\r\nConnection: close\r\n\r\nFalta el boundary en Content-Type\n";
         }
-        std::string boundary = content_type.substr(pos + 9);
-        response_body = save_uploaded_file(httpRequest.body, boundary);
+        std::string boundary = "--" + content_type.substr(pos + 9); // Agregar "--" para que coincida con el formato
+
+        // 🔹 Verificar si realmente hay un archivo en el multipart
+        std::string filename;
+        size_t filename_pos = httpRequest.body.find("filename=\"");
+        if (filename_pos != std::string::npos)
+        {
+            filename_pos += 10; // Saltar "filename=\""
+            size_t filename_end = httpRequest.body.find("\"", filename_pos);
+            if (filename_end != std::string::npos)
+            {
+                filename = httpRequest.body.substr(filename_pos, filename_end - filename_pos);
+            }
+        }
+
+        if (!filename.empty())  // 🔹 Solo guardar si `filename` tiene algo
+        {
+            response_body = save_uploaded_file(httpRequest.body, boundary);
+        }
+        else
+        {
+            return "HTTP/1.1 400 Bad Request\r\nContent-Type: text/plain\r\nContent-Length: 37\r\nConnection: close\r\n\r\nNo se detectó un archivo adjunto\n";
+        }
     }
     else
     {
@@ -195,12 +216,91 @@ std::string handle_delete(const HttpRequest& httpRequest)
            "Archivo eliminado con éxito\n";
 }
 
+std::string handle_cgi(const std::string &script_path, const std::string &query_string)
+{
+    int pipefd[2];
+    if (pipe(pipefd) == -1)
+    {
+        return "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/plain\r\nContent-Length: 18\r\n\r\nError al crear pipe\n";
+    }
+
+    pid_t pid = fork();
+    if (pid < 0)
+    {
+        return "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/plain\r\nContent-Length: 16\r\n\r\nError en fork()\n";
+    }
+    else if (pid == 0) // Proceso hijo
+    {
+        close(pipefd[0]); // Cerrar lectura del pipe
+
+        // Redirigir stdout y stderr al pipe
+        dup2(pipefd[1], STDOUT_FILENO);
+        dup2(pipefd[1], STDERR_FILENO);
+        close(pipefd[1]);
+
+        // Configurar variables de entorno para CGI
+        std::string query = "QUERY_STRING=" + query_string;
+        std::string method = "REQUEST_METHOD=GET";
+        std::string script = "SCRIPT_FILENAME=" + script_path;
+        std::string redirect = "REDIRECT_STATUS=200";
+
+        char *envp[] = {
+            const_cast<char *>(query.c_str()),
+            const_cast<char *>(method.c_str()),
+            const_cast<char *>(script.c_str()),
+            const_cast<char *>(redirect.c_str()),
+            NULL};
+
+        // Ejecutar PHP CGI
+        char *argv[] = {const_cast<char *>("/usr/bin/php-cgi"), const_cast<char *>(script_path.c_str()), NULL};
+        execve(argv[0], argv, envp);
+
+        // Si execve falla
+        std::cerr << "Error ejecutando CGI: " << script_path << std::endl;
+        exit(1);
+    }
+    else // Proceso padre
+    {
+        close(pipefd[1]); // Cerrar escritura del pipe
+
+        char buffer[1024];
+        std::string cgi_output;
+        ssize_t bytes_read;
+
+        // Leer la salida del CGI
+        while ((bytes_read = read(pipefd[0], buffer, sizeof(buffer) - 1)) > 0)
+        {
+            buffer[bytes_read] = '\0';
+            cgi_output += buffer;
+        }
+        close(pipefd[0]);
+
+        // Esperar a que termine el proceso hijo
+        int status;
+        waitpid(pid, &status, 0);
+
+        // Convertir tamaño de `cgi_output` a string usando stringstream
+        std::stringstream ss;
+        ss << cgi_output.size();
+        std::string content_length = ss.str();
+
+        // Devolver la respuesta CGI como respuesta HTTP
+        return "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: " +
+               content_length + "\r\n\r\n" + cgi_output;
+    }
+}
+
+
 // 📌 Modificar paso_seis para incluir DELETE
 int paso_seis(int client_fd, const HttpRequest& httpRequest)
 {
     std::string response;
 
-    if (httpRequest.method == "GET")
+    if (httpRequest.path.find("/cgi-bin/") == 0) // 📌 Si la ruta es de un CGI
+    {
+        response = handle_cgi("." + httpRequest.path, httpRequest.query_string);
+    }
+    else if (httpRequest.method == "GET")
     {
         response = handle_get(httpRequest);
     }
@@ -221,4 +321,3 @@ int paso_seis(int client_fd, const HttpRequest& httpRequest)
     send_all(client_fd, response.c_str(), response.size()); 
     return 0;
 }
-

@@ -58,6 +58,32 @@ int paso_cinco(int client_fd)
     // 🔹 Parseamos la solicitud HTTP
     HttpRequest httpRequest = parse_request(request);
 
+    std::cout << "Método: " << httpRequest.method << "\n";
+    std::cout << "Ruta: " << httpRequest.path << "\n";
+    std::cout << "Protocolo: " << httpRequest.protocol << "\n";
+
+    std::cout << "Encabezados:\n";
+    for (std::map<std::string, std::string>::const_iterator it = httpRequest.headers.begin(); it != httpRequest.headers.end(); ++it)
+    {
+        std::cout << it->first << ": " << it->second << "\n";
+    }
+
+    // Usamos una nueva variable para la búsqueda de "Content-Length"
+    std::map<std::string, std::string>::const_iterator it_length = httpRequest.headers.find("Content-Length");
+    if (it_length != httpRequest.headers.end())
+    {
+        std::cout << "Content-Length encontrado: " << it_length->second << "\n";
+    }
+
+    if (!httpRequest.body.empty())
+    {
+        std::cout << "Cuerpo:\n" << httpRequest.body << "\n";
+    }
+
+
+
+
+
     // 🔹 Verificamos si hay un cuerpo en la solicitud (Content-Length)
     std::map<std::string, std::string>::iterator it = httpRequest.headers.find("Content-Length");
     if (it != httpRequest.headers.end())
