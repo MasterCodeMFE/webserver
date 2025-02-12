@@ -10,10 +10,18 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <string>
-#include <map>
-#include <vector>
-#include "Server.hpp"
+#ifndef CONFIG_CLASS_HPP
+# define CONFIG_CLASS_HPP
+
+# include <string>
+# include <iostream>
+# include <map>
+# include <vector>
+# include "Server.hpp"
+# include "Status.hpp"
+# include "Utils.hpp"
+
+
 
 class Config
 {
@@ -50,3 +58,6 @@ class Config
 		void										setCgi( std::string cgi );
 		void										setRoot( std::string root );
 };
+
+std::ostream &operator<<( std::ostream &o, Config const &src );
+#endif

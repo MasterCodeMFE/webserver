@@ -10,29 +10,14 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef UTILS_HPP
-# define UTILS_HPP
+#include "Utils.hpp"
 
-# include <iterator>
-# include <string>
-
-template <typename T>
-struct remove_pointer {
-    typedef T type;
-};
-
-template <typename T>
-struct remove_pointer<T*> {
-    typedef T type;
-};
-
-template <typename Container>
-void        ft_clearContainer(Container& container);
-
-template <typename Container>
-Container   deepCopyContainer(Container const & src);
-
-bool        ft_isDigit( std::string size );
-
-# include "Utils.tpp"
-#endif
+bool    ft_isDigit( std::string size )
+{
+	for (std::string::const_iterator it = size.begin(); it != size.end(); ++it) {
+        if (!std::isdigit(*it)) {
+            return false;
+        }
+    }
+	return ( true );
+}

@@ -9,6 +9,8 @@
 /*   Updated: 2025/02/11 09:36:55 by pabad-ap         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+#ifndef LOCATION_CLASS_HPP
+# define LOCATION_CLASS_HPP
 
 # include <map>
 # include <vector>
@@ -21,21 +23,19 @@
 class Location
 {
 	private:
-		std::string							_path;
-		std::vector<Status*>				_v_status_pages;
-		unsigned int						_client_max_body_size;
-		std::vector<std::string>			_v_methods;	
-		std::map<std::string, std::string>	_m_redirections;
-		bool								_autoindex;
-		std::string							_index;
-		std::string							_cgi;
-		std::string							_root;
+		std::string									_path;
+		std::vector<Status*>						_v_status_pages;
+		unsigned int								_client_max_body_size;
+		std::vector<std::string>					_v_methods;	
+		std::map<std::string, std::string>			_m_redirections;
+		bool										_autoindex;
+		std::string									_index;
+		std::string									_cgi;
+		std::string									_root;
 
 		Location( void );
 
 		Location	&operator=( Location const &src );
-
-		bool		_isDigit( std::string size );
 
 	public:
 		Location( Location const &src );
@@ -45,7 +45,7 @@ class Location
 		std::string const							&getPath( void ) const;
 		std::vector<Status *> const					&getVStautsPages( void ) const;
 		unsigned int	const						&getClienteMaxBodySize( void ) const;
-		std::vector<std::string> const				&getVMethos( void ) const;
+		std::vector<std::string> const				&getVMethods( void ) const;
 		std::map<std::string, std::string> const	&getMRedirections( void ) const;
 		bool const									&getAutoindex( void ) const;
 		std::string const							&getIndex( void ) const;
@@ -62,4 +62,6 @@ class Location
 		void										setRoot( std::string root );
 };
 
-//std::ostream	&operator<<( std::ostream &o, Status &src);
+std::ostream	&operator<<( std::ostream &o, Location const &src);
+
+#endif

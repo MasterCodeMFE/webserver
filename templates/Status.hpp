@@ -30,6 +30,7 @@ class Status
 		Status	&operator=( Status const &src );
 		
 		static void							_setStatusResponses( void );
+		static bool							_inErrorRange( int status_code );
 		
 	public:
 		Status( Status const &src );
@@ -45,6 +46,6 @@ class Status
 		std::string	 						getErrorPage( void ) const;
 };
 
-std::ostream	&operator<<( std::ostream &o, Status &src);
+std::ostream	&operator<<( std::ostream &o, Status const &src);
 
 #endif

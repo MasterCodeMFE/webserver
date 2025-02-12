@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Utils.hpp                                          :+:      :+:    :+:   */
+/*   Utils.tpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pabad-ap <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,29 +10,31 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef UTILS_HPP
-# define UTILS_HPP
-
-# include <iterator>
-# include <string>
-
-template <typename T>
-struct remove_pointer {
-    typedef T type;
-};
-
-template <typename T>
-struct remove_pointer<T*> {
-    typedef T type;
-};
+template <typename Container>
+void ft_clearContainer(Container& container)
+{
+    if ( false == container.empty() )
+    {
+	    for (typename Container::iterator it = container.begin(); it != container.end(); ++it) 
+            delete *it;
+        container.clear();
+    }
+}
 
 template <typename Container>
-void        ft_clearContainer(Container& container);
+Container deepCopyContainer(Container const & src)
+{
+    Container copy;
+    copy.reserve(src.size());
 
-template <typename Container>
-Container   deepCopyContainer(Container const & src);
+    for (typename Container::const_iterator it = src.begin(); it != src.end(); ++it) {
+        if (*it)
+        {
+            typename Container::value_type newElement = \
+                new typename remove_pointer<typename Container::value_type>::type(**it);
+            copy.push_back(newElement);
+        }
+    }
 
-bool        ft_isDigit( std::string size );
-
-# include "Utils.tpp"
-#endif
+    return ( copy );
+}

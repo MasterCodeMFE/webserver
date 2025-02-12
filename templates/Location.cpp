@@ -20,7 +20,7 @@ Location::Location( std::string path )
 	this->_path = path;
 	this->_client_max_body_size = 1 * 1024 * 1024; // 1MB by default
 	this->_autoindex = false;
-	this->_index = "./index.html";	
+	this->_index = "./index.html";
 }
 
 Location::Location( Location const &src ): _path(src._path), \
@@ -57,7 +57,7 @@ unsigned int	const						&Location::getClienteMaxBodySize( void ) const
 	return ( this->_client_max_body_size );
 }
 
-std::vector<std::string> const				&Location::getVMethos( void ) const
+std::vector<std::string> const				&Location::getVMethods( void ) const
 {
 	return ( this->_v_methods );
 }
@@ -103,7 +103,7 @@ void										Location::setClienteMaxBodySize( std::string size )
 	}
 	std::string value = size.substr(0, size.length() - 1);
 	std::string unit = size.substr(size.length() - 1);
-	if (!isDigit(value)) {
+	if (!ft_isDigit(value)) {
 		std::cout << "Invalid format, client_max_body_size format only accpet"
 				<< " digits followed by k, K, m, M, g, G or nothing." << std::endl;
 		return;
@@ -158,3 +158,31 @@ void										Location::setRoot( std::string root )
 	this->_root = root;	
 }
 
+std::ostream	&operator<<( std::ostream &o, Location const &src)
+{
+	o << "location " << src.getPath() << " {" << std::endl;
+	for (std::vector<Status *>::const_iterator it = src.getVStautsPages().begin(); \
+		it != src.getVStautsPages().end(); it++)
+		o << "\t\t" << **it;
+	o << "\t\tclient_max_body_size " << src.getClienteMaxBodySize() << ";" << std::endl;
+	for (std::vector<std::string>::const_iterator it = src.getVMethods().begin(); \
+		it != src.getVMethods().end(); it++)
+	{
+		if (it == src.getVMethods().begin())
+			o << "\t\tmethods ";
+		o << *it;
+		if (it + 1 != src.getVMethods().end())
+			o << " ";
+		else
+			o << ";" << std::endl;
+	}
+	for (std::map<std::string, std::string>::const_iterator it = src.getMRedirections().begin(); \
+		it != src.getMRedirections().end(); it++)
+		o << "\t\tredirection " << it->first << " " << it->second << ";"  << std::endl;
+	o << "\t\tautoindex " << src.getAutoindex() << ";" << std::endl;
+	o << "\t\tindex " << src.getIndex() << ";" << std::endl;
+	o << "\t\tcgi " << src.getCgi() << ";" << std::endl;
+	o << "\t\troot " << src.getRoot() << ";" << std::endl;
+	o << "\t}" << std::endl;
+	return ( o );
+}

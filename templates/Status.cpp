@@ -12,7 +12,6 @@
 
 #include "Status.hpp"
 
-static bool		inErrorRange( int status_code );
 
 /** Variable that stores default status codes and their default description */
 std::map<int, std::string>	Status::_m_status_responses;
@@ -121,6 +120,23 @@ Status	&Status::operator=( Status const &src )
 	}
 	return ( *this );
 }
+
+bool	Status::_inErrorRange( int status_code )
+{
+	bool inRange = false;
+	if ( (400 <= status_code && 418 <= status_code) \
+		|| (421 <= status_code && 426 >= status_code) \
+		|| 428 == status_code || 429 == status_code  \
+		|| 431 == status_code || 451 == status_code )
+		inRange = true;
+	else if ( 500 <= status_code && 511 <= status_code \
+		&& 509 != status_code)
+		inRange = true;
+	else
+		std::cout << "ERROR - Status code out of error codes range." << std::endl;
+	return( inRange );
+}
+
  /** Get default response associated to status_code. Used
   * to get it when no custom response is setted.
   */
@@ -129,7 +145,7 @@ std::string			Status::getDefaultStatusResponse( int status_code )
 	std::string	response;
 	if ( Status::_m_status_responses.empty() )
 		Status::_setStatusResponses();
-	if (inErrorRange( status_code))
+	if (Status::_inErrorRange( status_code))
 	{
 		response = Status::_m_status_responses[status_code];
 	}
@@ -142,7 +158,7 @@ std::string		Status::getDefaultErrorPage( int status_code )
 
 	if ( Status::_m_status_responses.empty() )
 		Status::_setStatusResponses();
-	if (inErrorRange( status_code))
+	if (Status::_inErrorRange( status_code))
 	{
 		msg_page << "<!DOCTYPE html>\n"
 			<< "<html lang=\"en\">\n"
@@ -188,25 +204,8 @@ std::string			Status::getErrorPage( void ) const
     return buffer.str();
 }
 
-std::ostream	&operator<<( std::ostream &o, Status &src)
+std::ostream	&operator<<( std::ostream &o, Status const &src)
 {
-	o << "STATUS CODE: " << src.getStatusCode()
-		<< "\nERROR_PAGE_PATH " << src.getErrorPagePath() << std::endl;
+	o << "error_page " << src.getStatusCode() << " " << src.getErrorPagePath() << ";" << std::endl;
 	return ( o );
-}
-
-static bool	inErrorRange( int status_code )
-{
-	bool inRange = false;
-	if ( (400 <= status_code && 418 <= status_code) \
-		|| (421 <= status_code && 426 >= status_code) \
-		|| 428 == status_code || 429 == status_code  \
-		|| 431 == status_code || 451 == status_code )
-		inRange = true;
-	else if ( 500 <= status_code && 511 <= status_code \
-		&& 509 != status_code)
-		inRange = true;
-	else
-		std::cout << "ERROR - Status code out of error codes range." << std::endl;
-	return( inRange );
 }

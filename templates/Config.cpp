@@ -90,7 +90,7 @@ void										Config::setClienteMaxBodySize( std::string size )
 	}
 	std::string value = size.substr(0, size.length() - 1);
 	std::string unit = size.substr(size.length() - 1);
-	if (!isDigit(value)) {
+	if (!ft_isDigit(value)) {
 		std::cout << "Invalid format, client_max_body_size format only accpet"
 				<< " digits followed by k, K, m, M, g, G or nothing." << std::endl;
 		return;
@@ -135,3 +135,18 @@ void										Config::setRoot( std::string root )
 	this->_root = root;	
 }
 
+std::ostream &operator<<( std::ostream &o, Config const &src )
+{
+	for (std::vector<Server*>::const_iterator it = src.getVServers().begin(); \
+		it != src.getVServers().end(); ++it)
+		o << **it;
+	for (std::vector<Status*>::const_iterator it = src.getVStautsPages().begin(); \
+		it != src.getVStautsPages().end(); ++it)
+		o << **it;
+	o << "client_max_body_size " << src.getClienteMaxBodySize() << ";" << std::endl;
+	o << "autoindex " << (src.getAutoindex()) << ";" << std::endl;
+	o << "index " << src.getIndex() << ";" << std::endl;
+	o << "cgi " << src.getCgi() << ";" << std::endl;
+	o << "root " << src.getRoot() << ";" << std::endl;
+	return ( o );
+}
