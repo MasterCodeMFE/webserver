@@ -15,7 +15,7 @@ int paso_tres(int server_fd, Config const &config)
 
     struct pollfd server_pollfd = {};
     server_pollfd.fd = server_fd;
-    server_pollfd.events = POLLIN;
+    server_pollfd.events = POLLIN | POLLOUT;
     fds.push_back(server_pollfd);
 
     while (true)
@@ -35,7 +35,7 @@ int paso_tres(int server_fd, Config const &config)
             {
                 struct pollfd new_pollfd = {};
                 new_pollfd.fd = new_client_fd;
-                new_pollfd.events = POLLIN;
+                new_pollfd.events = POLLIN | POLLOUT;
                 fds.push_back(new_pollfd);
             }
         }

@@ -47,21 +47,58 @@ std::string get_content_type(const std::string& filepath)
     return "application/octet-stream"; // Tipo por defecto
 }
 
+std::string listDirectory(const std::string &dirPath)
+{
+    DIR *dir = opendir(dirPath.c_str());
+    if (!dir)
+        return "<html><body><h1>Error: No se pudo abrir el directorio</h1></body></html>";
+
+    struct dirent *entry;
+    std::string response = "<html><body><h1>Índice de " + dirPath + "</h1><ul>";
+
+    while ((entry = readdir(dir)) != NULL) {
+        std::string fileName = entry->d_name;
+
+        // Omitir "." y ".." para evitar mostrar enlaces redundantes
+        if (fileName != "." && fileName != "..") {
+            response += "<li><a href=\"" + fileName + "\">" + fileName + "</a></li>";
+        }
+    }
+
+    response += "</ul></body></html>";
+    closedir(dir);
+    return response;
+}
+
 
 // 📌 Función que maneja las solicitudes GET
 std::string handle_get(const HttpRequest& request, Config const &config)
 {
-    (void)config;   
+    (void)config;
     std::string filepath = "www" + request.path;
     if (request.path == "/")
     {
         filepath = "www/index.html";
     }
 
+    struct stat file_stat;
+    if (::stat(filepath.c_str(), &file_stat) != 0) 
+    {
+        return Status::getDefaultErrorPage(404); // Archivo no encontrado
+    }
+    if (S_ISDIR(file_stat.st_mode)) 
+    {
+        return listDirectory(filepath); // Devuelve una página HTML con el listado
+    }
+    if (access(filepath.c_str(), R_OK) != 0) 
+    {
+        return Status::getDefaultErrorPage(403); // Sin permisos de lectura
+    }
+
     std::string content = read_file(filepath);
     if (content.empty())
     {
-        return Status::getDefaultErrorPage(400);
+        return Status::getDefaultErrorPage(500); // Error interno si el archivo está vacío
     }
 
     std::string content_type = get_content_type(filepath);
@@ -239,6 +276,42 @@ std::string handle_cgi(const std::string &script_path, const std::string &query_
         dup2(pipefd[1], STDERR_FILENO);
         close(pipefd[1]);
 
+        // Leer la primera línea del script (para detectar el intérprete)
+        int script_fd = open(script_path.c_str(), O_RDONLY);
+        if (script_fd == -1)
+        {
+            return ""; // Terminar el hijo con error
+        }
+
+        char shebang[256] = {0};
+        ssize_t bytes_read = read(script_fd, shebang, sizeof(shebang) - 1);
+        close(script_fd);
+
+        std::string interpreter;
+
+        // Si el script tiene un shebang, extraer el intérprete
+        if (bytes_read > 2 && shebang[0] == '#' && shebang[1] == '!')
+        {
+            shebang[bytes_read] = '\0';
+            std::string first_line(shebang);
+            size_t end = first_line.find('\n');
+            if (end != std::string::npos)
+                interpreter = first_line.substr(2, end - 2);
+        }
+
+        // Si no se detectó un intérprete, asignar uno según la extensión del archivo
+        if (interpreter.empty())
+        {
+            if (script_path.size() >= 3 && script_path.substr(script_path.size() - 3) == ".py")
+                interpreter = "/usr/bin/python3";
+            else if (script_path.size() >= 3 && script_path.substr(script_path.size() - 3) == ".pl")
+                interpreter = "/usr/bin/perl";
+            else if (script_path.size() >= 3 && script_path.substr(script_path.size() - 3) == ".sh")
+                interpreter = "/bin/bash";
+            else if (script_path.size() >= 4 && script_path.substr(script_path.size() - 4) == ".php")
+                interpreter = "/usr/bin/php";
+        }
+
         // Configurar variables de entorno para CGI
         std::string query = "QUERY_STRING=" + query_string;
         std::string method = "REQUEST_METHOD=GET";
@@ -252,13 +325,12 @@ std::string handle_cgi(const std::string &script_path, const std::string &query_
             const_cast<char *>(redirect.c_str()),
             NULL};
 
-        // Ejecutar PHP CGI
-        char *argv[] = {const_cast<char *>("/usr/bin/php-cgi"), const_cast<char *>(script_path.c_str()), NULL};
+        // Ejecutar el script con el intérprete detectado
+        char *argv[] = {const_cast<char *>(interpreter.c_str()), const_cast<char *>(script_path.c_str()), NULL};
         execve(argv[0], argv, envp);
 
-        // Si execve falla
-        std::cerr << "Error ejecutando CGI: " << script_path << std::endl;
-        exit(1);
+        // Si execve falla, salir con código de error
+        return "";
     }
     else // Proceso padre
     {

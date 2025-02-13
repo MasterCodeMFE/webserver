@@ -20,12 +20,12 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <cstdlib>
+#include <sys/stat.h>
+#include <dirent.h>
 #include "./../templates/Config.hpp"
 
 #define PORT 8080
 
-class Server;
-class Status;
 
 struct HttpRequest
 {
