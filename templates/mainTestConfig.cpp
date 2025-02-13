@@ -1,3 +1,17 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   mainTestConfig.cpp                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pabad-ap <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/13 16:53:09 by pabad-ap          #+#    #+#             */
+/*   Updated: 2025/02/13 16:53:11 by pabad-ap         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "ACommonConfigs.hpp"
+# include "AServerBlockConfigs.hpp"
 #include "Config.hpp"
 #include "Server.hpp"
 #include "Location.hpp"
@@ -58,7 +72,6 @@ int main ( void )
     config.addStatusPage(200, "/path/to/page/from/config");
     config.addServer(server);
     config.addServer(server2);
-    std::cout << "+++++" << std::endl;
     config.setCgi("CONF_CGI");
     config.setRoot("CONF_ROOT");
 

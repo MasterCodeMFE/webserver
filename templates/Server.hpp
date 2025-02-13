@@ -16,25 +16,19 @@
 # include <map>
 # include <vector>
 # include <string>
+# include "ACommonConfigs.hpp"
+# include "AServerBlockConfigs.hpp"
 # include "Location.hpp"
-# include "Status.hpp"
-# include "Utils.hpp"
 
+class Location;
 
-class Server
+class Server: public ACommonConfigs, public AServerBlockConfigs
 {
 	private:
-		std::vector<std::string>			_server_name;
+		std::vector<std::string>			_v_server_name;
 		std::vector<std::string>			_v_listen;
-		std::vector<Status*>				_v_status_pages;
-		unsigned int						_client_max_body_size;
 		std::vector<Location *>				_v_locations;
 		std::map<std::string, std::string>	_m_redirections;
-		bool								_autoindex;
-		std::string							_index;
-		std::string							_cgi;
-		std::string							_root;
-		
 
 	public:
 		Server( void );
@@ -45,25 +39,13 @@ class Server
 
 		std::vector<std::string> const				&getServerName( void )const;
 		std::vector<std::string> const				&getVListen( void )const;
-		std::vector<Status *> const					&getVStautsPages( void ) const;
-		unsigned int	const						&getClienteMaxBodySize( void ) const;
 		std::vector<Location *> const				&getVLocations( void ) const;
 		std::map<std::string, std::string> const	&getMRedirections( void ) const;
-		bool const									&getAutoindex( void )const;
-		std::string const							&getIndex( void )const;
-		std::string const							&getCgi( void )const;
-		std::string const							&getRoot( void )const;
 
 		void										addServerName( std::string server_name );
 		void										addListen( std::string listen );
-		void										addStatusPage( int status_code, std::string page_path);
-		void										setClienteMaxBodySize( std::string size );
 		void										addVLocation( Location const &location );
 		void										addMRedirection( std::string from, std::string to);
-		void										setAutoindex( bool autoindex );
-		void										setIndex( std::string index );
-		void										setCgi( std::string cgi );
-		void										setRoot( std::string root );
 };
 
 std::ostream &operator<<( std::ostream &o, Server const &src );

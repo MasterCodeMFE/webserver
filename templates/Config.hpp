@@ -13,26 +13,16 @@
 #ifndef CONFIG_CLASS_HPP
 # define CONFIG_CLASS_HPP
 
-# include <string>
 # include <iostream>
-# include <map>
+# include <string>
 # include <vector>
+# include "ACommonConfigs.hpp"
 # include "Server.hpp"
-# include "Status.hpp"
-# include "Utils.hpp"
 
-
-
-class Config
+class Config: public ACommonConfigs
 {
 	private:
 		std::vector<Server*>		_v_servers;
-		std::vector<Status*>		_v_status_pages;
-		unsigned int				_client_max_body_size;
-		bool						_autoindex;
-		std::string					_index;
-		std::string					_cgi;
-		std::string					_root;
 		
 		Config( Config const &src );
 		
@@ -43,20 +33,8 @@ class Config
 		~Config( void );
 
 		std::vector<Server*> const					&getVServers( void )const;
-		std::vector<Status *> const					&getVStautsPages( void ) const;
-		unsigned int	const						&getClienteMaxBodySize( void ) const;
-		bool const									&getAutoindex( void )const;
-		std::string const							&getIndex( void )const;
-		std::string const							&getCgi( void )const;
-		std::string const							&getRoot( void )const;
 
 		void										addServer( Server const &server );
-		void										addStatusPage( int status_code, std::string page_path);
-		void										setClienteMaxBodySize( std::string size );
-		void										setAutoindex( bool autoindex );
-		void										setIndex( std::string index );
-		void										setCgi( std::string cgi );
-		void										setRoot( std::string root );
 };
 
 std::ostream &operator<<( std::ostream &o, Config const &src );
