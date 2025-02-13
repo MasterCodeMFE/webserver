@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "ACommonConfigs.hpp"
-# include "AServerBlockConfigs.hpp"
+#include "AServerBlockConfigs.hpp"
 #include "Config.hpp"
 #include "Server.hpp"
 #include "Location.hpp"

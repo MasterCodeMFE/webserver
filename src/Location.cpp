@@ -20,7 +20,8 @@ Location::Location( std::string path )
 	this->_path = path;
 }
 
-Location::Location( Location const &src ): _path(src._path), _v_methods(src._v_methods)
+Location::Location( Location const &src ): ACommonConfigs( src ), \
+	AServerBlockConfigs( src ), _path(src._path), _v_methods(src._v_methods)
 {
 	this->_v_status_pages = deepCopyContainer(src._v_status_pages);
 	this->_client_max_body_size = src._client_max_body_size;

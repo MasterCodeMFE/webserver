@@ -12,9 +12,9 @@
 
 #include "Utils.hpp"
 
-bool    ft_isDigit( std::string size )
+bool    ft_isDigit( std::string str )
 {
-	for (std::string::const_iterator it = size.begin(); it != size.end(); ++it) {
+	for (std::string::const_iterator it = str.begin(); it != str.end(); ++it) {
         if (!std::isdigit(*it)) {
             return false;
         }

@@ -14,7 +14,10 @@
 
 Config::Config( void ){}
 
-Config::Config( Config const &src ){(void)src;}
+Config::Config( Config const &src ): ACommonConfigs( src )
+{
+	*this = src;
+}
 
 Config::~Config( void )
 {
@@ -23,7 +26,7 @@ Config::~Config( void )
 
 Config	&Config::operator=( Config const &src )
 {
-    (void)src;
+    this->_v_servers = src._v_servers;
     return ( *this );
 }
 

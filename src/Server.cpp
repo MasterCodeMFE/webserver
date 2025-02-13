@@ -14,7 +14,8 @@
 
 Server::Server( void ){}
 
-Server::Server( Server const &src )
+Server::Server( Server const &src ): ACommonConfigs( src ), \
+	AServerBlockConfigs( src )
 {
 	*this = src;
 }
