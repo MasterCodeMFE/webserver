@@ -32,7 +32,7 @@ Posibles errores:
 ```
 SERVER { ... }
 
-SERVER_NAME name ...; #default empty
+SERVER_NAME name ...; #default empty -> Es la cabecera HOST
 
 LISTEN  address[:port]
         port
