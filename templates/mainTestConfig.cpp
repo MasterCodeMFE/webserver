@@ -34,9 +34,9 @@ int main(void)
     server.addServerName("pepito");
     server.addServerName("127.0.0.1");
 
-    // Separa IP y puerto correctamente
-    server.addListen("0.0.0.0:8080");   // Escucha en todas las interfaces en el puerto 8080
-    server.addListen("127.0.0.1:80");   // Solo en localhost, puerto 80
+    // Se configura para escuchar en la dirección 127.0.0.1, en lugar de 0.0.0.0
+    server.addListen("127.0.0.1:8080");   // Escucha en localhost, puerto 8080
+    server.addListen("127.0.0.1:80");     // Escucha en localhost, puerto 80
 
     server.addStatusPage(400, "/path/to/page/from/server");
     server.addVLocation(location);
@@ -52,8 +52,9 @@ int main(void)
     server2.addServerName("juanito");
     server2.addServerName("10.10.1.10");
 
-    server2.addListen("0.0.0.0:4250");     // Escucha en todas las interfaces en el puerto 4250
-    server2.addListen("127.0.0.2:80");     // Solo en 127.0.0.2, puerto 80
+    // Se configura para escuchar en la dirección 10.10.1.10, en lugar de 0.0.0.0
+    server2.addListen("10.10.1.10:4250");  // Escucha en 10.10.1.10, puerto 4250
+    server2.addListen("10.10.1.10:80");      // Escucha en 10.10.1.10, puerto 80
 
     server2.addStatusPage(400, "/path/to/page/from/server");
     server2.addMRedirection("/fromserX", "/tox");

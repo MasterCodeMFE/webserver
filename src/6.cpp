@@ -1,29 +1,28 @@
 #include "test.hpp"
 
 
-// 📌 Función para leer un archivo y devolver su contenido
-std::string read_file(const std::string& filepath)
-{
+// -----------------------------------------------------------------------------
+// Funciones auxiliares
+// -----------------------------------------------------------------------------
+
+// Lee un archivo y devuelve su contenido.
+std::string read_file(const std::string& filepath) {
     std::ifstream file(filepath.c_str(), std::ios::binary);
-    if (!file.is_open())
-    {
+    if (!file.is_open()) {
         return "";
     }
-    std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-    return content;
+    return std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 }
 
-// 📌 Función auxiliar para convertir `int` a `std::string` en C++98
-std::string int_to_string(int number)
-{
+// Convierte un entero a std::string (compatible con C++98).
+std::string int_to_string(int number) {
     std::stringstream ss;
     ss << number;
     return ss.str();
 }
 
-// 📌 Obtiene el tipo de contenido según la extensión del archivo
-std::string get_content_type(const std::string& filepath)
-{
+// Devuelve el tipo de contenido basado en la extensión del archivo.
+std::string get_content_type(const std::string& filepath) {
     std::map<std::string, std::string> mime_types;
     mime_types[".html"] = "text/html";
     mime_types[".css"] = "text/css";
@@ -35,88 +34,38 @@ std::string get_content_type(const std::string& filepath)
     mime_types[".txt"] = "text/plain";
 
     size_t dot_pos = filepath.find_last_of(".");
-    if (dot_pos != std::string::npos)
-    {
+    if (dot_pos != std::string::npos) {
         std::string ext = filepath.substr(dot_pos);
-        std::map<std::string, std::string>::iterator it = mime_types.find(ext);
-        if (it != mime_types.end())
-        {
-            return it->second;
+        if (mime_types.find(ext) != mime_types.end()) {
+            return mime_types[ext];
         }
     }
     return "application/octet-stream"; // Tipo por defecto
 }
 
-std::string listDirectory(const std::string &dirPath)
-{
-    DIR *dir = opendir(dirPath.c_str());
-    if (!dir)
-        return "<html><body><h1>Error: No se pudo abrir el directorio</h1></body></html>";
-
-    struct dirent *entry;
-    std::string response = "<html><body><h1>Índice de " + dirPath + "</h1><ul>";
-
-    while ((entry = readdir(dir)) != NULL) {
-        std::string fileName = entry->d_name;
-
-        // Omitir "." y ".." para evitar mostrar enlaces redundantes
-        if (fileName != "." && fileName != "..") {
-            response += "<li><a href=\"" + fileName + "\">" + fileName + "</a></li>";
-        }
+// Construye una respuesta HTTP a partir del contenido, tipo y código de estado.
+std::string build_http_response(const std::string& content, const std::string& content_type, int status_code = 200) {
+    std::string status_text;
+    switch (status_code) {
+        case 200: status_text = "OK"; break;
+        case 400: status_text = "Bad Request"; break;
+        case 403: status_text = "Forbidden"; break;
+        case 404: status_text = "Not Found"; break;
+        case 405: status_text = "Method Not Allowed"; break;
+        case 500: status_text = "Internal Server Error"; break;
+        default: status_text = "OK"; break;
     }
-
-    response += "</ul></body></html>";
-    closedir(dir);
-    return response;
+    return "HTTP/1.1 " + int_to_string(status_code) + " " + status_text + "\r\n"
+           "Content-Type: " + content_type + "\r\n"
+           "Content-Length: " + int_to_string(content.size()) + "\r\n\r\n" + content;
 }
 
-
-// 📌 Función que maneja las solicitudes GET
-std::string handle_get(const HttpRequest& request, Config const &config)
-{
-    (void)config;
-    std::string filepath = "www" + request.path;
-    if (request.path == "/")
-    {
-        filepath = "www/index.html";
-    }
-
-    struct stat file_stat;
-    if (::stat(filepath.c_str(), &file_stat) != 0) 
-    {
-        return Status::getDefaultErrorPage(404); // Archivo no encontrado
-    }
-    if (S_ISDIR(file_stat.st_mode)) 
-    {
-        return listDirectory(filepath); // Devuelve una página HTML con el listado
-    }
-    if (access(filepath.c_str(), R_OK) != 0) 
-    {
-        return Status::getDefaultErrorPage(403); // Sin permisos de lectura
-    }
-
-    std::string content = read_file(filepath);
-    if (content.empty())
-    {
-        return Status::getDefaultErrorPage(500); // Error interno si el archivo está vacío
-    }
-
-    std::string content_type = get_content_type(filepath);
-    return "HTTP/1.1 200 OK\r\nContent-Type: " + content_type + "\r\nContent-Length: " +
-           int_to_string(content.size()) + "\r\n\r\n" + content;
-}
-
-// 📌 Envía todos los datos correctamente
-ssize_t send_all(int sockfd, const char* buffer, size_t length)
-{
+// Envía todos los datos a través del socket.
+ssize_t send_all(int sockfd, const char* buffer, size_t length) {
     size_t total_sent = 0;
-    ssize_t bytes_sent;
-
-    while (total_sent < length)
-    {
-        bytes_sent = send(sockfd, buffer + total_sent, length - total_sent, 0);
-        if (bytes_sent <= 0)
-        {
+    while (total_sent < length) {
+        ssize_t bytes_sent = send(sockfd, buffer + total_sent, length - total_sent, 0);
+        if (bytes_sent <= 0) {
             std::cerr << "❌ Error enviando datos al cliente." << std::endl;
             return -1;
         }
@@ -125,183 +74,207 @@ ssize_t send_all(int sockfd, const char* buffer, size_t length)
     return total_sent;
 }
 
-std::string extract_filename(const std::string& body)
-{
+// -----------------------------------------------------------------------------
+// Manejo de archivos y directorios
+// -----------------------------------------------------------------------------
+
+// Lista el contenido de un directorio en formato HTML.
+std::string listDirectory(const std::string &dirPath) {
+    DIR *dir = opendir(dirPath.c_str());
+    if (!dir)
+        return "<html><body><h1>Error: No se pudo abrir el directorio</h1></body></html>";
+
+    std::string response = "<html><body><h1>Índice de " + dirPath + "</h1><ul>";
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != NULL) {
+        std::string fileName = entry->d_name;
+        // Omitir "." y ".."
+        if (fileName != "." && fileName != "..") {
+            response += "<li><a href=\"" + fileName + "\">" + fileName + "</a></li>";
+        }
+    }
+    closedir(dir);
+    response += "</ul></body></html>";
+    return response;
+}
+
+// Devuelve la ruta del archivo basándose en la ruta de la solicitud.
+std::string get_file_path(const std::string& request_path) {
+    if (request_path == "/")
+        return "www/index.html";
+    return "www" + request_path;
+}
+
+// -----------------------------------------------------------------------------
+// Manejo de solicitudes HTTP
+// -----------------------------------------------------------------------------
+
+// Maneja las solicitudes GET.
+std::string handle_get(const HttpRequest& request, const Config &config) {
+    (void)config; // Config no utilizado en este ejemplo
+    std::string filepath = get_file_path(request.path);
+
+    struct stat file_stat;
+    if (::stat(filepath.c_str(), &file_stat) != 0) {
+        return Status::getDefaultErrorPage(404); // Archivo no encontrado
+    }
+    if (S_ISDIR(file_stat.st_mode)) {
+        return listDirectory(filepath);
+    }
+    if (access(filepath.c_str(), R_OK) != 0) {
+        return Status::getDefaultErrorPage(403); // Sin permisos de lectura
+    }
+
+    std::string content = read_file(filepath);
+    if (content.empty()) {
+        return Status::getDefaultErrorPage(500); // Error interno
+    }
+    std::string content_type = get_content_type(filepath);
+    return build_http_response(content, content_type, 200);
+}
+
+// Extrae el nombre de archivo del cuerpo de la solicitud POST.
+std::string extract_filename(const std::string& body) {
     std::string header_start = "filename=\"";
     size_t filename_pos = body.find(header_start);
     if (filename_pos == std::string::npos)
-        return "archivo_subido"; // Si no se encuentra, usa un nombre por defecto
+        return "archivo_subido"; // Nombre por defecto
 
     filename_pos += header_start.length();
     size_t filename_end = body.find("\"", filename_pos);
     if (filename_end == std::string::npos)
         return "archivo_subido";
-
     return body.substr(filename_pos, filename_end - filename_pos);
 }
 
-std::string save_uploaded_file(const std::string& body, const std::string& boundary)
-{
+// Guarda un archivo subido mediante POST.
+std::string save_uploaded_file(const std::string& body, const std::string& boundary) {
     // Extraer el nombre del archivo
     std::string filename = extract_filename(body);
-
-    // Buscar la primera ocurrencia del contenido del archivo
+    // Buscar el inicio y fin del contenido del archivo
     size_t file_start = body.find("\r\n\r\n") + 4;
-    size_t file_end = body.rfind("--" + boundary) - 2; // Excluir el "--"
-
-    if (file_start == std::string::npos || file_end == std::string::npos || file_end <= file_start)
-    {
+    size_t file_end = body.rfind("--" + boundary) - 2; // Excluir "--"
+    if (file_start == std::string::npos || file_end == std::string::npos || file_end <= file_start) {
         return "Error: No se pudo encontrar el archivo en la solicitud.";
     }
-
     std::string file_content = body.substr(file_start, file_end - file_start);
-    std::string file_path = "upload/" + filename; // Usa el nombre original
-
+    std::string file_path = "upload/" + filename;
     std::ofstream outfile(file_path.c_str(), std::ios::binary);
-    if (!outfile)
-    {
+    if (!outfile) {
         return "Error: No se pudo guardar el archivo.";
     }
-
     outfile.write(file_content.c_str(), file_content.size());
     outfile.close();
-
     return "Archivo guardado en: " + file_path;
 }
 
-std::string handle_post(const HttpRequest& httpRequest)
-{
+// Maneja las solicitudes POST.
+std::string handle_post(const HttpRequest& httpRequest) {
+    // Verificar existencia de Content-Type
     std::map<std::string, std::string>::const_iterator it = httpRequest.headers.find("Content-Type");
-    if (it == httpRequest.headers.end())
-    {
-        return "HTTP/1.1 400 Bad Request\r\nContent-Type: text/plain\r\nContent-Length: 25\r\nConnection: close\r\n\r\nFalta Content-Type\n";
+    if (it == httpRequest.headers.end()) {
+        std::string error = "Falta Content-Type\n";
+        return build_http_response(error, "text/plain", 400);
     }
-
     std::string content_type = it->second;
     std::string response_body;
 
-    std::cout << "📥 Datos recibidos en el POST:\n" << httpRequest.body << "\n"; // 🔹 Mostrar en consola
+    std::cout << "📥 Datos recibidos en el POST:\n" << httpRequest.body << "\n";
 
-    if (content_type.find("multipart/form-data") != std::string::npos)
-    {
-        // 🔹 Extraer el boundary
+    if (content_type.find("multipart/form-data") != std::string::npos) {
+        // Extraer el boundary
         size_t pos = content_type.find("boundary=");
-        if (pos == std::string::npos)
-        {
-            return "HTTP/1.1 400 Bad Request\r\nContent-Type: text/plain\r\nContent-Length: 32\r\nConnection: close\r\n\r\nFalta el boundary en Content-Type\n";
+        if (pos == std::string::npos) {
+            std::string error = "Falta el boundary en Content-Type\n";
+            return build_http_response(error, "text/plain", 400);
         }
-        std::string boundary = "--" + content_type.substr(pos + 9); // Agregar "--" para que coincida con el formato
-
-        // 🔹 Verificar si realmente hay un archivo en el multipart
+        std::string boundary = "--" + content_type.substr(pos + 9);
+        // Verificar si se encontró un archivo
         std::string filename;
         size_t filename_pos = httpRequest.body.find("filename=\"");
-        if (filename_pos != std::string::npos)
-        {
-            filename_pos += 10; // Saltar "filename=\""
+        if (filename_pos != std::string::npos) {
+            filename_pos += 10;
             size_t filename_end = httpRequest.body.find("\"", filename_pos);
             if (filename_end != std::string::npos)
-            {
                 filename = httpRequest.body.substr(filename_pos, filename_end - filename_pos);
-            }
         }
-
-        if (!filename.empty())  // 🔹 Solo guardar si `filename` tiene algo
-        {
+        if (!filename.empty()) {
             response_body = save_uploaded_file(httpRequest.body, boundary);
+        } else {
+            std::string error = "No se detectó un archivo adjunto\n";
+            return build_http_response(error, "text/plain", 400);
         }
-        else
-        {
-            return "HTTP/1.1 400 Bad Request\r\nContent-Type: text/plain\r\nContent-Length: 37\r\nConnection: close\r\n\r\nNo se detectó un archivo adjunto\n";
-        }
-    }
-    else
-    {
+    } else {
         response_body = "POST recibido con éxito\nDatos:\n" + httpRequest.body;
     }
-
-    std::ostringstream oss;
-    oss << response_body.size();
-    std::string content_length = oss.str();
-
-    return "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + content_length + "\r\nConnection: keep-alive\r\n\r\n" + response_body;
+    return build_http_response(response_body, "text/plain", 200);
 }
 
-std::string handle_delete(const HttpRequest& httpRequest)
-{
+// Maneja las solicitudes DELETE.
+std::string handle_delete(const HttpRequest& httpRequest) {
     std::string filepath = "www" + httpRequest.path;
-
-    // Verificar si el archivo existe
-    if (access(filepath.c_str(), F_OK) != 0)
-    {
-        return "HTTP/1.1 404 Not Found\r\n"
-               "Content-Type: text/plain\r\n"
-               "Content-Length: 16\r\n\r\n"
-               "Archivo no existe\n";
+    if (access(filepath.c_str(), F_OK) != 0) {
+        std::string error = "Archivo no existe\n";
+        return build_http_response(error, "text/plain", 404);
     }
-
-    // Intentar eliminar el archivo
-    if (remove(filepath.c_str()) != 0)
-    {
-        return "HTTP/1.1 500 Internal Server Error\r\n"
-               "Content-Type: text/plain\r\n"
-               "Content-Length: 30\r\n\r\n"
-               "Error al eliminar el archivo\n";
+    if (remove(filepath.c_str()) != 0) {
+        std::string error = "Error al eliminar el archivo\n";
+        return build_http_response(error, "text/plain", 500);
     }
-
-    return "HTTP/1.1 200 OK\r\n"
-           "Content-Type: text/plain\r\n"
-           "Content-Length: 25\r\n\r\n"
-           "Archivo eliminado con éxito\n";
+    std::string success = "Archivo eliminado con éxito\n";
+    return build_http_response(success, "text/plain", 200);
 }
 
-std::string handle_cgi(const std::string &script_path, const std::string &query_string)
-{
+// -----------------------------------------------------------------------------
+// Manejo de CGI
+// -----------------------------------------------------------------------------
+
+// Configura las variables de entorno para el proceso CGI.
+void setup_cgi_env(const std::string &script_path, const std::string &query_string, std::vector<char*>& env) {
+    std::string query = "QUERY_STRING=" + query_string;
+    std::string method = "REQUEST_METHOD=GET";
+    std::string script = "SCRIPT_FILENAME=" + script_path;
+    std::string redirect = "REDIRECT_STATUS=200";
+    env.push_back(strdup(query.c_str()));
+    env.push_back(strdup(method.c_str()));
+    env.push_back(strdup(script.c_str()));
+    env.push_back(strdup(redirect.c_str()));
+    env.push_back(NULL);
+}
+
+// Maneja la ejecución de scripts CGI.
+std::string handle_cgi(const std::string &script_path, const std::string &query_string) {
     int pipefd[2];
-    if (pipe(pipefd) == -1)
-    {
-        return "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/plain\r\nContent-Length: 18\r\n\r\nError al crear pipe\n";
+    if (pipe(pipefd) == -1) {
+        return build_http_response("Error al crear pipe\n", "text/plain", 500);
     }
-
     pid_t pid = fork();
-    if (pid < 0)
-    {
-        return "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/plain\r\nContent-Length: 16\r\n\r\nError en fork()\n";
+    if (pid < 0) {
+        return build_http_response("Error en fork()\n", "text/plain", 500);
     }
-    else if (pid == 0) // Proceso hijo
-    {
-        close(pipefd[0]); // Cerrar lectura del pipe
-
-        // Redirigir stdout y stderr al pipe
+    else if (pid == 0) { // Proceso hijo
+        close(pipefd[0]);
         dup2(pipefd[1], STDOUT_FILENO);
         dup2(pipefd[1], STDERR_FILENO);
         close(pipefd[1]);
 
-        // Leer la primera línea del script (para detectar el intérprete)
         int script_fd = open(script_path.c_str(), O_RDONLY);
         if (script_fd == -1)
-        {
-            return ""; // Terminar el hijo con error
-        }
+            exit(1);
 
         char shebang[256] = {0};
         ssize_t bytes_read = read(script_fd, shebang, sizeof(shebang) - 1);
         close(script_fd);
 
         std::string interpreter;
-
-        // Si el script tiene un shebang, extraer el intérprete
-        if (bytes_read > 2 && shebang[0] == '#' && shebang[1] == '!')
-        {
+        if (bytes_read > 2 && shebang[0] == '#' && shebang[1] == '!') {
             shebang[bytes_read] = '\0';
             std::string first_line(shebang);
             size_t end = first_line.find('\n');
             if (end != std::string::npos)
                 interpreter = first_line.substr(2, end - 2);
         }
-
-        // Si no se detectó un intérprete, asignar uno según la extensión del archivo
-        if (interpreter.empty())
-        {
+        if (interpreter.empty()) {
             if (script_path.size() >= 3 && script_path.substr(script_path.size() - 3) == ".py")
                 interpreter = "/usr/bin/python3";
             else if (script_path.size() >= 3 && script_path.substr(script_path.size() - 3) == ".pl")
@@ -311,87 +284,52 @@ std::string handle_cgi(const std::string &script_path, const std::string &query_
             else if (script_path.size() >= 4 && script_path.substr(script_path.size() - 4) == ".php")
                 interpreter = "/usr/bin/php";
         }
-
-        // Configurar variables de entorno para CGI
-        std::string query = "QUERY_STRING=" + query_string;
-        std::string method = "REQUEST_METHOD=GET";
-        std::string script = "SCRIPT_FILENAME=" + script_path;
-        std::string redirect = "REDIRECT_STATUS=200";
-
-        char *envp[] = {
-            const_cast<char *>(query.c_str()),
-            const_cast<char *>(method.c_str()),
-            const_cast<char *>(script.c_str()),
-            const_cast<char *>(redirect.c_str()),
-            NULL};
-
-        // Ejecutar el script con el intérprete detectado
-        char *argv[] = {const_cast<char *>(interpreter.c_str()), const_cast<char *>(script_path.c_str()), NULL};
-        execve(argv[0], argv, envp);
-
-        // Si execve falla, salir con código de error
-        return "";
+        std::vector<char*> env;
+        setup_cgi_env(script_path, query_string, env);
+        char *argv[] = {const_cast<char*>(interpreter.c_str()), const_cast<char*>(script_path.c_str()), NULL};
+        execve(argv[0], argv, env.data());
+        exit(1); // En caso de fallo en execve
     }
-    else // Proceso padre
-    {
-        close(pipefd[1]); // Cerrar escritura del pipe
-
+    else { // Proceso padre
+        close(pipefd[1]);
         char buffer[1024];
         std::string cgi_output;
         ssize_t bytes_read;
-
-        // Leer la salida del CGI
-        while ((bytes_read = read(pipefd[0], buffer, sizeof(buffer) - 1)) > 0)
-        {
+        while ((bytes_read = read(pipefd[0], buffer, sizeof(buffer)-1)) > 0) {
             buffer[bytes_read] = '\0';
             cgi_output += buffer;
         }
         close(pipefd[0]);
-
-        // Esperar a que termine el proceso hijo
         int status;
         waitpid(pid, &status, 0);
-
-        // Convertir tamaño de `cgi_output` a string usando stringstream
-        std::stringstream ss;
-        ss << cgi_output.size();
-        std::string content_length = ss.str();
-
-        // Devolver la respuesta CGI como respuesta HTTP
-        return "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: " +
-               content_length + "\r\n\r\n" + cgi_output;
+        return build_http_response(cgi_output, "text/html", 200);
     }
 }
 
+// -----------------------------------------------------------------------------
+// Función principal para gestionar la solicitud (paso_seis)
+// -----------------------------------------------------------------------------
 
-// 📌 Modificar paso_seis para incluir DELETE
-int paso_seis(int client_fd, const HttpRequest& httpRequest, Config const &config)
-{
-    (void)config;
+int paso_seis(int client_fd, const HttpRequest& httpRequest, const Config &config) {
     std::string response;
-
-    if (httpRequest.path.find("/cgi-bin/") == 0) // 📌 Si la ruta es de un CGI
-    {
+    if (httpRequest.path.find("/cgi-bin/") == 0) {
         response = handle_cgi("." + httpRequest.path, httpRequest.query_string);
     }
-    else if (httpRequest.method == "GET")
-    {
+    else if (httpRequest.method == "GET") {
         response = handle_get(httpRequest, config);
     }
-    else if (httpRequest.method == "POST")
-    {
+    else if (httpRequest.method == "POST") {
         response = handle_post(httpRequest);
     }
-    else if (httpRequest.method == "DELETE")
-    {
+    else if (httpRequest.method == "DELETE") {
         response = handle_delete(httpRequest);
     }
-    else
-    {
-        response = "HTTP/1.1 405 Method Not Allowed\r\nContent-Type: text/plain\r\nContent-Length: 24\r\n\r\nMetodo no permitido\n";
+    else {
+        std::string error = "Metodo no permitido\n";
+        response = build_http_response(error, "text/plain", 405);
     }
 
     std::cout << "\U0001F4E4 Enviando respuesta...\n";
-    send_all(client_fd, response.c_str(), response.size()); 
+    send_all(client_fd, response.c_str(), response.size());
     return 0;
 }
