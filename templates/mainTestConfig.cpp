@@ -4,7 +4,7 @@
 #include "Status.hpp"
 #include "./../src/test.hpp"
 
-int main ( void )
+int main(void)
 {
     Config config;
     Server server;
@@ -30,10 +30,14 @@ int main ( void )
     location2.setCgi("LOCATION_CGI2");
     location2.setRoot("LOCATION_ROOT2");
 
-    server.addServerName("localhost");
+    // --- Configuración del primer servidor ---
+    server.addServerName("pepito");
     server.addServerName("127.0.0.1");
-    server.addListen("8080");
-    server.addListen("127.0.0.1:80");
+
+    // Separa IP y puerto correctamente
+    server.addListen("0.0.0.0:8080");   // Escucha en todas las interfaces en el puerto 8080
+    server.addListen("127.0.0.1:80");   // Solo en localhost, puerto 80
+
     server.addStatusPage(400, "/path/to/page/from/server");
     server.addVLocation(location);
     server.addVLocation(location2);
@@ -44,10 +48,13 @@ int main ( void )
     server.setCgi("SERVER_CGI");
     server.setRoot("SERVER_ROOT");
 
-    server2.addServerName("localhost");
-    server2.addServerName("127.0.0.2");
-    server2.addListen("4250");
-    server2.addListen("127.0.0.2:80");
+    // --- Configuración del segundo servidor ---
+    server2.addServerName("juanito");
+    server2.addServerName("10.10.1.10");
+
+    server2.addListen("0.0.0.0:4250");     // Escucha en todas las interfaces en el puerto 4250
+    server2.addListen("127.0.0.2:80");     // Solo en 127.0.0.2, puerto 80
+
     server2.addStatusPage(400, "/path/to/page/from/server");
     server2.addMRedirection("/fromserX", "/tox");
     server2.addMRedirection("/fromserXX", "/toxx");
@@ -56,15 +63,18 @@ int main ( void )
     server2.setCgi("2_SERVER_CGI");
     server2.setRoot("2_SERVER_ROOT");
 
+    // --- Configuración global ---
     config.addStatusPage(200, "/path/to/page/from/config");
     config.addServer(server);
     config.addServer(server2);
     config.setCgi("CONF_CGI");
     config.setRoot("CONF_ROOT");
 
+    // Muestra la configuración
     std::cout << config << std::endl;
 
+    // Inicia la configuración del servidor
     paso_uno(config);
 
-    return (0);
+    return 0;
 }

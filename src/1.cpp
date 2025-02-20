@@ -30,18 +30,36 @@ int create_socket()
 
 int paso_uno(Config const &config)
 {
+    std::vector<int> server_fds;
 
-    int server_fd;
-    server_fd = create_socket();
-    if(server_fd == -1)
+    // Crear un socket para cada servidor y configurarlo
+    for (size_t i = 0; i < config.getVServers().size(); i++)
     {
-        return(1);
+        int server_fd = create_socket();
+        if (server_fd == -1)
+        {
+            std::cerr << "Error creando socket para servidor " << i << std::endl;
+            continue;
+        }
+        server_fds.push_back(server_fd);
+        
+        if (paso_dos(server_fd, config, i) == -1)
+        {
+            close_socket(server_fd);
+            return 1;
+        }
     }
-    if(paso_dos(server_fd, config) == -1)
+
+    // Iniciar `poll()` para manejar múltiples servidores
+    if (paso_tres(server_fds, config) == -1)
     {
-        close_socket(server_fd);
-        return(1);
+        for (size_t i = 0; i < server_fds.size(); i++)
+            close_socket(server_fds[i]);
+        return 1;
     }
-    close_socket(server_fd);
-    return(0);
+
+    for (size_t i = 0; i < server_fds.size(); i++)
+        close_socket(server_fds[i]);
+
+    return 0;
 }

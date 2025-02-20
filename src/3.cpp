@@ -2,21 +2,32 @@
 
 #include "test.hpp"
 
-int paso_tres(int server_fd, Config const &config)
+int paso_tres(std::vector<int> server_fds, Config const &config)
 {
-    if (listen(server_fd, SOMAXCONN) == -1)
-    {
-        std::cerr << "Error al poner a la escucha el socket: " << strerror(errno) << std::endl;
-        return -1;
-    }
-    std::cout << "Servidor en escucha en el puerto " << config.getVServers()[0]->getVListen()[0] << "..." << std::endl;
-
     std::vector<pollfd> fds;
 
-    struct pollfd server_pollfd = {};
-    server_pollfd.fd = server_fd;
-    server_pollfd.events = POLLIN | POLLOUT;
-    fds.push_back(server_pollfd);
+    // Configurar `listen()` para cada servidor y agregarlo al vector de `pollfd`
+    for (size_t i = 0; i < server_fds.size(); i++)
+    {
+        if (listen(server_fds[i], SOMAXCONN) == -1)
+        {
+            std::cerr << "[ERROR] No se pudo poner en escucha el socket en "
+                    << config.getVServers()[i]->getVListen()[0] << " ("
+                    << config.getVServers()[i]->getServerName()[0] << "): "
+                    << strerror(errno) << std::endl;
+            return -1;
+        }
+
+        std::cout << "[INFO] Servidor en escucha en "
+                << config.getVServers()[i]->getServerName()[0] 
+                << ":" << config.getVServers()[i]->getVListen()[0] 
+                << std::endl;
+
+        struct pollfd server_pollfd = {};
+        server_pollfd.fd = server_fds[i];
+        server_pollfd.events = POLLIN | POLLOUT;
+        fds.push_back(server_pollfd);
+    }
 
     while (true)
     {
@@ -27,21 +38,24 @@ int paso_tres(int server_fd, Config const &config)
             return -1;
         }
 
-        // Comprobar si hay una nueva conexión
-        if (fds[0].revents & POLLIN)
+        // Revisar cada socket de servidor
+        for (size_t i = 0; i < server_fds.size(); i++)
         {
-            int new_client_fd = paso_cuatro(server_fd, config);
-            if (new_client_fd != -1)
+            if (fds[i].revents & POLLIN)
             {
-                struct pollfd new_pollfd = {};
-                new_pollfd.fd = new_client_fd;
-                new_pollfd.events = POLLIN | POLLOUT;
-                fds.push_back(new_pollfd);
+                int new_client_fd = paso_cuatro(server_fds[i], config);
+                if (new_client_fd != -1)
+                {
+                    struct pollfd new_pollfd = {};
+                    new_pollfd.fd = new_client_fd;
+                    new_pollfd.events = POLLIN | POLLOUT;
+                    fds.push_back(new_pollfd);
+                }
             }
         }
 
-        // Iterar sobre los clientes
-        for (size_t i = 1; i < fds.size(); ++i)
+        // Iterar sobre los clientes conectados
+        for (size_t i = server_fds.size(); i < fds.size(); ++i)
         {
             if (fds[i].revents & (POLLIN | POLLHUP | POLLERR))
             {

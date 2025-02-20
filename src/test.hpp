@@ -22,6 +22,7 @@
 #include <cstdlib>
 #include <sys/stat.h>
 #include <dirent.h>
+#include <netdb.h>
 #include "./../templates/Config.hpp"
 
 #define PORT 8080
@@ -40,8 +41,8 @@ struct HttpRequest
 int create_socket();
 void close_client(int client_fd);
 int paso_uno(Config const &config);
-int paso_dos(int server_fd, Config const &config);
-int paso_tres(int server_fd, Config const &config);
+int paso_dos(int server_fd, Config const &config, int i);
+int paso_tres(std::vector<int> server_fds, Config const &config);
 int paso_cuatro(int server_fd, Config const &config);
 int paso_cinco(int client_fd, Config const &config);
 int paso_seis(int client_fd, const HttpRequest& httpRequest, Config const &config);
