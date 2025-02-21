@@ -44,7 +44,8 @@ void configureKeepAliveTimes(int client_fd, int keep_idle = 5, int keep_intvl = 
 }
 
 // Función principal que utiliza las anteriores para manejar la conexión del cliente
-int paso_cuatro(int server_fd, Config const &config) {
+
+int accept_client_connection(int server_fd, Config const &config) {
     (void)config; // Se ignora config en este ejemplo, pero puede utilizarse si es necesario
     int client_fd = acceptConnection(server_fd);
     if (client_fd == -1) {

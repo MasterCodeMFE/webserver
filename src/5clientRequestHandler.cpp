@@ -91,7 +91,7 @@ std::string read_http_body(int client_fd, const std::string& raw_request, int co
 }
 
 // Función principal (paso_cinco) refactorizada para delegar tareas a funciones auxiliares.
-int paso_cinco(int client_fd, const Config& config) {
+int handle_client_request(int client_fd, const Config& config) {
     // Recibir solicitud inicial
     std::string raw_request = receive_request(client_fd);
     if (raw_request.empty())
@@ -115,8 +115,8 @@ int paso_cinco(int client_fd, const Config& config) {
         }
     }
 
-    // Pasar la solicitud completa a la siguiente etapa (paso_seis)
-    int res = paso_seis(client_fd, httpRequest, config);
+    // Pasar la solicitud completa a la siguiente etapa (por ejemplo, a handle_http_method)
+    int res = dispatch_http_request(client_fd, httpRequest, config);
     return res;
 }
 

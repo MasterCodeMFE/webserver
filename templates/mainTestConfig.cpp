@@ -75,7 +75,7 @@ int main(void)
     std::cout << config << std::endl;
 
     // Inicia la configuración del servidor
-    paso_uno(config);
+    initialize_server_sockets(config);
 
     return 0;
 }

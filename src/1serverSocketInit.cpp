@@ -34,7 +34,7 @@ int setup_server_socket(const Config &config, size_t index) {
         return -1;
     }
     // Se asume que 'paso_dos' es responsable de realizar pasos adicionales (como el bind() o listen())
-    if (paso_dos(server_fd, config, index) == -1) {
+    if (configure_and_bind_socket(server_fd, config, index) == -1) {
         close_socket(server_fd);
         return -1;
     }
@@ -58,7 +58,7 @@ std::vector<int> init_server_sockets(const Config &config) {
 
 // Función principal que coordina la inicialización de los servidores y el manejo de conexiones.
 // Se encarga de iniciar el polling (mediante 'paso_tres') y de cerrar los sockets una vez finalizado.
-int paso_uno(const Config &config) {
+int initialize_server_sockets(const Config &config) {
     // Inicializa los sockets de todos los servidores.
     std::vector<int> server_fds = init_server_sockets(config);
     if (server_fds.empty()) {
@@ -67,7 +67,7 @@ int paso_uno(const Config &config) {
     }
 
     // Se inicia el manejo de múltiples servidores (por ejemplo, con poll()).
-    if (paso_tres(server_fds, config) == -1) {
+    if (run_server_event_loop(server_fds, config) == -1) {
         for (size_t i = 0; i < server_fds.size(); i++) {
             close_socket(server_fds[i]);
         }

@@ -65,7 +65,7 @@ int attemptBind(int server_fd, struct addrinfo* res, const std::string& ip, int 
 }
 
 // Función principal refactorizada que utiliza las funciones anteriores.
-int paso_dos(int server_fd, Config const &config, int i) {
+int configure_and_bind_socket(int server_fd, const Config &config, int i) {
     // Obtener la cadena "listen" del servidor.
     std::string listen_str = config.getVServers()[i]->getVListen()[0];
     

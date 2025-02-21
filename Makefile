@@ -3,18 +3,24 @@ NAME = webserv
 CC = c++
 FLAGS = -Wall -Wextra -Werror -std=c++98
 
-SRC = ./src/1.cpp \
-      ./src/2.cpp \
-      ./src/3.cpp \
-      ./src/4.cpp \
-      ./src/5.cpp \
-      ./src/6.cpp \
+SRC = ./src/1serverSocketInit.cpp \
+      ./src/2serverBind.cpp \
+      ./src/3socketPolling.cpp \
+      ./src/4connectionHandling.cpp \
+      ./src/5clientRequestHandler.cpp \
+      ./src/6httpRequestDispatcher.cpp \
       ./templates/mainTestConfig.cpp \
       ./templates/Config.cpp \
       ./templates/Location.cpp \
       ./templates/Server.cpp \
       ./templates/Status.cpp \
-      ./templates/Utils.cpp
+      ./templates/Utils.cpp \
+      ./src/cgi.cpp \
+      ./src/delete.cpp \
+      ./src/get.cpp \
+      ./src/post.cpp \
+      ./src/fileManager.cpp \
+      ./src/httpUtils.cpp
 
 OBJ_DIR = obj
 OBJ = $(patsubst ./src/%.cpp, $(OBJ_DIR)/%.o, $(filter ./src/%.cpp, $(SRC)))

@@ -56,7 +56,7 @@ void process_server_events(const std::vector<int>& server_fds,
     {
         if (fds[i].revents & POLLIN)
         {
-            int new_client_fd = paso_cuatro(server_fds[i], config);
+            int new_client_fd = accept_client_connection(server_fds[i], config);
             if (new_client_fd != -1)
             {
                 pollfd new_pollfd = {};
@@ -87,7 +87,7 @@ void process_client_events(size_t start_index,
     {
         if (fds[i].revents & (POLLIN | POLLHUP | POLLERR))
         {
-            int res = paso_cinco(fds[i].fd, config);
+            int res = handle_client_request(fds[i].fd, config);
             if (res == -1)  // Cliente desconectado
             {
                 std::cout << "Cliente desconectado: " << fds[i].fd << "\n";
@@ -109,7 +109,7 @@ void process_client_events(size_t start_index,
  * @param config Configuración general.
  * @return 0 si todo se ejecuta correctamente, -1 en caso de error.
  */
-int paso_tres(const std::vector<int>& server_fds, const Config& config)
+int run_server_event_loop(const std::vector<int>& server_fds, const Config& config)
 {
     std::vector<pollfd> fds;
 
