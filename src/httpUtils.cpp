@@ -1,6 +1,17 @@
 #include "test.hpp"
 
-// Lee un archivo y devuelve su contenido.
+// ========================================
+//  FUNCIÓN: read_file
+// ========================================
+// Lee un archivo desde el disco y devuelve su contenido en una cadena.
+//
+// Parámetros:
+// - filepath: Ruta del archivo a leer.
+//
+// Retorno:
+// - El contenido del archivo como una cadena de caracteres.
+// - Si no se puede abrir el archivo, retorna una cadena vacía.
+
 std::string read_file(const std::string& filepath)
 {
     std::ifstream file(filepath.c_str(), std::ios::binary);
@@ -11,7 +22,19 @@ std::string read_file(const std::string& filepath)
     return std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 }
 
-// Convierte un entero a std::string (compatible con C++98).
+// ========================================
+//  FUNCIÓN: int_to_string
+// ========================================
+// Convierte un número entero en una cadena de caracteres.
+//
+// Compatible con C++98, ya que usa stringstream en lugar de std::to_string().
+//
+// Parámetros:
+// - number: Número entero a convertir.
+//
+// Retorno:
+// - Representación en cadena del número.
+
 std::string int_to_string(int number)
 {
     std::stringstream ss;
@@ -19,7 +42,18 @@ std::string int_to_string(int number)
     return ss.str();
 }
 
-// Devuelve el tipo de contenido basado en la extensión del archivo.
+// ========================================
+//  FUNCIÓN: get_content_type
+// ========================================
+// Determina el tipo de contenido (MIME type) basado en la extensión del archivo.
+//
+// Parámetros:
+// - filepath: Ruta del archivo cuyo tipo de contenido se quiere obtener.
+//
+// Retorno:
+// - El tipo MIME correspondiente a la extensión del archivo.
+// - Si la extensión no está en la lista, devuelve "application/octet-stream".
+
 std::string get_content_type(const std::string& filepath)
 {
     std::map<std::string, std::string> mime_types;
@@ -44,7 +78,19 @@ std::string get_content_type(const std::string& filepath)
     return "application/octet-stream"; // Tipo por defecto
 }
 
-// Construye una respuesta HTTP a partir del contenido, tipo y código de estado.
+// ========================================
+//  FUNCIÓN: build_http_response
+// ========================================
+// Construye una respuesta HTTP a partir del contenido, el tipo MIME y el código de estado.
+//
+// Parámetros:
+// - content: Cuerpo del mensaje HTTP (contenido del archivo).
+// - content_type: Tipo de contenido del archivo (MIME).
+// - status_code: Código de estado HTTP.
+//
+// Retorno:
+// - Cadena con la respuesta HTTP completa, incluyendo encabezados y cuerpo.
+
 std::string build_http_response(const std::string& content, const std::string& content_type, int status_code)
 {
     std::string status_text;
@@ -63,7 +109,21 @@ std::string build_http_response(const std::string& content, const std::string& c
            "Content-Length: " + int_to_string(content.size()) + "\r\n\r\n" + content;
 }
 
-// Envía todos los datos a través del socket.
+// ========================================
+//  FUNCIÓN: send_all
+// ========================================
+// Envía todos los datos a través de un socket, asegurando que se envíe
+// la cantidad total de bytes esperada.
+//
+// Parámetros:
+// - sockfd: Descriptor del socket de conexión.
+// - buffer: Puntero al buffer que contiene los datos a enviar.
+// - length: Longitud total de los datos a enviar.
+//
+// Retorno:
+// - Número total de bytes enviados si la operación es exitosa.
+// - Retorna -1 si ocurre un error.
+
 ssize_t send_all(int sockfd, const char* buffer, size_t length)
 {
     size_t total_sent = 0;

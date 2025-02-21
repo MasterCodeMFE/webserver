@@ -1,6 +1,10 @@
 #ifndef TEST_HPP
 #define TEST_HPP
 
+// ========================================
+//  INCLUDES
+// ========================================
+// Librerías estándar y de sistema necesarias para el servidor HTTP.
 #include <iostream>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -11,7 +15,6 @@
 #include <sstream>
 #include <string>
 #include <fstream>
-#include <map>
 #include <poll.h>
 #include <fcntl.h>
 #include <netinet/tcp.h>
@@ -23,36 +26,55 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <netdb.h>
-
 #include <signal.h>
 
 #include "./../templates/Config.hpp"
 
-#define PORT 8080
+#define PORT 8080  // 🔹 Puerto por defecto para el servidor
 
-
-struct HttpRequest
-{
+// ========================================
+//  ESTRUCTURA: HttpRequest
+// ========================================
+// Representa una solicitud HTTP con su método, ruta, protocolo y datos.
+//
+// Atributos:
+// - method: Método HTTP (GET, POST, DELETE, etc.).
+// - path: Ruta solicitada en el servidor.
+// - protocol: Protocolo HTTP utilizado (ej. HTTP/1.1).
+// - headers: Cabeceras HTTP en formato clave-valor.
+// - body: Cuerpo del mensaje (para solicitudes POST).
+// - query_string: Parámetros de la URL (para CGI y GET).
+// ========================================
+struct HttpRequest {
     std::string method;
     std::string path;
     std::string protocol;
     std::map<std::string, std::string> headers;
-    std::string body;  // 🔹 Cuerpo del mensaje (para POST)
+    std::string body;          // 🔹 Cuerpo del mensaje (para POST)
     std::string query_string;  // 🔹 Parámetros en la URL (para CGI y GET)
 };
 
+// ========================================
+//  DECLARACIONES DE FUNCIONES
+// ========================================
+
+// 🔹 Funciones de creación y gestión de sockets
 int create_socket();
 void close_client(int client_fd);
-int initialize_server_sockets(Config const &config);
-int configure_and_bind_socket(int server_fd, Config const &config, int i);
+int initialize_server_sockets(const Config &config);
+int configure_and_bind_socket(int server_fd, const Config &config, int i);
 int run_server_event_loop(const std::vector<int>& server_fds, const Config& config);
-int accept_client_connection(int server_fd, Config const &config);
-int handle_client_request(int client_fd, Config const &config);
-int dispatch_http_request(int client_fd, const HttpRequest& httpRequest, Config const &config);
+int accept_client_connection(int server_fd, const Config &config);
+
+// 🔹 Manejo de solicitudes HTTP
+int handle_client_request(int client_fd, const Config &config);
+int dispatch_http_request(int client_fd, const HttpRequest& httpRequest, const Config &config);
 std::string handle_cgi(const std::string &script_path, const std::string &query_string);
 std::string handle_delete(const HttpRequest& httpRequest);
 std::string handle_post(const HttpRequest& httpRequest);
 std::string handle_get(const HttpRequest& request, const Config &config);
+
+// 🔹 Utilidades para el manejo de archivos y respuestas HTTP
 std::string get_file_path(const std::string& request_path);
 std::string listDirectory(const std::string &dirPath, const std::string &requestPath);
 ssize_t send_all(int sockfd, const char* buffer, size_t length);
@@ -60,7 +82,5 @@ std::string build_http_response(const std::string& content, const std::string& c
 std::string get_content_type(const std::string& filepath);
 std::string int_to_string(int number);
 std::string read_file(const std::string& filepath);
-
-
 
 #endif // TEST_HPP

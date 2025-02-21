@@ -2,14 +2,20 @@
 
 #include "test.hpp"
 
-/**
- * Configura el modo de escucha para cada socket de servidor y los agrega al vector de pollfd.
- *
- * @param server_fds Vector de descriptores de socket de los servidores.
- * @param config Configuración que contiene información de cada servidor.
- * @param fds Vector donde se agregarán los pollfd configurados.
- * @return 0 si todo fue bien, -1 en caso de error.
- */
+// ========================================
+//  FUNCIÓN: setup_server_listeners
+// ========================================
+// Configura el modo de escucha para cada socket de servidor y los agrega
+// al vector de `pollfd` para la monitorización de eventos.
+//
+// Parámetros:
+// - server_fds: Vector de descriptores de socket de los servidores.
+// - config: Configuración que contiene información de cada servidor.
+// - fds: Vector donde se agregarán los `pollfd` configurados.
+//
+// Retorno:
+// - 0 si todo fue bien.
+// - -1 en caso de error.
 int setup_server_listeners(const std::vector<int>& server_fds,
                            const Config& config,
                            std::vector<pollfd>& fds)
@@ -30,6 +36,7 @@ int setup_server_listeners(const std::vector<int>& server_fds,
                   << ":" << config.getVServers()[i]->getVListen()[0]
                   << std::endl;
 
+        // Configurar el socket en poll para monitorizar eventos de entrada y salida.
         pollfd server_pollfd = {};
         server_pollfd.fd = server_fds[i];
         server_pollfd.events = POLLIN | POLLOUT;
@@ -38,16 +45,18 @@ int setup_server_listeners(const std::vector<int>& server_fds,
     return 0;
 }
 
-/**
- * Procesa los eventos de los sockets de servidor.
- *
- * Si se detecta un evento de lectura (POLLIN) en alguno de ellos, se llama a `paso_cuatro`
- * para aceptar la conexión y, de ser exitosa, se agrega el nuevo socket de cliente al vector de pollfd.
- *
- * @param server_fds Vector de descriptores de socket de los servidores.
- * @param config Configuración general.
- * @param fds Vector de pollfd donde se registran los sockets (tanto de servidores como de clientes).
- */
+// ========================================
+//  FUNCIÓN: process_server_events
+// ========================================
+// Procesa los eventos de los sockets de servidor.
+//
+// Si se detecta un evento de lectura (`POLLIN`), se acepta la conexión
+// y se agrega el nuevo socket de cliente al vector `fds`.
+//
+// Parámetros:
+// - server_fds: Vector de descriptores de socket de los servidores.
+// - config: Configuración general.
+// - fds: Vector de `pollfd` donde se registran los sockets (tanto de servidores como de clientes).
 void process_server_events(const std::vector<int>& server_fds,
                            const Config& config,
                            std::vector<pollfd>& fds)
@@ -59,6 +68,7 @@ void process_server_events(const std::vector<int>& server_fds,
             int new_client_fd = accept_client_connection(server_fds[i], config);
             if (new_client_fd != -1)
             {
+                // Se configura el nuevo socket de cliente en `poll`
                 pollfd new_pollfd = {};
                 new_pollfd.fd = new_client_fd;
                 new_pollfd.events = POLLIN | POLLOUT;
@@ -68,17 +78,18 @@ void process_server_events(const std::vector<int>& server_fds,
     }
 }
 
-/**
- * Procesa los eventos de los sockets correspondientes a clientes.
- *
- * Se itera a partir del índice `start_index` (que normalmente es igual al tamaño del vector de servidores)
- * y se verifica si existen eventos en el socket del cliente (como POLLIN, POLLHUP o POLLERR).
- * Si el cliente se desconecta (paso_cinco retorna -1), se cierra el socket y se elimina del vector.
- *
- * @param start_index Índice desde el cual se inician los sockets de cliente en el vector `fds`.
- * @param config Configuración general.
- * @param fds Vector de pollfd que contiene tanto servidores como clientes.
- */
+// ========================================
+//  FUNCIÓN: process_client_events
+// ========================================
+// Procesa los eventos de los sockets correspondientes a clientes.
+//
+// Si un cliente se desconecta (`handle_client_request` retorna -1),
+// se cierra el socket y se elimina del vector.
+//
+// Parámetros:
+// - start_index: Índice desde el cual inician los sockets de cliente en el vector `fds`.
+// - config: Configuración general.
+// - fds: Vector de `pollfd` que contiene tanto servidores como clientes.
 void process_client_events(size_t start_index,
                            const Config& config,
                            std::vector<pollfd>& fds)
@@ -90,42 +101,51 @@ void process_client_events(size_t start_index,
             int res = handle_client_request(fds[i].fd, config);
             if (res == -1)  // Cliente desconectado
             {
-                std::cout << "Cliente desconectado: " << fds[i].fd << "\n";
+                std::cout << "[INFO] Cliente desconectado: " << fds[i].fd << "\n";
                 close(fds[i].fd);
                 fds.erase(fds.begin() + i);
-                --i;
+                --i; // Ajustar índice tras la eliminación
             }
         }
     }
 }
 
-/**
- * Función principal que orquesta el manejo de conexiones.
- *
- * Se encarga de inicializar los sockets de escucha, entrar en el loop principal
- * y delegar el procesamiento de eventos en funciones específicas para servidores y clientes.
- *
- * @param server_fds Vector de descriptores de socket de los servidores.
- * @param config Configuración general.
- * @return 0 si todo se ejecuta correctamente, -1 en caso de error.
- */
+// ========================================
+//  FUNCIÓN: run_server_event_loop
+// ========================================
+// Función principal que maneja las conexiones del servidor.
+//
+// Se encarga de:
+// 1. Configurar los sockets de escucha.
+// 2. Entrar en el bucle principal de eventos (`poll`).
+// 3. Procesar los eventos de los servidores y clientes.
+//
+// Parámetros:
+// - server_fds: Vector de descriptores de socket de los servidores.
+// - config: Configuración general.
+//
+// Retorno:
+// - 0 si todo se ejecuta correctamente.
+// - -1 en caso de error.
 int run_server_event_loop(const std::vector<int>& server_fds, const Config& config)
 {
     std::vector<pollfd> fds;
 
+    // Configurar los sockets en modo de escucha y añadirlos a `pollfd`
     if (setup_server_listeners(server_fds, config, fds) == -1)
         return -1;
 
     while (true)
     {
+        // Esperar eventos en los sockets registrados
         int ret = poll(fds.data(), fds.size(), -1);
         if (ret == -1)
         {
-            std::cerr << "Error en poll(): " << strerror(errno) << std::endl;
+            std::cerr << "[ERROR] Error en poll(): " << strerror(errno) << std::endl;
             return -1;
         }
 
-        // Procesar eventos de los sockets de servidor
+        // Procesar eventos de los servidores
         process_server_events(server_fds, config, fds);
 
         // Procesar eventos de los clientes conectados

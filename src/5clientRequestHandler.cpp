@@ -2,21 +2,48 @@
 
 #include "test.hpp"
 
-// Función para cerrar el socket del cliente
-void close_client(int client_fd) {
+// ========================================
+//  FUNCIÓN: close_client
+// ========================================
+// Cierra el socket de un cliente para liberar recursos.
+//
+// Parámetros:
+// - client_fd: Descriptor del socket del cliente.
+//
+// Retorno: 
+// - No tiene retorno.
+void close_client(int client_fd)
+{
     close(client_fd);
 }
 
-// Función para recibir la solicitud completa (al menos hasta los encabezados)
-std::string receive_request(int client_fd) {
+// ========================================
+//  FUNCIÓN: receive_request
+// ========================================
+// Recibe la solicitud HTTP desde el cliente.
+//
+// Se encarga de:
+// 1. Leer los datos enviados por el cliente.
+// 2. Manejar la desconexión o errores en la recepción.
+//
+// Parámetros:
+// - client_fd: Descriptor del socket del cliente.
+//
+// Retorno:
+// - La solicitud HTTP como una cadena de texto.
+// - Cadena vacía en caso de error o desconexión.
+std::string receive_request(int client_fd)
+{
     std::vector<char> buffer(4096);
     ssize_t bytes_received = recv(client_fd, &buffer[0], buffer.size() - 1, 0);
 
-    if (bytes_received == 0) {
+    if (bytes_received == 0)
+    {
         std::cout << "Cliente cerró la pestaña o desconectó.\n";
         close_client(client_fd);
         return "";
-    } else if (bytes_received < 0) {
+    } else if (bytes_received < 0)
+    {
         std::cerr << "Error en recv().\n";
         return "";
     }
@@ -25,7 +52,16 @@ std::string receive_request(int client_fd) {
     return std::string(&buffer[0], bytes_received);
 }
 
-// Función que analiza la solicitud HTTP y separa método, ruta, protocolo y encabezados
+// ========================================
+//  FUNCIÓN: parse_request
+// ========================================
+// Analiza una solicitud HTTP y extrae su método, ruta, protocolo y encabezados.
+//
+// Parámetros:
+// - request: Cadena con la solicitud HTTP cruda.
+//
+// Retorno:
+// - Un objeto HttpRequest con la información extraída.
 HttpRequest parse_request(const std::string& request) {
     HttpRequest httpRequest;
     std::istringstream stream(request);
@@ -50,14 +86,22 @@ HttpRequest parse_request(const std::string& request) {
     return httpRequest;
 }
 
-// Función para imprimir información de depuración de la solicitud HTTP
+// ========================================
+//  FUNCIÓN: debug_print_http_request
+// ========================================
+// Muestra en consola los detalles de la solicitud HTTP.
+//
+// Parámetros:
+// - httpRequest: Objeto HttpRequest con los datos de la solicitud.
+//
+// Retorno:
+// - No tiene retorno.
 void debug_print_http_request(const HttpRequest& httpRequest) {
     std::cout << "Método: " << httpRequest.method << "\n";
     std::cout << "Ruta: " << httpRequest.path << "\n";
     std::cout << "Protocolo: " << httpRequest.protocol << "\n";
 
     std::cout << "Encabezados:\n";
-    // Iteración utilizando iteradores explícitos (compatible con C++98)
     for (std::map<std::string, std::string>::const_iterator it = httpRequest.headers.begin();
          it != httpRequest.headers.end(); ++it) {
         std::cout << it->first << ": " << it->second << "\n";
@@ -68,8 +112,22 @@ void debug_print_http_request(const HttpRequest& httpRequest) {
     }
 }
 
-// Función para leer el cuerpo HTTP si se especifica "Content-Length"
-// Utiliza la parte ya recibida en raw_request y, de ser necesario, lee el resto del cuerpo.
+// ========================================
+//  FUNCIÓN: read_http_body
+// ========================================
+// Lee el cuerpo de la solicitud HTTP si se especifica "Content-Length".
+//
+// Se encarga de:
+// 1. Extraer la parte del cuerpo que ya ha sido recibida.
+// 2. Leer el resto del cuerpo desde el socket si es necesario.
+//
+// Parámetros:
+// - client_fd: Descriptor del socket del cliente.
+// - raw_request: Solicitud HTTP cruda recibida hasta el momento.
+// - content_length: Tamaño del cuerpo esperado.
+//
+// Retorno:
+// - El cuerpo de la solicitud como una cadena de texto.
 std::string read_http_body(int client_fd, const std::string& raw_request, int content_length) {
     std::size_t pos = raw_request.find("\r\n\r\n");
     std::string body;
@@ -90,7 +148,24 @@ std::string read_http_body(int client_fd, const std::string& raw_request, int co
     return body;
 }
 
-// Función principal (paso_cinco) refactorizada para delegar tareas a funciones auxiliares.
+// ========================================
+//  FUNCIÓN: handle_client_request
+// ========================================
+// Maneja la solicitud de un cliente.
+//
+// Se encarga de:
+// 1. Recibir la solicitud HTTP del cliente.
+// 2. Analizar la solicitud para extraer método, ruta y encabezados.
+// 3. Leer el cuerpo de la solicitud si es necesario.
+// 4. Delegar la solicitud a la función que maneja los métodos HTTP.
+//
+// Parámetros:
+// - client_fd: Descriptor del socket del cliente.
+// - config: Configuración general del servidor.
+//
+// Retorno:
+// - 0 si la solicitud se procesa correctamente.
+// - -1 en caso de error.
 int handle_client_request(int client_fd, const Config& config) {
     // Recibir solicitud inicial
     std::string raw_request = receive_request(client_fd);
@@ -119,4 +194,3 @@ int handle_client_request(int client_fd, const Config& config) {
     int res = dispatch_http_request(client_fd, httpRequest, config);
     return res;
 }
-
