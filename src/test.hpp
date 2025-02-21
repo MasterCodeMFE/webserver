@@ -54,7 +54,7 @@ std::string handle_delete(const HttpRequest& httpRequest);
 std::string handle_post(const HttpRequest& httpRequest);
 std::string handle_get(const HttpRequest& request, const Config &config);
 std::string get_file_path(const std::string& request_path);
-std::string listDirectory(const std::string &dirPath);
+std::string listDirectory(const std::string &dirPath, const std::string &requestPath);
 ssize_t send_all(int sockfd, const char* buffer, size_t length);
 std::string build_http_response(const std::string& content, const std::string& content_type, int status_code = 200);
 std::string get_content_type(const std::string& filepath);
