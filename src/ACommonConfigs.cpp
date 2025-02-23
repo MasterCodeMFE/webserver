@@ -65,8 +65,13 @@ std::string const							&ACommonConfigs::getRoot( void ) const
 
 void										ACommonConfigs::addStatusPage( int status_code, std::string page_path)
 {
-	Status *new_status = new Status(status_code, page_path);
-	this->_v_status_pages.push_back(new_status);
+	if ( status_code < 300 || status_code > 599)
+		std::cout << "Value " << status_code << " must be between 300 and 599 in error_page statement.";
+	else
+	{
+		Status *new_status = new Status(status_code, page_path);
+		this->_v_status_pages.push_back(new_status);
+	}
 }
 
 void										ACommonConfigs::setClienteMaxBodySize( std::string size )

@@ -6,18 +6,18 @@
 # include <stdexcept>
 # include <cstring>
 # include <string>
+# include <vector>
 
 # include "Config.hpp"
 
 class Config;
 
-
 class Parser
 {
 	private:
-		std::ifstream		_configFile;
-		std::stringstream	_cleanedConfigFile;
-		//std::string[]		tokens;
+		std::ifstream				_configFile;
+		std::stringstream			_cleanedConfigFile;
+		std::vector<std::string>	tokens;
 		
 
 		Parser( Parser const &src);
@@ -25,13 +25,13 @@ class Parser
 		Parser	&operator=( Parser const &src );
 		
 		bool 	_isBetweenQuotes( std::string const str, size_t pos ) const;
-		void	_closedQuotesCheck( void );
+		Parser	&_closedQuotesCheck( void );
+		Parser	&_forbidenCharsCheck( void );
 		Parser	&_cleanComments( std::string str );
 		Parser	&_tokenizeConfig(void);
 		
 		public:
 		Parser( void ); //Parser construidor con config_file por defecto
-		Parser( const char* config_file_path ); //Parser construidor con config_file especifico
 		~Parser( void );
 		
 		Parser	&setConfigFile( const char* config_file_path );
