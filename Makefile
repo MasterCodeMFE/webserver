@@ -20,6 +20,7 @@ HEADERS		= main.hpp ACommonConfigs.hpp AServerBlockConfigs.hpp Config.hpp \
 			Location.hpp Server.hpp Status.hpp Utils.hpp Parser.hpp
 HEADERS		:= $(addprefix ./include/, $(HEADERS))
 
+
 SRCS		= ./src/ACommonConfigs.cpp \
 			./src/AServerBlockConfigs.cpp \
 			./src/Config.cpp \
@@ -28,7 +29,8 @@ SRCS		= ./src/ACommonConfigs.cpp \
 			./src/Status.cpp \
 			./src/Utils.cpp \
 			./src/parser/Parser.cpp \
-			./src/parser/parsing.cpp
+			./templates/mainTestConfig.cpp
+#			./src/parser/parsing.cpp
 
 
 #			./templates/mainTestConfig.cpp \

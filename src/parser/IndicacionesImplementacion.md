@@ -32,13 +32,13 @@ Posibles errores:
 ```
 SERVER { ... }
 
-SERVER_NAME name ...; #default empty -> Es la cabecera HOST
+SERVER_NAME name; #default empty -> Es la cabecera HOST
 
 LISTEN  address[:port]
         port
         unix:path #UNIX socket
 
-ERROR_PAGE  code ...    URI;
+ERROR_PAGE  code URI;
 
 CLIENT_MAX_BODY_SIZE size; #Formato = digitos[kKmMgG], si está más de una vez en el mismo bloque "client_max_body_size" directive is duplicate
 

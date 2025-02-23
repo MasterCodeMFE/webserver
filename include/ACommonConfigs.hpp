@@ -13,7 +13,7 @@
 #ifndef ACOMMON_CONFIGS_CLASS_HPP
 # define ACOMMON_CONFIGS_CLASS_HPP
 
-# include <vector>
+# include <map>
 # include <cstdlib>
 # include "Status.hpp"
 # include "Utils.hpp"
@@ -21,7 +21,7 @@
 class ACommonConfigs
 {
     protected:
-        std::vector<Status*>		_v_status_pages;
+        std::map<int, std::string>	_m_status_pages;
         unsigned int				_client_max_body_size;
         bool						_autoindex;
 		std::string					_index;
@@ -36,7 +36,7 @@ class ACommonConfigs
         ACommonConfigs( void );
 		virtual ~ACommonConfigs( void ) = 0;
 
-        std::vector<Status *> const					&getVStautsPages( void ) const;
+        std::map<int, std::string> const			&getMStautsPages( void ) const;
 		unsigned int	const						&getClienteMaxBodySize( void ) const;
 		bool const									&getAutoindex( void )const;
         std::string const							&getIndex( void )const;

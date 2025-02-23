@@ -20,22 +20,33 @@ ACommonConfigs::ACommonConfigs( void )
 	this->_root = "./"; // Establecer uno por defecto
 }
 
-ACommonConfigs::ACommonConfigs( ACommonConfigs const &src ){(void)src;}
+ACommonConfigs::ACommonConfigs( ACommonConfigs const &src )
+{
+	*this = src;
+}
 
 ACommonConfigs::~ACommonConfigs( void )
 {
-	ft_clearContainer(this->_v_status_pages);	
+	this->_m_status_pages.clear();	
 }
 
 ACommonConfigs	&ACommonConfigs::operator=( ACommonConfigs const &src )
 {
-    (void)src;
+	if ( this != &src )
+	{
+		this->_m_status_pages = src._m_status_pages;
+		this->_client_max_body_size = src._client_max_body_size;
+		this->_autoindex = src._autoindex;
+		this->_index = src._index;
+		this->_cgi = src._cgi;
+		this->_root = src._root;
+	}
     return ( *this );
 }
 
-std::vector<Status *> const					&ACommonConfigs::getVStautsPages( void ) const
+std::map<int, std::string> const					&ACommonConfigs::getMStautsPages( void ) const
 {
-	return ( this->_v_status_pages );
+	return ( this->_m_status_pages );
 }
 
 unsigned int	const						&ACommonConfigs::getClienteMaxBodySize( void ) const
@@ -66,12 +77,9 @@ std::string const							&ACommonConfigs::getRoot( void ) const
 void										ACommonConfigs::addStatusPage( int status_code, std::string page_path)
 {
 	if ( status_code < 300 || status_code > 599)
-		std::cout << "Value " << status_code << " must be between 300 and 599 in error_page statement.";
+		std::cout << "Value " << status_code << " must be between 300 and 599 in error_page statement." << std::endl;
 	else
-	{
-		Status *new_status = new Status(status_code, page_path);
-		this->_v_status_pages.push_back(new_status);
-	}
+		this->_m_status_pages[status_code] = page_path;
 }
 
 void										ACommonConfigs::setClienteMaxBodySize( std::string size )

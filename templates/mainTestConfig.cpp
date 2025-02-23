@@ -69,7 +69,7 @@ int main ( void )
     server2.setCgi("2_SERVER_CGI");
     server2.setRoot("2_SERVER_ROOT");
 
-    config.addStatusPage(200, "/path/to/page/from/config");
+    config.addStatusPage(300, "/path/to/page/from/config");
     config.addServer(server);
     config.addServer(server2);
     config.setCgi("CONF_CGI");

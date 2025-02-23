@@ -46,9 +46,9 @@ std::ostream &operator<<( std::ostream &o, Config const &src )
 	for (std::vector<Server*>::const_iterator it = src.getVServers().begin(); \
 		it != src.getVServers().end(); ++it)
 		o << **it;
-	for (std::vector<Status*>::const_iterator it = src.getVStautsPages().begin(); \
-		it != src.getVStautsPages().end(); ++it)
-		o << **it;
+	for (std::map<int, std::string>::const_iterator it = src.getMStautsPages().begin(); \
+		it != src.getMStautsPages().end(); ++it)
+		o << "error_code " << it->first << " " << it->second  << ";" << std::endl;
 	o << "client_max_body_size " << src.getClienteMaxBodySize() << ";" << std::endl;
 	o << "autoindex " << (src.getAutoindex()) << ";" << std::endl;
 	o << "index " << src.getIndex() << ";" << std::endl;

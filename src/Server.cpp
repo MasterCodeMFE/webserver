@@ -85,36 +85,22 @@ std::ostream &operator<<( std::ostream &o, Server const &src )
 {
 	o << "server {" << std::endl;
 	for (std::vector<std::string>::const_iterator it = src.getServerName().begin(); \
-		it != src.getServerName().end(); it++)
-	{
-		if (it == src.getServerName().begin())
-			o << "\tserver_name " ;
-		o << *it;
-		if (it + 1 != src.getServerName().end())
-			o << " ";
-		else
-			o << ";" << std::endl;
-	}
+			it != src.getServerName().end(); it++)
+		o << "\tserver_name " << *it << ";" << std::endl;
 	
 	for (std::vector<std::string>::const_iterator it = src.getVListen().begin(); \
-		it != src.getVListen().end(); it++)
-	{
+			it != src.getVListen().end(); it++)
 		o << "\tlisten " << *it << ";" << std::endl;
-	}
 
-	for (std::vector<Status *>::const_iterator it = src.getVStautsPages().begin(); \
-		it != src.getVStautsPages().end(); it++)
-	{
-		o << "\t" << **it;
-	}	
+	for (std::map<int, std::string>::const_iterator it = src.getMStautsPages().begin(); \
+			it != src.getMStautsPages().end(); ++it)
+		o << "\terror_code " << it->first << " " << it->second << ";" << std::endl;
 	
 	o << "\tclient_max_body_size " << src.getClienteMaxBodySize() << ";" << std::endl;
 	
 	for (std::vector<Location *>::const_iterator it = src.getVLocations().begin(); \
-		it != src.getVLocations().end(); it++)
-	{
+			it != src.getVLocations().end(); it++)
 		o << "\t" << **it;
-	}
 
 	for (std::map<std::string, std::string>::const_iterator it = src.getMRedirections().begin(); \
 		it != src.getMRedirections().end(); it++)

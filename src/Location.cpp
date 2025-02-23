@@ -23,7 +23,7 @@ Location::Location( std::string path )
 Location::Location( Location const &src ): ACommonConfigs( src ), \
 	AServerBlockConfigs( src ), _path(src._path), _v_methods(src._v_methods)
 {
-	this->_v_status_pages = deepCopyContainer(src._v_status_pages);
+	this->_m_status_pages = src._m_status_pages;
 	this->_client_max_body_size = src._client_max_body_size;
 	this->_m_redirections = src._m_redirections;
 	this->_autoindex = src._autoindex;
@@ -61,9 +61,9 @@ void										Location::addVMethod( std::string method)
 std::ostream	&operator<<( std::ostream &o, Location const &src)
 {
 	o << "location " << src.getPath() << " {" << std::endl;
-	for (std::vector<Status *>::const_iterator it = src.getVStautsPages().begin(); \
-		it != src.getVStautsPages().end(); it++)
-		o << "\t\t" << **it;
+	for (std::map<int, std::string>::const_iterator it = src.getMStautsPages().begin(); \
+		it != src.getMStautsPages().end(); ++it)
+		o << "\t\terror_code " << it->first << " " << it->second << ";" << std::endl;;
 	o << "\t\tclient_max_body_size " << src.getClienteMaxBodySize() << ";" << std::endl;
 	for (std::vector<std::string>::const_iterator it = src.getVMethods().begin(); \
 		it != src.getVMethods().end(); it++)
