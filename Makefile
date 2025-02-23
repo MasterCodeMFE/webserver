@@ -16,18 +16,23 @@ CPP			= c++
 CPP_FLAGS	= -Wall -Wextra -Werror -std=c++98 #-Wconversion -Wunused
 
 INCLUDE		= -I./include/						#Directiva de los headers
-HEADERS		= ACommonConfigs.hpp AServerBlockConfigs.hpp Config.hpp \
-			Location.hpp Server.hpp Status.hpp Utils.hpp 
+HEADERS		= main.hpp ACommonConfigs.hpp AServerBlockConfigs.hpp Config.hpp \
+			Location.hpp Server.hpp Status.hpp Utils.hpp Parser.hpp
 HEADERS		:= $(addprefix ./include/, $(HEADERS))
 
-SRCS		= ./templates/mainTestConfig.cpp \
-			./src/ACommonConfigs.cpp \
+SRCS		= ./src/ACommonConfigs.cpp \
 			./src/AServerBlockConfigs.cpp \
 			./src/Config.cpp \
 			./src/Location.cpp \
 			./src/Server.cpp \
 			./src/Status.cpp \
-			./src/Utils.cpp
+			./src/Utils.cpp \
+			./src/parser/Parser.cpp \
+			./src/parser/parsing.cpp
+
+
+#			./templates/mainTestConfig.cpp \
+
 
 #Object files
 DIR_OBJS	= ./build/
@@ -36,6 +41,7 @@ OBJS		= $(addprefix $(DIR_OBJS), $(notdir $(patsubst %.cpp, %.o, $(SRCS))))
 #Directories
 DIR_SRC			= ./src/
 DIR_TEMPLATES	= ./templates/
+DIR_PARSER		= $(DIR_SRC)parser/
 
 all: $(NAME)
 
@@ -52,6 +58,10 @@ $(DIR_OBJS)%.o: $(DIR_TEMPLATES)%.cpp $(HEADERS) Makefile | $(DIR_OBJS)
 
 #.cpp en carpeta SRC
 $(DIR_OBJS)%.o: $(DIR_SRC)%.cpp $(HEADERS) Makefile | $(DIR_OBJS)
+	$(CPP) -c $(CPP_FLAGS) $(INCLUDE) $< -o $@
+
+#.cpp en carpeta PARSER
+$(DIR_OBJS)%.o: $(DIR_PARSER)%.cpp $(HEADERS) Makefile | $(DIR_OBJS)
 	$(CPP) -c $(CPP_FLAGS) $(INCLUDE) $< -o $@
 
 

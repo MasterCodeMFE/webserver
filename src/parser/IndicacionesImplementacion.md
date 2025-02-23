@@ -50,6 +50,8 @@ REDIRECT    from to;
 
 AUTOINDEX   on|off;
 
+INDEX   str;
+
 CGI         str;
 
 ROOT    path(ruta absoluta); # default ./
