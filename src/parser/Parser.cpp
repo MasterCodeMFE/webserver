@@ -109,12 +109,12 @@ Parser	&Parser::_tokenizeConfig( void )
 	token = strtok(cleaned_str, delimiters);
 	while ( token != NULL )
 	{
-		tokens.push_back( token );
+		_tokens.push_back( token );
 		token = strtok(NULL, delimiters);
 	}
 
-	for ( std::vector<std::string>::iterator it = tokens.begin(); \
-		it != tokens.end(); it ++ )
+	for ( std::vector<std::string>::iterator it = _tokens.begin(); \
+		it != _tokens.end(); it ++ )
 		std::cout << *it << " | ";
 	std::cout << std::endl;
 
@@ -155,3 +155,50 @@ void 	Parser::parseConfigFile( Config &conf)
 
 /** Excepciónes de parseo */
 Parser::ParsingException::ParsingException ( std::string const &msg ): std::logic_error(msg){}
+
+Parser	&Parser::_processTokens( Config  &conf )
+{
+	std::map<std::string, t_directive>	directives;
+	//bool								looking_kw = true;
+	//t_context							context = E_GLOBAL;								
+
+	(void)conf;
+	directives["server"] = build_directive(0, E_GLOBAL, E_BLOCK);
+	directives["server_name"] = build_directive(1, E_SERVER, E_DIRECTIVE);
+	directives["listen"] = build_directive(1, E_SERVER, E_DIRECTIVE);
+	directives["error_page"] = build_directive(2, E_GLOBAL | E_SERVER | E_LOCATION, E_DIRECTIVE);
+	directives["client_max_body_size"] = build_directive(1, E_GLOBAL | E_SERVER | E_LOCATION, E_DIRECTIVE);
+	directives["location"] = build_directive(1, E_SERVER, E_BLOCK);
+	directives["method"] = build_directive(1, E_LOCATION, E_DIRECTIVE);
+	directives["redirect"] = build_directive(2, E_SERVER | E_LOCATION, E_DIRECTIVE);
+	directives["autoindex"] = build_directive(1, E_GLOBAL | E_SERVER | E_LOCATION, E_DIRECTIVE);
+	directives["index"] = build_directive(1, E_GLOBAL | E_SERVER | E_LOCATION, E_DIRECTIVE);
+	directives["cgi"] = build_directive(1, E_GLOBAL | E_SERVER | E_LOCATION, E_DIRECTIVE);
+	directives["root"] = build_directive(1, E_GLOBAL | E_SERVER | E_LOCATION, E_DIRECTIVE);
+	directives["alias"] = build_directive(1, E_LOCATION, E_DIRECTIVE);
+	
+	/*for ( std::vector<std::string>::const_iterator it = this->_tokens.begin(); \
+		it != this->_tokens.end(); it++)
+	{
+		try
+		{
+			if ( looking_kw && (directives.at( *it ).context & context ) )
+			{
+				
+				looking_kw != looking_kw;
+			}
+				
+		}
+	}*/
+	return ( *this );
+}
+
+t_directive	build_directive( int args, unsigned int context, t_type type )
+{
+	t_directive	dir;
+
+	dir.arguments = args;
+	dir.context = context;
+	dir.type = type;
+	return ( dir );
+}

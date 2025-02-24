@@ -25,7 +25,7 @@
 	Una declaración de método por palabra clave `method`.
 8.	`redirecto from to;` Debe contenerse dentro de bloque server o location. Indica la redirección de la ruta from a to.
 	Si duplicado en el mismo bloque, actualiza.
-9.	`alias /path` Detro del bloque location. Convierte la location al path indicado. Si duplicado en el mismo bloque, actualiza.
+9.	`alias /path` Dentro del bloque location. Convierte la location al path indicado. Si duplicado en el mismo bloque, actualiza.
 10.	`root path`puede incluirse a nivel global, en el bloque server y en el bloque location. 
 	Indica el directorio de partida. Si duplicado en el mismo bloque, actualiza.
 11.	`autoindex on|off` puede incluirse a nivel global, en el bloque server y en el bloque location. Si duplicado en el mismo bloque, actualiza.

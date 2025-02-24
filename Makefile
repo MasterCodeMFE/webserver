@@ -29,12 +29,8 @@ SRCS		= ./src/ACommonConfigs.cpp \
 			./src/Status.cpp \
 			./src/Utils.cpp \
 			./src/parser/Parser.cpp \
-			./templates/mainTestConfig.cpp
-#			./src/parser/parsing.cpp
-
-
-#			./templates/mainTestConfig.cpp \
-
+			./src/parser/parsing.cpp
+#			./templates/mainTestConfig.cpp
 
 #Object files
 DIR_OBJS	= ./build/
