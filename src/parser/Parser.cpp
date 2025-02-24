@@ -2,6 +2,25 @@
 
 #include "Parser.hpp"
 
+std::map<std::string, t_directive>	Parser::_directives;
+
+void	Parser::_setDirectives( void )
+{
+	_directives["server"] = build_directive( KW_SERVER, 0, E_GLOBAL, E_BLOCK );
+	_directives["server_name"] = build_directive( KW_SERVER_NAME, 1, E_SERVER, E_DIRECTIVE );
+	_directives["listen"] = build_directive( KW_LISTEN, 1, E_SERVER, E_DIRECTIVE );
+	_directives["error_page"] = build_directive( KW_ERROR_PAGE, 2, E_SERVER | E_LOCATION, E_DIRECTIVE );
+	_directives["client_max_body_size"] = build_directive( KW_CLIENT_MAX_BODY_SIZE, 1, E_SERVER | E_LOCATION, E_DIRECTIVE );
+	_directives["location"] = build_directive( KW_LOCATION, 1, E_SERVER, E_BLOCK );
+	_directives["method"] = build_directive( KW_METHOD, 1, E_LOCATION, E_DIRECTIVE );
+	_directives["redirect"] = build_directive( KW_REDIRECT, 2, E_SERVER | E_LOCATION, E_DIRECTIVE );
+	_directives["autoindex"] = build_directive( KW_AUTOINDEX, 1, E_SERVER | E_LOCATION, E_DIRECTIVE );
+	_directives["index"] = build_directive( KW_INDEX, 1, E_SERVER | E_LOCATION, E_DIRECTIVE );
+	_directives["cgi"] = build_directive( KW_CGI, 1, E_SERVER | E_LOCATION, E_DIRECTIVE );
+	_directives["root"] = build_directive( KW_ROOT, 1, E_SERVER | E_LOCATION, E_DIRECTIVE );
+	_directives["alias"] = build_directive( KW_ALIAS, 1, E_LOCATION, E_DIRECTIVE );
+}
+
 /** Constructor por defecto.
  * Al no especificarse un fichero de configuración, se indica la ruta del
  * fichero de configuración por defecto para su procesamineto.
@@ -106,53 +125,46 @@ void 	Parser::parseConfigFile( void )
 	while ( std::getline(this->_configFile, str) )
 		this->_cleanComments(str);
 	this->_configFile.close();
-	this->_forbidenCharsCheck()._tokenizeConfig();
+	this->_forbidenCharsCheck()._tokenizeConfig()._processTokens();
 }
 
 /** Excepciónes de parseo */
 Parser::ParsingException::ParsingException ( std::string const &msg ): std::logic_error(msg){}
 
-Parser	&Parser::_processTokens( void )
+void		Parser::_processTokens( const t_context &context)
 {
 	std::map<std::string, t_directive>	directives;
 	//bool								looking_kw = true;
-	//t_context							context = E_GLOBAL;								
 
-	directives["server"] = build_directive(0, E_GLOBAL, E_BLOCK);
-	directives["server_name"] = build_directive(1, E_SERVER, E_DIRECTIVE);
-	directives["listen"] = build_directive(1, E_SERVER, E_DIRECTIVE);
-	directives["error_page"] = build_directive(2, E_GLOBAL | E_SERVER | E_LOCATION, E_DIRECTIVE);
-	directives["client_max_body_size"] = build_directive(1, E_GLOBAL | E_SERVER | E_LOCATION, E_DIRECTIVE);
-	directives["location"] = build_directive(1, E_SERVER, E_BLOCK);
-	directives["method"] = build_directive(1, E_LOCATION, E_DIRECTIVE);
-	directives["redirect"] = build_directive(2, E_SERVER | E_LOCATION, E_DIRECTIVE);
-	directives["autoindex"] = build_directive(1, E_GLOBAL | E_SERVER | E_LOCATION, E_DIRECTIVE);
-	directives["index"] = build_directive(1, E_GLOBAL | E_SERVER | E_LOCATION, E_DIRECTIVE);
-	directives["cgi"] = build_directive(1, E_GLOBAL | E_SERVER | E_LOCATION, E_DIRECTIVE);
-	directives["root"] = build_directive(1, E_GLOBAL | E_SERVER | E_LOCATION, E_DIRECTIVE);
-	directives["alias"] = build_directive(1, E_LOCATION, E_DIRECTIVE);
-	
-	/*for ( std::vector<std::string>::const_iterator it = this->_tokens.begin(); \
-		it != this->_tokens.end(); it++)
+	std::vector<std::string>::const_iterator it = this->_tokens.begin();
+    while ( it != this->_tokens.end() )
 	{
-		try
+		std::ostringstream oss;
+		if ( Parser::_directives.end() == Parser::_directives.find( *it ))
 		{
-			if ( looking_kw && (directives.at( *it ).context & context ) )
-			{
-				
-				looking_kw != looking_kw;
-			}
-				
+            oss << "Unknown directive `" << *it << "`";
+            throw Parser::ParsingException(oss.str());
+        }
+
+		if ( !( context & Parser::_directives[ *it ].context ) )
+		{
+			oss << "Directive `" << *it 
+			<< "` declared out of its available scope. Check README.md in src/parsing/ route for details.";
+			throw Parser::ParsingException(oss.str());
 		}
-	}*/
-	return ( *this );
+		
+
+
+		it ++;
+	}
 }
 
-t_directive	build_directive( int args, unsigned int context, t_type type )
+t_directive	build_directive( t_keywords kw, int args, unsigned int context, t_type type )
 {
 	t_directive	dir;
 
-	dir.arguments = args;
+	dir.id = kw;
+	dir.args = args;
 	dir.context = context;
 	dir.type = type;
 	return ( dir );

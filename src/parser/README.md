@@ -8,7 +8,7 @@
 4. No se pueden definir directivas globales, todas las directivas deben incluirse dentro de un bloque `server`.
 5. Los delimitadores de apertura de bloque (`{`)  y de directivas ( `;`) tienen que estar precedidos por algun tipo de espacio. Ejemplo: server{...} dara error, server { ... } sera correcto.
 6. Puede contener varios bloques `server` con su contenido detallado entre {}. Ejemplo: serverA { ... }
-7. Puede haber varias lineas de `server_name` por servidor, cada una con un nombre y se almacenarán los valores unicos. Su declaración termina con `;`. Ejemplo: server_name a;
+7. Puede haber un o ningun `server_name` por servidor, en cualquier otro caso retornará una excepción. Su declaración termina con ` ;`. Ejemplo: server_name a ;
 8. `listen`, puede haber varios por servidor y su estructura será `listen  address:port `;
 9. `error_page` puede incluirse en el bloque server y en el bloque location. El rango de códigos
 	es de 300 a 599, otros códigos devolverán error. Primara el error page más concreto asociado a un código- Por sentencia se podrá declarar un codigo y su página asociada. En caso de que un código se repita, la pagina asociada que prevalecerá será la última declarada. Su declaración termina con `;`.

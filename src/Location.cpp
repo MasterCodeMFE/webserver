@@ -83,9 +83,7 @@ Location									&Location::addListen( std::string listen )
 std::ostream	&operator<<( std::ostream &o, Location const &src)
 {
 	o << "location " << src.getPath() << " {" << std::endl;
-	for (std::vector<std::string>::const_iterator it = src.getServerName().begin(); \
-			it != src.getServerName().end(); it++)
-		o << "\tserver_name " << *it << ";" << std::endl;
+	o << "\tserver_name " << src.getServerName() << ";" << std::endl;
 	
 	for (std::vector<std::string>::const_iterator it = src.getVListen().begin(); \
 			it != src.getVListen().end(); it++)

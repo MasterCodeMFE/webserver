@@ -27,7 +27,6 @@ Server::Server( Server const &src )
 
 Server::~Server( void )
 {
-	this->_v_server_name.clear();
 	this->_v_listen.clear();
 	this->_m_redirections.clear();	
 }
@@ -36,7 +35,7 @@ Server	&Server::operator=( Server const &src )
 {
 	if ( this != &src )
 	{
-		this->_v_server_name = src._v_server_name;
+		this->_server_name = src._server_name;
 		this->_v_listen = src._v_listen;
 		this->_m_status_pages = src._m_status_pages;
 		this->_client_max_body_size = src._client_max_body_size;
@@ -49,9 +48,9 @@ Server	&Server::operator=( Server const &src )
 	return( *this );
 }
 
-std::vector<std::string> const				&Server::getServerName( void )const
+std::string const							&Server::getServerName( void )const
 {
-	return ( this->_v_server_name );
+	return ( this->_server_name );
 }
 
 std::vector<std::string> const				&Server::getVListen( void )const
@@ -70,9 +69,9 @@ std::map<std::string, std::string> const	&Server::getMRedirections( void ) const
 	return ( this->_m_redirections );
 }
 
-Server										&Server::addServerName( std::string server_name )
+Server										&Server::setServerName( std::string server_name )
 {
-	this->_v_server_name.push_back(server_name);
+	this->_server_name = server_name;
 	return( *this );
 }
 

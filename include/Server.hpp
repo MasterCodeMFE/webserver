@@ -24,7 +24,7 @@
 class Server
 {
 	protected:
-		std::vector<std::string>			_v_server_name;
+		std::string							_server_name;
 		std::vector<std::string>			_v_listen;
 		std::map<int, std::string>			_m_status_pages;
         unsigned int						_client_max_body_size;
@@ -40,8 +40,8 @@ class Server
 		virtual ~Server( void );
 
 		Server	&operator=( Server const &src );
-		
-		virtual Server								&addServerName( std::string server_name );
+
+		virtual Server								&setServerName( std::string server_name );
 		virtual Server								&addListen( std::string listen );
 		Server										&addMRedirection( std::string from, std::string to);
 		Server										&addStatusPage( int status_code, std::string page_path);
@@ -52,7 +52,7 @@ class Server
 		Server										&setRoot( std::string root );
 
 		// Comprueba si hay pagina especificada, sino devuelve pagina de error por defecto.
-		std::vector<std::string> const				&getServerName( void )const;
+		std::string const							&getServerName( void )const;
 		std::vector<std::string> const				&getVListen( void )const;
 		std::map<std::string, std::string> const	&getMRedirections( void ) const;
 		std::map<int, std::string> const			&getMStautsPages( void ) const;

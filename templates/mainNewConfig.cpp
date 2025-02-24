@@ -57,7 +57,7 @@ int main ( void )
         .setCgi("SERVER_CGI22")
         .setRoot("SERVER_ROOT22");
     locations.push_back(a);
-/**
+
     server2.addServerName("localhost");
     server2.addServerName("127.0.0.2");
     server2.addListen("4250");
@@ -70,24 +70,17 @@ int main ( void )
     server2.setCgi("2_SERVER_CGI");
     server2.setRoot("2_SERVER_ROOT");
 
-    location.addStatusPage(300, "/path/to/page/from/location");
-    location.addVMethod("GET");
-    location.addVMethod("POST");
-    location.addVMethod("DELETE");
-    location.addMRedirection("/fromloc", "/to");
-    location.addMRedirection("/fromloc2", "/to2");
-    location.setCgi("LOCATION_CGI");
-    location.setRoot("LOCATION_ROOT");
+    a = new Location(server2, "/www/");
+    a->addVMethod("GET")
+        .addVMethod("POST")
+        .addVMethod("DELETE")
+        .setAlias("ALIAS")
+        .addMRedirection("/fromloc", "/to")
+        .addMRedirection("/fromloc2", "/to2")
+        .addStatusPage(300, "/path/to/page/from/location");
+    locations.push_back(a);
 
-    location2.addStatusPage(300, "/path/to/page/from/location2");
-    location2.addVMethod("GET2");
-    location2.addVMethod("POST2");
-    location2.addVMethod("DELETE2");
-    location2.addMRedirection("/fromloc22", "/to22");
-    location2.addMRedirection("/fromloc222", "/to222");
-    location2.setCgi("LOCATION_CGI2");
-    location2.setRoot("LOCATION_ROOT2");
-*/
+
     for ( std::vector<Location *>::iterator it = locations.begin(); it != locations.end(); it++)
     {
         std::cout << **it << std::endl;

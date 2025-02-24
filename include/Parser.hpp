@@ -11,12 +11,13 @@
 # include <sstream>
 # include <fstream>
 # include <iostream>
+# include "Location.hpp"
 
 typedef enum e_contexts
 {
-	E_GLOBAL	= 1 << 0,
-	E_SERVER	= 1 << 1,
-	E_LOCATION	= 1 << 2
+	E_GLOBAL	= 0b001,
+	E_SERVER	= 0b010,
+	E_LOCATION	= 0b100
 }	t_context;
 
 typedef enum e_type
@@ -25,32 +26,55 @@ typedef enum e_type
 	E_DIRECTIVE
 }	t_type;
 
+typedef enum e_keywords
+{
+	KW_SERVER,
+	KW_SERVER_NAME,
+	KW_LISTEN,
+	KW_ERROR_PAGE,
+	KW_CLIENT_MAX_BODY_SIZE,
+	KW_LOCATION,
+	KW_METHOD,
+	KW_REDIRECT,
+	KW_AUTOINDEX,
+	KW_INDEX,
+	KW_CGI,
+	KW_ROOT,
+	KW_ALIAS
+} t_keywords;
+
+
 typedef struct s_directive
 {
-	int				arguments;
+	t_keywords		id;
+	int				args;
 	unsigned int	context;
 	t_type			type;
-
 }	t_directive;
 
-t_directive	build_directive( int args, unsigned int context, t_type type );
+
+t_directive	build_directive( t_keywords kw, int args, unsigned int context, t_type type );
 
 class Parser
 {
 	private:
-		std::ifstream				_configFile;
-		std::stringstream			_cleanedConfigFile;
-		std::vector<std::string>	_tokens;
+		std::ifstream								_configFile;
+		std::stringstream							_cleanedConfigFile;
+		std::vector<std::string>					_tokens;
+		static std::map<std::string, t_directive>	_directives;
 		
 
 		Parser( Parser const &src);
 		
 		Parser	&operator=( Parser const &src );
 		
-		Parser	&_forbidenCharsCheck( void );
-		Parser	&_cleanComments( std::string str );
-		Parser	&_tokenizeConfig( void );
-		Parser	&_processTokens( void );
+		Parser					&_forbidenCharsCheck( void );
+		Parser					&_cleanComments( std::string str );
+		Parser					&_tokenizeConfig( void );
+		void					_processTokens( const t_context &context =  E_GLOBAL);
+		// void					_processTokens( const t_context &context =  E_GLOBAL, std::vector<Location> &config);
+
+		static void				_setDirectives( void );
 		
 	public:
 		Parser( void ); //Parser construidor con config_file por defecto
