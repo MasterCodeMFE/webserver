@@ -16,14 +16,14 @@
 # include <vector>
 # include <string>
 # include <iostream>
-# include "ACommonConfigs.hpp"
-# include "AServerBlockConfigs.hpp"
+# include "Server.hpp"
 
-class Location: public ACommonConfigs, public AServerBlockConfigs
+class Location: public Server
 {
 	private:
 		std::string									_path;
 		std::vector<std::string>					_v_methods;	
+		std::string									_alias;
 
 		Location( void );
 
@@ -31,13 +31,17 @@ class Location: public ACommonConfigs, public AServerBlockConfigs
 
 	public:
 		Location( Location const &src );
-		Location( std::string path );
+		Location( Server const &server, std::string path );
 		~Location( void );
 
 		std::string const							&getPath( void ) const;
 		std::vector<std::string> const				&getVMethods( void ) const;
 
-		void										addVMethod( std::string method );
+		Location 									&addVMethod( std::string method );
+		Location									&setAlias( std::string alias );
+		Location									&addServerName( std::string server_name );
+		Location									&addListen( std::string listen );
+
 };
 
 std::ostream	&operator<<( std::ostream &o, Location const &src);

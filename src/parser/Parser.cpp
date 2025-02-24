@@ -21,57 +21,15 @@ Parser::~Parser( void ){}
  */
 Parser	&Parser::operator=( Parser const &src ) { ( void )src; return ( *this ); }
 
-/** Checkea si un caracter en la posición `char_index` se encuentra entre comillas o no.*/
-bool	Parser::_isBetweenQuotes( std::string const str, size_t const char_index ) const
-{
-	bool	between_quotes;
-	size_t	open_quote;
-	size_t	close_quote;
-
-	between_quotes = false;
-	open_quote = str.find( '"');
-	close_quote = str.find( '"', open_quote + 1);
-	if ( open_quote != std::string::npos && close_quote == std::string::npos)
-		throw Parser::ParsingException( "Unclosed quotes.");
-	if ( char_index < open_quote )
-		return ( false );
-	else if ( char_index > open_quote && char_index < close_quote )
-		return ( true );
-	else 
-		between_quotes = this->_isBetweenQuotes( str.substr( close_quote + 1), \
-			char_index - close_quote - 1 );
-	return ( between_quotes );
-}
-
-/** Compueba que el número de comillas dobles `"` es  par, lo que garantiza el cierre de literales
- * entrecomillados.
- */
-Parser	&Parser::_closedQuotesCheck( void )
-{
-	size_t	quotes_counter;
-	size_t	pos;
-
-	quotes_counter = 0;
-	pos = this->_cleanedConfigFile.str().find('"', 0);
-	while ( pos != std::string::npos )
-	{
-		quotes_counter ++;
-		pos = this->_cleanedConfigFile.str().find('"', pos + 1);
-	}
-	if ( quotes_counter % 2 )
-		throw Parser::ParsingException( "Unclosed quotes.");
-	return ( *this );
-}
-
-
 /** Compueba que el número de comillas dobles `"` es  par, lo que garantiza el cierre de literales
  * entrecomillados.
  */
 Parser	&Parser::_forbidenCharsCheck( void )
 {
 	if ( this->_cleanedConfigFile.str().find('\'') != std::string::npos \
-		|| this->_cleanedConfigFile.str().find('\\') != std::string::npos )
-		throw Parser::ParsingException( "Forbiden char ( `'` or `\\`) detected.");
+		|| this->_cleanedConfigFile.str().find('\\') != std::string::npos \
+		|| this->_cleanedConfigFile.str().find('"') != std::string::npos )
+		throw Parser::ParsingException( "Forbiden char (`\"`, `'` or `\\`) detected.");
 	return ( *this );
 }
 
@@ -89,8 +47,7 @@ Parser	&Parser::_cleanComments( std::string str )
 {
 	size_t	haystack = str.find( '#' );
 
-	if ( haystack != std::string::npos \
-			&& !this->_isBetweenQuotes( str, haystack) )
+	if ( haystack != std::string::npos )
 		str = str.substr( 0, haystack);
 	this->_cleanedConfigFile << str;
 	if ( !str.empty() )
@@ -118,7 +75,7 @@ Parser	&Parser::_tokenizeConfig( void )
 		std::cout << *it << " | ";
 	std::cout << std::endl;
 
-	delete cleaned_str;
+	delete[] cleaned_str;
 	return ( *this );
 }
 
@@ -139,9 +96,8 @@ Parser	&Parser::setConfigFile( const char* config_file_path )
 /** Función para parsear el fichero de configuración
  * @param conf Objeto Config donde cargar los valores parseados.
  */
-void 	Parser::parseConfigFile( Config &conf)
+void 	Parser::parseConfigFile( void )
 {
-	( void )conf;
 	std::string str;
 	if ( !this->_configFile.is_open() )
 		throw Parser::ParsingException( "Failure on file opening");
@@ -150,19 +106,18 @@ void 	Parser::parseConfigFile( Config &conf)
 	while ( std::getline(this->_configFile, str) )
 		this->_cleanComments(str);
 	this->_configFile.close();
-	this->_closedQuotesCheck()._forbidenCharsCheck()._tokenizeConfig();
+	this->_forbidenCharsCheck()._tokenizeConfig();
 }
 
 /** Excepciónes de parseo */
 Parser::ParsingException::ParsingException ( std::string const &msg ): std::logic_error(msg){}
 
-Parser	&Parser::_processTokens( Config  &conf )
+Parser	&Parser::_processTokens( void )
 {
 	std::map<std::string, t_directive>	directives;
 	//bool								looking_kw = true;
 	//t_context							context = E_GLOBAL;								
 
-	(void)conf;
 	directives["server"] = build_directive(0, E_GLOBAL, E_BLOCK);
 	directives["server_name"] = build_directive(1, E_SERVER, E_DIRECTIVE);
 	directives["listen"] = build_directive(1, E_SERVER, E_DIRECTIVE);

@@ -36,12 +36,6 @@ class Status
 		static std::string					getStatusResponse( int status_code );
 		static std::string 					getErrorPage( int status_code );
 		static std::string 					getErrorPage( std::string code_file_path );
-		
-		int									getStatusCode( void ) const;
-		std::string const					&getErrorPagePath( void ) const;
-		std::string	 						getErrorPage( void ) const;
 };
-
-std::ostream	&operator<<( std::ostream &o, Status const &src);
 
 #endif

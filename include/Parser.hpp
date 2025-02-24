@@ -7,10 +7,10 @@
 # include <cstring>
 # include <string>
 # include <vector>
-
-# include "Config.hpp"
-
-class Config;
+# include <map>
+# include <sstream>
+# include <fstream>
+# include <iostream>
 
 typedef enum e_contexts
 {
@@ -47,19 +47,17 @@ class Parser
 		
 		Parser	&operator=( Parser const &src );
 		
-		bool 	_isBetweenQuotes( std::string const str, size_t pos ) const;
-		Parser	&_closedQuotesCheck( void );
 		Parser	&_forbidenCharsCheck( void );
 		Parser	&_cleanComments( std::string str );
 		Parser	&_tokenizeConfig( void );
-		Parser	&_processTokens( Config  &conf );
+		Parser	&_processTokens( void );
 		
 	public:
 		Parser( void ); //Parser construidor con config_file por defecto
 		~Parser( void );
 		
 		Parser	&setConfigFile( const char* config_file_path );
-		void	parseConfigFile( Config  &conf );
+		void	parseConfigFile( void );
 		class ParsingException: public std::logic_error
 		{
 			public:
