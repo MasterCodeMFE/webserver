@@ -8,6 +8,7 @@
 # include <string>
 # include <vector>
 # include <map>
+# include <algorithm>
 # include <sstream>
 # include <fstream>
 # include <iostream>
@@ -26,34 +27,17 @@ typedef enum e_type
 	E_DIRECTIVE
 }	t_type;
 
-typedef enum e_keywords
-{
-	KW_SERVER,
-	KW_SERVER_NAME,
-	KW_LISTEN,
-	KW_ERROR_PAGE,
-	KW_CLIENT_MAX_BODY_SIZE,
-	KW_LOCATION,
-	KW_METHOD,
-	KW_REDIRECT,
-	KW_AUTOINDEX,
-	KW_INDEX,
-	KW_CGI,
-	KW_ROOT,
-	KW_ALIAS
-} t_keywords;
 
 
 typedef struct s_directive
 {
-	t_keywords		id;
 	int				args;
 	unsigned int	context;
 	t_type			type;
 }	t_directive;
 
 
-t_directive	build_directive( t_keywords kw, int args, unsigned int context, t_type type );
+t_directive	build_directive( int args, unsigned int context, t_type type );
 
 class Parser
 {
@@ -71,8 +55,10 @@ class Parser
 		Parser					&_forbidenCharsCheck( void );
 		Parser					&_cleanComments( std::string str );
 		Parser					&_tokenizeConfig( void );
-		void					_processTokens( const t_context &context =  E_GLOBAL);
+		void					_processTokens(  void );
 		// void					_processTokens( const t_context &context =  E_GLOBAL, std::vector<Location> &config);
+		int						_serverProcessing( std::vector<Location *> &locs, \
+									std::vector<std::string> v_str );
 
 		static void				_setDirectives( void );
 		

@@ -6,19 +6,19 @@ std::map<std::string, t_directive>	Parser::_directives;
 
 void	Parser::_setDirectives( void )
 {
-	_directives["server"] = build_directive( KW_SERVER, 0, E_GLOBAL, E_BLOCK );
-	_directives["server_name"] = build_directive( KW_SERVER_NAME, 1, E_SERVER, E_DIRECTIVE );
-	_directives["listen"] = build_directive( KW_LISTEN, 1, E_SERVER, E_DIRECTIVE );
-	_directives["error_page"] = build_directive( KW_ERROR_PAGE, 2, E_SERVER | E_LOCATION, E_DIRECTIVE );
-	_directives["client_max_body_size"] = build_directive( KW_CLIENT_MAX_BODY_SIZE, 1, E_SERVER | E_LOCATION, E_DIRECTIVE );
-	_directives["location"] = build_directive( KW_LOCATION, 1, E_SERVER, E_BLOCK );
-	_directives["method"] = build_directive( KW_METHOD, 1, E_LOCATION, E_DIRECTIVE );
-	_directives["redirect"] = build_directive( KW_REDIRECT, 2, E_SERVER | E_LOCATION, E_DIRECTIVE );
-	_directives["autoindex"] = build_directive( KW_AUTOINDEX, 1, E_SERVER | E_LOCATION, E_DIRECTIVE );
-	_directives["index"] = build_directive( KW_INDEX, 1, E_SERVER | E_LOCATION, E_DIRECTIVE );
-	_directives["cgi"] = build_directive( KW_CGI, 1, E_SERVER | E_LOCATION, E_DIRECTIVE );
-	_directives["root"] = build_directive( KW_ROOT, 1, E_SERVER | E_LOCATION, E_DIRECTIVE );
-	_directives["alias"] = build_directive( KW_ALIAS, 1, E_LOCATION, E_DIRECTIVE );
+	_directives["server"] = build_directive( 0, E_GLOBAL, E_BLOCK );
+	_directives["server_name"] = build_directive( 1, E_SERVER, E_DIRECTIVE );
+	_directives["listen"] = build_directive( 1, E_SERVER, E_DIRECTIVE );
+	_directives["error_page"] = build_directive( 2, E_SERVER | E_LOCATION, E_DIRECTIVE );
+	_directives["client_max_body_size"] = build_directive( 1, E_SERVER | E_LOCATION, E_DIRECTIVE );
+	_directives["location"] = build_directive( 1, E_SERVER, E_BLOCK );
+	_directives["method"] = build_directive( 1, E_LOCATION, E_DIRECTIVE );
+	_directives["redirect"] = build_directive( 2, E_SERVER | E_LOCATION, E_DIRECTIVE );
+	_directives["autoindex"] = build_directive( 1, E_SERVER | E_LOCATION, E_DIRECTIVE );
+	_directives["index"] = build_directive( 1, E_SERVER | E_LOCATION, E_DIRECTIVE );
+	_directives["cgi"] = build_directive( 1, E_SERVER | E_LOCATION, E_DIRECTIVE );
+	_directives["root"] = build_directive( 1, E_SERVER | E_LOCATION, E_DIRECTIVE );
+	_directives["alias"] = build_directive( 1, E_LOCATION, E_DIRECTIVE );
 }
 
 /** Constructor por defecto.
@@ -131,12 +131,15 @@ void 	Parser::parseConfigFile( void )
 /** Excepciónes de parseo */
 Parser::ParsingException::ParsingException ( std::string const &msg ): std::logic_error(msg){}
 
-void		Parser::_processTokens( const t_context &context)
+void		Parser::_processTokens( void )
 {
-	std::map<std::string, t_directive>	directives;
 	//bool								looking_kw = true;
+	t_context 				context = E_GLOBAL;
+	std::vector<Location *> loc;
 
-	std::vector<std::string>::const_iterator it = this->_tokens.begin();
+	std::vector<std::string>::iterator it = this->_tokens.begin();
+	if ( Parser::_directives.empty())
+		Parser::_setDirectives();
     while ( it != this->_tokens.end() )
 	{
 		std::ostringstream oss;
@@ -152,20 +155,49 @@ void		Parser::_processTokens( const t_context &context)
 			<< "` declared out of its available scope. Check README.md in src/parsing/ route for details.";
 			throw Parser::ParsingException(oss.str());
 		}
-		
+		if ( "server" == *it )
+		{
+			std::vector<std::string> subvector(it, this->_tokens.end());
+			it += this->_serverProcessing( loc, subvector );
+			context = E_SERVER;
+		}
 
-
+		std::cout << *it << std::endl;
 		it ++;
 	}
 }
 
-t_directive	build_directive( t_keywords kw, int args, unsigned int context, t_type type )
+t_directive	build_directive( int args, unsigned int context, t_type type )
 {
 	t_directive	dir;
 
-	dir.id = kw;
 	dir.args = args;
 	dir.context = context;
 	dir.type = type;
 	return ( dir );
 }
+
+int	Parser::_serverProcessing( std::vector<Location *> &locs, \
+			std::vector<std::string> v_str )
+{
+	size_t	processed_counter = 0;
+	bool	block_closed = false;
+
+	end_server_block = std::find(v_str.begin(), v_str.end(), "server");
+	if ( v_str.size() < 2 || v_str.at(1) != "{")
+		throw Parser::ParsingException("Expected space followed by `{` after `server` directive" );
+	
+/*	else if ( end_server_block == v_str.end() )
+	{
+		end_server_block = std::find_end(v_str.begin(), v_str.end(), "server")
+	}*/
+	if ( locs.empty() )
+		return ( processed_counter );
+	return ( processed_counter );
+}
+ /*
+std::vector<std::string> getServerTokens( std::vector<std::string>::const_iterator it )
+{
+	
+	it.find( "}");
+}*/
