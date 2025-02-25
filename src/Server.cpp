@@ -161,8 +161,15 @@ Server										&Server::setClienteMaxBodySize( std::string size )
 	
 }
 
-Server										&Server::addStatusPage( int status_code, std::string page_path)
+Server										&Server::addStatusPage( std::string const &string_code, \
+	std::string const &page_path)
 {
+	std::stringstream	ss;
+    int					status_code;
+
+	std::cout << "STRING CODE " << string_code << " PATH_NAME " << page_path << std::endl;
+	ss << string_code;
+    ss >> status_code;
 	if ( status_code < 300 || status_code > 599)
 		std::cout << "Value " << status_code << " must be between 300 and 599 in error_page statement." << std::endl;
 	else

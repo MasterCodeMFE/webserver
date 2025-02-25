@@ -25,11 +25,11 @@ class Location: public Server
 		std::vector<std::string>					_v_methods;	
 		std::string									_alias;
 
-		Location( void );
-
+		
 		Location	&operator=( Location const &src );
-
-	public:
+		
+		public:
+		Location( void );
 		Location( Location const &src );
 		Location( Server const &server, std::string path );
 		~Location( void );
@@ -39,9 +39,6 @@ class Location: public Server
 
 		Location 									&addVMethod( std::string method );
 		Location									&setAlias( std::string alias );
-		Location									&addServerName( std::string server_name );
-		Location									&addListen( std::string listen );
-
 };
 
 std::ostream	&operator<<( std::ostream &o, Location const &src);

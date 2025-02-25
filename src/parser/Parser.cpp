@@ -40,19 +40,6 @@ Parser::~Parser( void ){}
  */
 Parser	&Parser::operator=( Parser const &src ) { ( void )src; return ( *this ); }
 
-/** Compueba que el número de comillas dobles `"` es  par, lo que garantiza el cierre de literales
- * entrecomillados.
- */
-Parser	&Parser::_forbidenCharsCheck( void )
-{
-	if ( this->_cleanedConfigFile.str().find('\'') != std::string::npos \
-		|| this->_cleanedConfigFile.str().find('\\') != std::string::npos \
-		|| this->_cleanedConfigFile.str().find('"') != std::string::npos )
-		throw Parser::ParsingException( "Forbiden char (`\"`, `'` or `\\`) detected.");
-	return ( *this );
-}
-
-
 /** Metodo que elimina comentarios de un string recibido si existen.
  * Un comentario es todo texto posterior a un signo `#`, siempre y cuando este
  * fuera de un rango entre comillas dobles `"`, en otro caso se ignorará.
@@ -89,7 +76,7 @@ Parser	&Parser::_tokenizeConfig( void )
 		token = strtok(NULL, delimiters);
 	}
 
-	for ( std::vector<std::string>::iterator it = _tokens.begin(); \
+	for ( tokenIter it = _tokens.begin(); \
 		it != _tokens.end(); it ++ )
 		std::cout << *it << " | ";
 	std::cout << std::endl;
@@ -128,38 +115,23 @@ void 	Parser::parseConfigFile( void )
 	this->_forbidenCharsCheck()._tokenizeConfig()._processTokens();
 }
 
-/** Excepciónes de parseo */
-Parser::ParsingException::ParsingException ( std::string const &msg ): std::logic_error(msg){}
-
 void		Parser::_processTokens( void )
 {
 	//bool								looking_kw = true;
 	t_context 				context = E_GLOBAL;
 	std::vector<Location *> loc;
 
-	std::vector<std::string>::iterator it = this->_tokens.begin();
+	tokenIter it = this->_tokens.begin();
 	if ( Parser::_directives.empty())
 		Parser::_setDirectives();
     while ( it != this->_tokens.end() )
 	{
-		std::ostringstream oss;
-		if ( Parser::_directives.end() == Parser::_directives.find( *it ))
-		{
-            oss << "Unknown directive `" << *it << "`";
-            throw Parser::ParsingException(oss.str());
-        }
-
-		if ( !( context & Parser::_directives[ *it ].context ) )
-		{
-			oss << "Directive `" << *it 
-			<< "` declared out of its available scope. Check README.md in src/parsing/ route for details.";
-			throw Parser::ParsingException(oss.str());
-		}
+		this->_checkDirective( *it )._checkContext( context, *it);
+		
 		if ( "server" == *it )
 		{
 			std::vector<std::string> subvector(it, this->_tokens.end());
 			it += this->_serverProcessing( loc, subvector );
-			context = E_SERVER;
 		}
 
 		std::cout << *it << std::endl;
@@ -180,24 +152,75 @@ t_directive	build_directive( int args, unsigned int context, t_type type )
 int	Parser::_serverProcessing( std::vector<Location *> &locs, \
 			std::vector<std::string> v_str )
 {
-	size_t	processed_counter = 0;
-	bool	block_closed = false;
+	tokenIter									it = v_str.begin();
+	std::vector<Location> 						server_locations;
+	Location									server;	
+	//bool	block_closed = false;
 
-	end_server_block = std::find(v_str.begin(), v_str.end(), "server");
-	if ( v_str.size() < 2 || v_str.at(1) != "{")
+	(void)locs;
+	if ( v_str.end() == ++it || *it != "{" )
 		throw Parser::ParsingException("Expected space followed by `{` after `server` directive" );
-	
-/*	else if ( end_server_block == v_str.end() )
+	it++;	
+	while ( it != v_str.end() )
 	{
-		end_server_block = std::find_end(v_str.begin(), v_str.end(), "server")
-	}*/
-	if ( locs.empty() )
-		return ( processed_counter );
-	return ( processed_counter );
+		this->_checkDirective( *it )
+			._checkContext( E_SERVER, *it )
+			._checkArgs( it, v_str.end());
+		if ( *it == "location" )
+		{
+			std::cout << "LOCATION!" << std::endl;
+			break;
+		}
+		else
+		{
+			this->_handleServerDirective( server, it);
+		}
+		it ++;		
+	}
+	std::cout << server << std::endl;
+	return ( 0 );
 }
+
+void					Parser::_handleServerDirective( Location &server, tokenIter &it)
+{
+	if ( "server_name" == *it )
+		server.setServerName( *(++it) );
+	else if ( "listen" == *it )
+		server.addListen( *(++it) );
+	else if ( "error_page" == *it )
+	{
+		server.addStatusPage( *(it + 1), *(it + 2) );
+		it += 2;
+	}
+	else if ( "client_max_body_size" == *it )
+		server.setClienteMaxBodySize( *(++it) );
+	else if ( "method" == *it )
+		std::cout << "METHOD is a location directive, not server one." << std::endl;
+	else if ( "redirect" == *it )
+	{
+		server.addMRedirection( *(it + 1), *(it + 2) );
+		it += 2;
+	}
+	else if ( "autoindex" == *it )
+		server.setAutoindex( *(++it) == "on" );
+	else if ( "index" == *it )
+		server.setIndex( *(++it) );
+	else if ( "cgi" == *it )
+		server.setCgi( *(++it) );
+	else if ( "root" == *it )
+		server.setRoot( *(++it) );
+	else if ( "alias" == *it )
+		std::cout << "ALIAS is a location directive, not server one." << std::endl;
+	std::cout << "ENTRA" << std::endl;
+	it++;	
+}
+
+
+
  /*
 std::vector<std::string> getServerTokens( std::vector<std::string>::const_iterator it )
 {
 	
 	it.find( "}");
 }*/
+

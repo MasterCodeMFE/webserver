@@ -7,6 +7,7 @@
 # include <cstring>
 # include <string>
 # include <vector>
+# include <iterator>
 # include <map>
 # include <algorithm>
 # include <sstream>
@@ -41,6 +42,7 @@ t_directive	build_directive( int args, unsigned int context, t_type type );
 
 class Parser
 {
+	typedef std::vector<std::string>::iterator		tokenIter;
 	private:
 		std::ifstream								_configFile;
 		std::stringstream							_cleanedConfigFile;
@@ -59,6 +61,13 @@ class Parser
 		// void					_processTokens( const t_context &context =  E_GLOBAL, std::vector<Location> &config);
 		int						_serverProcessing( std::vector<Location *> &locs, \
 									std::vector<std::string> v_str );
+
+		Parser					&_checkDirective( std::string );
+		Parser					&_checkContext( t_context current_context, std::string directive );
+		Parser					&_checkArgs( tokenIter kw, tokenIter end );
+
+		void					_handleServerDirective( Location &server, tokenIter &it);
+
 
 		static void				_setDirectives( void );
 		

@@ -25,6 +25,7 @@ SRCS		= ./src/Location.cpp \
 			./src/Status.cpp \
 			./src/Utils.cpp \
 			./src/parser/Parser.cpp \
+			./src/parser/ParserExceptions.cpp \
 			./src/parser/parsing.cpp
 #			./templates/mainNewConfig.cpp
 #			./templates/mainTestConfig.cpp

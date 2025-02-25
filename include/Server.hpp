@@ -41,10 +41,10 @@ class Server
 
 		Server	&operator=( Server const &src );
 
-		virtual Server								&setServerName( std::string server_name );
-		virtual Server								&addListen( std::string listen );
+		Server										&setServerName( std::string server_name );
+		Server										&addListen( std::string listen );
 		Server										&addMRedirection( std::string from, std::string to);
-		Server										&addStatusPage( int status_code, std::string page_path);
+		Server										&addStatusPage( std::string const &status_string, std::string const &page_path);
 		Server										&setClienteMaxBodySize( std::string size );
         Server										&setAutoindex( bool autoindex );
 		Server										&setIndex( std::string index );
