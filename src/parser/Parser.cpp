@@ -2,6 +2,25 @@
 
 #include "Parser.hpp"
 
+std::map<std::string, t_directive>	Parser::_directives;
+
+void	Parser::_setDirectives( void )
+{
+	_directives["server"] = build_directive( 0, E_GLOBAL, E_BLOCK );
+	_directives["server_name"] = build_directive( 1, E_SERVER, E_DIRECTIVE );
+	_directives["listen"] = build_directive( 1, E_SERVER, E_DIRECTIVE );
+	_directives["error_page"] = build_directive( 2, E_SERVER | E_LOCATION, E_DIRECTIVE );
+	_directives["client_max_body_size"] = build_directive( 1, E_SERVER | E_LOCATION, E_DIRECTIVE );
+	_directives["location"] = build_directive( 1, E_SERVER, E_BLOCK );
+	_directives["method"] = build_directive( 1, E_LOCATION, E_DIRECTIVE );
+	_directives["redirect"] = build_directive( 2, E_SERVER | E_LOCATION, E_DIRECTIVE );
+	_directives["autoindex"] = build_directive( 1, E_SERVER | E_LOCATION, E_DIRECTIVE );
+	_directives["index"] = build_directive( 1, E_SERVER | E_LOCATION, E_DIRECTIVE );
+	_directives["cgi"] = build_directive( 1, E_SERVER | E_LOCATION, E_DIRECTIVE );
+	_directives["root"] = build_directive( 1, E_SERVER | E_LOCATION, E_DIRECTIVE );
+	_directives["alias"] = build_directive( 1, E_LOCATION, E_DIRECTIVE );
+}
+
 /** Constructor por defecto.
  * Al no especificarse un fichero de configuración, se indica la ruta del
  * fichero de configuración por defecto para su procesamineto.
@@ -21,61 +40,6 @@ Parser::~Parser( void ){}
  */
 Parser	&Parser::operator=( Parser const &src ) { ( void )src; return ( *this ); }
 
-/** Checkea si un caracter en la posición `char_index` se encuentra entre comillas o no.*/
-bool	Parser::_isBetweenQuotes( std::string const str, size_t const char_index ) const
-{
-	bool	between_quotes;
-	size_t	open_quote;
-	size_t	close_quote;
-
-	between_quotes = false;
-	open_quote = str.find( '"');
-	close_quote = str.find( '"', open_quote + 1);
-	if ( open_quote != std::string::npos && close_quote == std::string::npos)
-		throw Parser::ParsingException( "Unclosed quotes.");
-	if ( char_index < open_quote )
-		return ( false );
-	else if ( char_index > open_quote && char_index < close_quote )
-		return ( true );
-	else 
-		between_quotes = this->_isBetweenQuotes( str.substr( close_quote + 1), \
-			char_index - close_quote - 1 );
-	return ( between_quotes );
-}
-
-/** Compueba que el número de comillas dobles `"` es  par, lo que garantiza el cierre de literales
- * entrecomillados.
- */
-Parser	&Parser::_closedQuotesCheck( void )
-{
-	size_t	quotes_counter;
-	size_t	pos;
-
-	quotes_counter = 0;
-	pos = this->_cleanedConfigFile.str().find('"', 0);
-	while ( pos != std::string::npos )
-	{
-		quotes_counter ++;
-		pos = this->_cleanedConfigFile.str().find('"', pos + 1);
-	}
-	if ( quotes_counter % 2 )
-		throw Parser::ParsingException( "Unclosed quotes.");
-	return ( *this );
-}
-
-
-/** Compueba que el número de comillas dobles `"` es  par, lo que garantiza el cierre de literales
- * entrecomillados.
- */
-Parser	&Parser::_forbidenCharsCheck( void )
-{
-	if ( this->_cleanedConfigFile.str().find('\'') != std::string::npos \
-		|| this->_cleanedConfigFile.str().find('\\') != std::string::npos )
-		throw Parser::ParsingException( "Forbiden char ( `'` or `\\`) detected.");
-	return ( *this );
-}
-
-
 /** Metodo que elimina comentarios de un string recibido si existen.
  * Un comentario es todo texto posterior a un signo `#`, siempre y cuando este
  * fuera de un rango entre comillas dobles `"`, en otro caso se ignorará.
@@ -89,8 +53,7 @@ Parser	&Parser::_cleanComments( std::string str )
 {
 	size_t	haystack = str.find( '#' );
 
-	if ( haystack != std::string::npos \
-			&& !this->_isBetweenQuotes( str, haystack) )
+	if ( haystack != std::string::npos )
 		str = str.substr( 0, haystack);
 	this->_cleanedConfigFile << str;
 	if ( !str.empty() )
@@ -113,12 +76,12 @@ Parser	&Parser::_tokenizeConfig( void )
 		token = strtok(NULL, delimiters);
 	}
 
-	for ( std::vector<std::string>::iterator it = _tokens.begin(); \
+	for ( tokenIter it = _tokens.begin(); \
 		it != _tokens.end(); it ++ )
 		std::cout << *it << " | ";
 	std::cout << std::endl;
 
-	delete cleaned_str;
+	delete[] cleaned_str;
 	return ( *this );
 }
 
@@ -139,9 +102,8 @@ Parser	&Parser::setConfigFile( const char* config_file_path )
 /** Función para parsear el fichero de configuración
  * @param conf Objeto Config donde cargar los valores parseados.
  */
-void 	Parser::parseConfigFile( Config &conf)
+void 	Parser::parseConfigFile( void )
 {
-	( void )conf;
 	std::string str;
 	if ( !this->_configFile.is_open() )
 		throw Parser::ParsingException( "Failure on file opening");
@@ -150,55 +112,115 @@ void 	Parser::parseConfigFile( Config &conf)
 	while ( std::getline(this->_configFile, str) )
 		this->_cleanComments(str);
 	this->_configFile.close();
-	this->_closedQuotesCheck()._forbidenCharsCheck()._tokenizeConfig();
+	this->_forbidenCharsCheck()._tokenizeConfig()._processTokens();
 }
 
-/** Excepciónes de parseo */
-Parser::ParsingException::ParsingException ( std::string const &msg ): std::logic_error(msg){}
-
-Parser	&Parser::_processTokens( Config  &conf )
+void		Parser::_processTokens( void )
 {
-	std::map<std::string, t_directive>	directives;
 	//bool								looking_kw = true;
-	//t_context							context = E_GLOBAL;								
+	t_context 				context = E_GLOBAL;
+	std::vector<Location *> loc;
 
-	(void)conf;
-	directives["server"] = build_directive(0, E_GLOBAL, E_BLOCK);
-	directives["server_name"] = build_directive(1, E_SERVER, E_DIRECTIVE);
-	directives["listen"] = build_directive(1, E_SERVER, E_DIRECTIVE);
-	directives["error_page"] = build_directive(2, E_GLOBAL | E_SERVER | E_LOCATION, E_DIRECTIVE);
-	directives["client_max_body_size"] = build_directive(1, E_GLOBAL | E_SERVER | E_LOCATION, E_DIRECTIVE);
-	directives["location"] = build_directive(1, E_SERVER, E_BLOCK);
-	directives["method"] = build_directive(1, E_LOCATION, E_DIRECTIVE);
-	directives["redirect"] = build_directive(2, E_SERVER | E_LOCATION, E_DIRECTIVE);
-	directives["autoindex"] = build_directive(1, E_GLOBAL | E_SERVER | E_LOCATION, E_DIRECTIVE);
-	directives["index"] = build_directive(1, E_GLOBAL | E_SERVER | E_LOCATION, E_DIRECTIVE);
-	directives["cgi"] = build_directive(1, E_GLOBAL | E_SERVER | E_LOCATION, E_DIRECTIVE);
-	directives["root"] = build_directive(1, E_GLOBAL | E_SERVER | E_LOCATION, E_DIRECTIVE);
-	directives["alias"] = build_directive(1, E_LOCATION, E_DIRECTIVE);
-	
-	/*for ( std::vector<std::string>::const_iterator it = this->_tokens.begin(); \
-		it != this->_tokens.end(); it++)
+	tokenIter it = this->_tokens.begin();
+	if ( Parser::_directives.empty())
+		Parser::_setDirectives();
+    while ( it != this->_tokens.end() )
 	{
-		try
+		this->_checkDirective( *it )._checkContext( context, *it);
+		
+		if ( "server" == *it )
 		{
-			if ( looking_kw && (directives.at( *it ).context & context ) )
-			{
-				
-				looking_kw != looking_kw;
-			}
-				
+			std::vector<std::string> subvector(it, this->_tokens.end());
+			it += this->_serverProcessing( loc, subvector );
 		}
-	}*/
-	return ( *this );
+
+		std::cout << *it << std::endl;
+		it ++;
+	}
 }
 
 t_directive	build_directive( int args, unsigned int context, t_type type )
 {
 	t_directive	dir;
 
-	dir.arguments = args;
+	dir.args = args;
 	dir.context = context;
 	dir.type = type;
 	return ( dir );
 }
+
+int	Parser::_serverProcessing( std::vector<Location *> &locs, \
+			std::vector<std::string> v_str )
+{
+	tokenIter									it = v_str.begin();
+	std::vector<Location> 						server_locations;
+	Location									server;	
+	//bool	block_closed = false;
+
+	(void)locs;
+	if ( v_str.end() == ++it || *it != "{" )
+		throw Parser::ParsingException("Expected space followed by `{` after `server` directive" );
+	it++;	
+	while ( it != v_str.end() )
+	{
+		this->_checkDirective( *it )
+			._checkContext( E_SERVER, *it )
+			._checkArgs( it, v_str.end());
+		if ( *it == "location" )
+		{
+			std::cout << "LOCATION!" << std::endl;
+			break;
+		}
+		else
+		{
+			this->_handleServerDirective( server, it);
+		}
+		it ++;		
+	}
+	std::cout << server << std::endl;
+	return ( 0 );
+}
+
+void					Parser::_handleServerDirective( Location &server, tokenIter &it)
+{
+	if ( "server_name" == *it )
+		server.setServerName( *(++it) );
+	else if ( "listen" == *it )
+		server.addListen( *(++it) );
+	else if ( "error_page" == *it )
+	{
+		server.addStatusPage( *(it + 1), *(it + 2) );
+		it += 2;
+	}
+	else if ( "client_max_body_size" == *it )
+		server.setClienteMaxBodySize( *(++it) );
+	else if ( "method" == *it )
+		std::cout << "METHOD is a location directive, not server one." << std::endl;
+	else if ( "redirect" == *it )
+	{
+		server.addMRedirection( *(it + 1), *(it + 2) );
+		it += 2;
+	}
+	else if ( "autoindex" == *it )
+		server.setAutoindex( *(++it) == "on" );
+	else if ( "index" == *it )
+		server.setIndex( *(++it) );
+	else if ( "cgi" == *it )
+		server.setCgi( *(++it) );
+	else if ( "root" == *it )
+		server.setRoot( *(++it) );
+	else if ( "alias" == *it )
+		std::cout << "ALIAS is a location directive, not server one." << std::endl;
+	std::cout << "ENTRA" << std::endl;
+	it++;	
+}
+
+
+
+ /*
+std::vector<std::string> getServerTokens( std::vector<std::string>::const_iterator it )
+{
+	
+	it.find( "}");
+}*/
+

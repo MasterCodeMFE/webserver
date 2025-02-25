@@ -7,18 +7,17 @@
 //static std::string	ft_curate_line( std::string str );
 int main( int argc, const char **argv )
 {
-	Config			conf;
-	Parser			p;
+	Parser					p;
 
 	if (argc == 2)
 		p.setConfigFile(argv[1]);
 	try
 	{
-		p.parseConfigFile(conf);
+		p.parseConfigFile();
 	}
-	catch ( std::logic_error &e)
+	catch ( Parser::ParsingException &e)
 	{
-		std::cout << RED << "ERROR: " << e.what() << DEFAULT << std::endl;
+		std::cout << RED << "PARSING ERROR: " << e.what() << DEFAULT << std::endl;
 	}
 	return ( 0 );
 }

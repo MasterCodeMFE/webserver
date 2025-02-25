@@ -16,20 +16,18 @@ CPP			= c++
 CPP_FLAGS	= -Wall -Wextra -Werror -std=c++98 #-Wconversion -Wunused
 
 INCLUDE		= -I./include/						#Directiva de los headers
-HEADERS		= main.hpp ACommonConfigs.hpp AServerBlockConfigs.hpp Config.hpp \
-			Location.hpp Server.hpp Status.hpp Utils.hpp Parser.hpp
+HEADERS		= main.hpp Location.hpp Server.hpp Status.hpp Utils.hpp Parser.hpp
 HEADERS		:= $(addprefix ./include/, $(HEADERS))
 
 
-SRCS		= ./src/ACommonConfigs.cpp \
-			./src/AServerBlockConfigs.cpp \
-			./src/Config.cpp \
-			./src/Location.cpp \
+SRCS		= ./src/Location.cpp \
 			./src/Server.cpp \
 			./src/Status.cpp \
 			./src/Utils.cpp \
 			./src/parser/Parser.cpp \
+			./src/parser/ParserExceptions.cpp \
 			./src/parser/parsing.cpp
+#			./templates/mainNewConfig.cpp
 #			./templates/mainTestConfig.cpp
 
 #Object files

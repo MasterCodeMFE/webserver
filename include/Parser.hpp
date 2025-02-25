@@ -7,16 +7,19 @@
 # include <cstring>
 # include <string>
 # include <vector>
-
-# include "Config.hpp"
-
-class Config;
+# include <iterator>
+# include <map>
+# include <algorithm>
+# include <sstream>
+# include <fstream>
+# include <iostream>
+# include "Location.hpp"
 
 typedef enum e_contexts
 {
-	E_GLOBAL	= 1 << 0,
-	E_SERVER	= 1 << 1,
-	E_LOCATION	= 1 << 2
+	E_GLOBAL	= 0b001,
+	E_SERVER	= 0b010,
+	E_LOCATION	= 0b100
 }	t_context;
 
 typedef enum e_type
@@ -25,41 +28,55 @@ typedef enum e_type
 	E_DIRECTIVE
 }	t_type;
 
+
+
 typedef struct s_directive
 {
-	int				arguments;
+	int				args;
 	unsigned int	context;
 	t_type			type;
-
 }	t_directive;
+
 
 t_directive	build_directive( int args, unsigned int context, t_type type );
 
 class Parser
 {
+	typedef std::vector<std::string>::iterator		tokenIter;
 	private:
-		std::ifstream				_configFile;
-		std::stringstream			_cleanedConfigFile;
-		std::vector<std::string>	_tokens;
+		std::ifstream								_configFile;
+		std::stringstream							_cleanedConfigFile;
+		std::vector<std::string>					_tokens;
+		static std::map<std::string, t_directive>	_directives;
 		
 
 		Parser( Parser const &src);
 		
 		Parser	&operator=( Parser const &src );
 		
-		bool 	_isBetweenQuotes( std::string const str, size_t pos ) const;
-		Parser	&_closedQuotesCheck( void );
-		Parser	&_forbidenCharsCheck( void );
-		Parser	&_cleanComments( std::string str );
-		Parser	&_tokenizeConfig( void );
-		Parser	&_processTokens( Config  &conf );
+		Parser					&_forbidenCharsCheck( void );
+		Parser					&_cleanComments( std::string str );
+		Parser					&_tokenizeConfig( void );
+		void					_processTokens(  void );
+		// void					_processTokens( const t_context &context =  E_GLOBAL, std::vector<Location> &config);
+		int						_serverProcessing( std::vector<Location *> &locs, \
+									std::vector<std::string> v_str );
+
+		Parser					&_checkDirective( std::string );
+		Parser					&_checkContext( t_context current_context, std::string directive );
+		Parser					&_checkArgs( tokenIter kw, tokenIter end );
+
+		void					_handleServerDirective( Location &server, tokenIter &it);
+
+
+		static void				_setDirectives( void );
 		
 	public:
 		Parser( void ); //Parser construidor con config_file por defecto
 		~Parser( void );
 		
 		Parser	&setConfigFile( const char* config_file_path );
-		void	parseConfigFile( Config  &conf );
+		void	parseConfigFile( void );
 		class ParsingException: public std::logic_error
 		{
 			public:
