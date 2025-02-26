@@ -27,7 +27,6 @@ Server::Server( Server const &src )
 
 Server::~Server( void )
 {
-	this->_v_listen.clear();
 	this->_m_redirections.clear();	
 }
 
@@ -36,7 +35,7 @@ Server	&Server::operator=( Server const &src )
 	if ( this != &src )
 	{
 		this->_server_name = src._server_name;
-		this->_v_listen = src._v_listen;
+		this->_listen = src._listen;
 		this->_m_status_pages = src._m_status_pages;
 		this->_client_max_body_size = src._client_max_body_size;
 		this->_autoindex = src._autoindex;
@@ -53,9 +52,9 @@ std::string const							&Server::getServerName( void )const
 	return ( this->_server_name );
 }
 
-std::vector<std::string> const				&Server::getVListen( void )const
+std::string const				&Server::getListen( void )const
 {
-	return ( this->_v_listen );
+	return ( this->_listen );
 }
 
 std::map<int, std::string> const					&Server::getMStautsPages( void ) const
@@ -75,9 +74,9 @@ Server										&Server::setServerName( std::string server_name )
 	return( *this );
 }
 
-Server										&Server::addListen( std::string listen )
+Server										&Server::setListen( std::string listen )
 {
-	this->_v_listen.push_back(listen);
+	this->_listen = listen;
 	return ( *this );
 }
 
@@ -167,7 +166,6 @@ Server										&Server::addStatusPage( std::string const &string_code, \
 	std::stringstream	ss;
     int					status_code;
 
-	std::cout << "STRING CODE " << string_code << " PATH_NAME " << page_path << std::endl;
 	ss << string_code;
     ss >> status_code;
 	if ( status_code < 300 || status_code > 599)
@@ -200,40 +198,3 @@ Server										&Server::setRoot( std::string root )
 	this->_root = root;
 	return ( *this );
 }
-
-/*
-std::ostream &operator<<( std::ostream &o, Server const &src )
-{
-	o << "server {" << std::endl;
-	for (std::vector<std::string>::const_iterator it = src.getServerName().begin(); \
-			it != src.getServerName().end(); it++)
-		o << "\tserver_name " << *it << ";" << std::endl;
-	
-	for (std::vector<std::string>::const_iterator it = src.getVListen().begin(); \
-			it != src.getVListen().end(); it++)
-		o << "\tlisten " << *it << ";" << std::endl;
-
-	for (std::map<int, std::string>::const_iterator it = src.getMStautsPages().begin(); \
-			it != src.getMStautsPages().end(); ++it)
-		o << "\terror_code " << it->first << " " << it->second << ";" << std::endl;
-	
-	o << "\tclient_max_body_size " << src.getClienteMaxBodySize() << ";" << std::endl;
-	
-	for (std::vector<Location *>::const_iterator it = src.getVLocations().begin(); \
-			it != src.getVLocations().end(); it++)
-		o << "\t" << **it;
-
-	for (std::map<std::string, std::string>::const_iterator it = src.getMRedirections().begin(); \
-		it != src.getMRedirections().end(); it++)
-	{
-		o << "\tredirection " << it->first << " " << it->second << ";" << std::endl;
-	}
-
-	o << "\tautoindex " << src.getAutoindex() << ";" << std::endl;
-	o << "\tindex " << src.getIndex() << ";" << std::endl;
-	o << "\tcgi " << src.getCgi() << ";" << std::endl;
-	o << "\troot " << src.getRoot() << ";" << std::endl;
-	o << "}" << std::endl;
-	return ( o );
-}
-*/

@@ -12,7 +12,7 @@
 
 # include "Location.hpp"
 
-Location::Location( void ): Server(){}
+Location::Location( void ){}
 
 Location::Location( Server const &server, std::string path ): Server( server ), \
 	_path(path){}
@@ -36,7 +36,13 @@ Location::~Location( void )
 
 Location	&Location::operator=( Location const &src )
 {
-	(void)src;
+	if (this != &src) {
+		// Llamar al operador de asignación por copia de la clase base
+		Server::operator=(src);
+		this->_path = src._path;
+		this->_v_methods = src._v_methods;
+		this->_alias = src._alias;
+	}
 	return( *this );
 }
 
@@ -48,6 +54,12 @@ std::string const							&Location::getPath( void ) const
 std::vector<std::string> const				&Location::getVMethods( void ) const
 {
 	return ( this->_v_methods );
+}
+
+Location									&Location::setPath( std::string path )
+{
+	this->_path = path;
+	return ( *this );
 }
 
 Location									&Location::addVMethod( std::string method)
@@ -66,10 +78,7 @@ std::ostream	&operator<<( std::ostream &o, Location const &src)
 {
 	o << "location " << src.getPath() << " {" << std::endl;
 	o << "\tserver_name " << src.getServerName() << ";" << std::endl;
-	
-	for (std::vector<std::string>::const_iterator it = src.getVListen().begin(); \
-			it != src.getVListen().end(); it++)
-		o << "\tlisten " << *it << ";" << std::endl;
+	o << "\tlisten " << src.getListen() << ";" << std::endl;
 
 	for (std::map<int, std::string>::const_iterator it = src.getMStautsPages().begin(); \
 			it != src.getMStautsPages().end(); ++it)

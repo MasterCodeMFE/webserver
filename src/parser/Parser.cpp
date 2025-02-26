@@ -117,26 +117,27 @@ void 	Parser::parseConfigFile( void )
 
 void		Parser::_processTokens( void )
 {
-	//bool								looking_kw = true;
-	t_context 				context = E_GLOBAL;
-	std::vector<Location *> loc;
+	std::vector<Location> loc;
 
 	tokenIter it = this->_tokens.begin();
 	if ( Parser::_directives.empty())
 		Parser::_setDirectives();
-    while ( it != this->_tokens.end() )
+    while ( it != this->_tokens.end())
 	{
-		this->_checkDirective( *it )._checkContext( context, *it);
+		this->_checkDirective( *it )._checkContext( E_GLOBAL, *it);
 		
 		if ( "server" == *it )
 		{
 			std::vector<std::string> subvector(it, this->_tokens.end());
 			it += this->_serverProcessing( loc, subvector );
 		}
-
 		std::cout << *it << std::endl;
 		it ++;
 	}
+	std::cout << "Resultado final." << std::endl;
+	for ( std::vector<Location>::const_iterator it = loc.begin(); \
+		it != loc.end(); it++ )
+		std::cout << *it << std::endl;
 }
 
 t_directive	build_directive( int args, unsigned int context, t_type type )
@@ -149,44 +150,58 @@ t_directive	build_directive( int args, unsigned int context, t_type type )
 	return ( dir );
 }
 
-int	Parser::_serverProcessing( std::vector<Location *> &locs, \
+int	Parser::_serverProcessing( std::vector<Location> &locs, \
 			std::vector<std::string> v_str )
 {
 	tokenIter									it = v_str.begin();
 	std::vector<Location> 						server_locations;
 	Location									server;	
-	//bool	block_closed = false;
 
 	(void)locs;
 	if ( v_str.end() == ++it || *it != "{" )
 		throw Parser::ParsingException("Expected space followed by `{` after `server` directive" );
 	it++;	
-	while ( it != v_str.end() )
+	while ( it != v_str.end() && *it != "}" )
 	{
 		this->_checkDirective( *it )
 			._checkContext( E_SERVER, *it )
-			._checkArgs( it, v_str.end());
+			._checkArgs( it, v_str.end())
+			._checkLocationLast(*it, !server_locations.empty() );
+
 		if ( *it == "location" )
 		{
-			std::cout << "LOCATION!" << std::endl;
-			break;
+			Location	new_location(server);
+			tokenIter	block_close = find( it, v_str.end(), "}");
+
+			new_location.setPath( *(++it) );
+			it++;
+			this->_checkClosedBlock( it++, v_str.end())
+				._handleLocationDirective(new_location, it, block_close );
+			server_locations.push_back(new_location);
+			it = block_close;
 		}
 		else
 		{
 			this->_handleServerDirective( server, it);
 		}
-		it ++;		
+		it ++;
 	}
+	if ( !server_locations.empty())
+		locs.insert( locs.end(), server_locations.begin(), server_locations.end());
+	else
+		locs.push_back( server );
 	std::cout << server << std::endl;
-	return ( 0 );
+	return ( std::distance( v_str.begin(), it) );
 }
 
-void					Parser::_handleServerDirective( Location &server, tokenIter &it)
+void					Parser::_handleServerDirective(	Location &server, tokenIter &it )
 {
-	if ( "server_name" == *it )
+	if ( "server_name" == *it \
+		&& this->_checkUnique( *it, server.getServerName().empty()) )
 		server.setServerName( *(++it) );
-	else if ( "listen" == *it )
-		server.addListen( *(++it) );
+	else if ( "listen" == *it \
+		&& this->_checkUnique( *it, server.getListen().empty()) )
+		server.setListen( *(++it) );
 	else if ( "error_page" == *it )
 	{
 		server.addStatusPage( *(it + 1), *(it + 2) );
@@ -195,7 +210,7 @@ void					Parser::_handleServerDirective( Location &server, tokenIter &it)
 	else if ( "client_max_body_size" == *it )
 		server.setClienteMaxBodySize( *(++it) );
 	else if ( "method" == *it )
-		std::cout << "METHOD is a location directive, not server one." << std::endl;
+		server.addVMethod( *(++it) );
 	else if ( "redirect" == *it )
 	{
 		server.addMRedirection( *(it + 1), *(it + 2) );
@@ -210,17 +225,20 @@ void					Parser::_handleServerDirective( Location &server, tokenIter &it)
 	else if ( "root" == *it )
 		server.setRoot( *(++it) );
 	else if ( "alias" == *it )
-		std::cout << "ALIAS is a location directive, not server one." << std::endl;
-	std::cout << "ENTRA" << std::endl;
+		server.setAlias( *(++it) );
+	std::cout << *it << std::endl;
 	it++;	
 }
 
-
-
- /*
-std::vector<std::string> getServerTokens( std::vector<std::string>::const_iterator it )
+void	Parser::_handleLocationDirective( Location &location, tokenIter &it, tokenIter end )
 {
-	
-	it.find( "}");
-}*/
 
+	while ( it != end )
+	{
+		this->_checkDirective( *it )
+			._checkContext( E_LOCATION, *it )
+			._checkArgs( it, end);
+		this->_handleServerDirective( location, it);
+		it++;
+	}			
+}

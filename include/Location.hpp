@@ -25,20 +25,20 @@ class Location: public Server
 		std::vector<std::string>					_v_methods;	
 		std::string									_alias;
 
-		
-		Location	&operator=( Location const &src );
-		
-		public:
+	public:
 		Location( void );
 		Location( Location const &src );
 		Location( Server const &server, std::string path );
 		~Location( void );
+		
+		Location	&operator=( Location const &src );
 
-		std::string const							&getPath( void ) const;
-		std::vector<std::string> const				&getVMethods( void ) const;
+		std::string const				&getPath( void ) const;
+		std::vector<std::string> const	&getVMethods( void ) const;
 
-		Location 									&addVMethod( std::string method );
-		Location									&setAlias( std::string alias );
+		Location 						&setPath( std::string path );
+		Location 						&addVMethod( std::string method );
+		Location						&setAlias( std::string alias );
 };
 
 std::ostream	&operator<<( std::ostream &o, Location const &src);

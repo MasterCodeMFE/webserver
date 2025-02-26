@@ -58,21 +58,23 @@ class Parser
 		Parser					&_cleanComments( std::string str );
 		Parser					&_tokenizeConfig( void );
 		void					_processTokens(  void );
-		// void					_processTokens( const t_context &context =  E_GLOBAL, std::vector<Location> &config);
-		int						_serverProcessing( std::vector<Location *> &locs, \
+		int						_serverProcessing( std::vector<Location> &locs, \
 									std::vector<std::string> v_str );
 
-		Parser					&_checkDirective( std::string );
+		Parser					&_checkDirective( std::string directive );
 		Parser					&_checkContext( t_context current_context, std::string directive );
 		Parser					&_checkArgs( tokenIter kw, tokenIter end );
+		Parser					&_checkClosedBlock( tokenIter begin, tokenIter end );
+		Parser					&_checkLocationLast( std::string directive, bool locationInServer );
+		bool					_checkUnique( std::string directive, bool alreadyHasValue );
 
-		void					_handleServerDirective( Location &server, tokenIter &it);
-
+		void					_handleServerDirective( Location &server, tokenIter &it );
+		void					_handleLocationDirective( Location &location, tokenIter &it, tokenIter end );
 
 		static void				_setDirectives( void );
 		
 	public:
-		Parser( void ); //Parser construidor con config_file por defecto
+		Parser( void );
 		~Parser( void );
 		
 		Parser	&setConfigFile( const char* config_file_path );

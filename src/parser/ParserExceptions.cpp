@@ -18,11 +18,13 @@ Parser	&Parser::_forbidenCharsCheck( void )
 	return ( *this );
 }
 
-Parser					&Parser::_checkDirective( std::string directive)
+Parser					&Parser::_checkDirective( std::string directive )
 {
 	std::ostringstream oss;
 
-	if ( Parser::_directives.end() == Parser::_directives.find( directive ))
+	if  ( directive.empty() )
+		throw Parser::ParsingException("Sever block not closed with `}`." );
+	else if ( Parser::_directives.end() == Parser::_directives.find( directive ))
 	{
 		oss << "Unknown directive `" << directive << "`";
 		throw Parser::ParsingException(oss.str());
@@ -39,7 +41,7 @@ Parser					&Parser::_checkContext( t_context current_context, \
 	{
 		oss << "Directive `" << directive
 		<< "` declared out of its available scope. "
-		<< "Check ./src/parsing/README.md route for details.";
+		<< "Check ./src/parsing/README.md file for details.";
 		throw Parser::ParsingException(oss.str());
 	}
 	return ( *this );
@@ -56,16 +58,60 @@ Parser				&Parser::_checkArgs( tokenIter kw, tokenIter end )
 
 	if ( std::distance( kw, end) < args + 1)
 	{
-		oss << "Directive " << *kw << " expected " 
+		oss << "Directive `" << *kw << "` expected " 
 			<< args << std::endl;
 		throw Parser::ParsingException(oss.str()) ;
 	}
-
 	else if ( E_DIRECTIVE ==  type &&  ";" != *( kw + args + 1 ) )
 	{
-		oss << "Directive " << *kw << " expected " << args
+		oss << "Directive `" << *kw << "` expected " << args
 			<< " arguments followed by space and `;`." << std::endl;
 		throw Parser::ParsingException( oss.str() );
 	}
+	else if ( E_BLOCK ==  type &&  "{" != *( kw + args + 1 ) )
+	{
+		oss << "Directive `" << *kw << "` expected " << args
+			<< " arguments followed by space and `{`." << std::endl;
+		throw Parser::ParsingException( oss.str() );
+	}
 	return ( *this );
+}
+
+Parser					&Parser::_checkClosedBlock( tokenIter begin, tokenIter end )
+{
+	std::ostringstream	oss;
+
+	if ( end == find( begin, end, "}") )
+	{
+		oss << "Block directive expected clossing with `}`." << std::endl;
+		throw Parser::ParsingException( oss.str() );
+	}
+	return ( *this );
+}
+
+Parser					&Parser::_checkLocationLast( std::string directive, bool locationInServer )
+{
+	std::ostringstream	oss;
+
+	if ( directive != "location" && locationInServer )
+	{
+		oss << "Directive `" << directive << "` in server block declared after `listen` "
+			<< "directive. `listen` directives must be the lastest of `server` block." << std::endl;
+		throw Parser::ParsingException( oss.str() );
+	}
+	return ( *this );
+}
+
+bool					Parser::_checkUnique( std::string directive, bool alreadyHasValue )
+{
+	std::ostringstream	oss;
+
+	if ( alreadyHasValue == false )
+	{
+		oss << "Directive `" << directive << "` must only be declared one time "
+			<< "per `server` block." << std::endl;
+		throw Parser::ParsingException( oss.str() );
+	}
+	return ( alreadyHasValue );
+
 }

@@ -25,7 +25,7 @@ class Server
 {
 	protected:
 		std::string							_server_name;
-		std::vector<std::string>			_v_listen;
+		std::string							_listen;
 		std::map<int, std::string>			_m_status_pages;
         unsigned int						_client_max_body_size;
         bool								_autoindex;
@@ -42,7 +42,7 @@ class Server
 		Server	&operator=( Server const &src );
 
 		Server										&setServerName( std::string server_name );
-		Server										&addListen( std::string listen );
+		Server										&setListen( std::string listen );
 		Server										&addMRedirection( std::string from, std::string to);
 		Server										&addStatusPage( std::string const &status_string, std::string const &page_path);
 		Server										&setClienteMaxBodySize( std::string size );
@@ -53,7 +53,7 @@ class Server
 
 		// Comprueba si hay pagina especificada, sino devuelve pagina de error por defecto.
 		std::string const							&getServerName( void )const;
-		std::vector<std::string> const				&getVListen( void )const;
+		std::string const							&getListen( void )const;
 		std::map<std::string, std::string> const	&getMRedirections( void ) const;
 		std::map<int, std::string> const			&getMStautsPages( void ) const;
 		std::string		 							getErrorPage( unsigned int status_code ) const;
