@@ -4,6 +4,11 @@
 
 std::map<std::string, t_directive>	Parser::_directives;
 
+/**
+ * Función no miembro para iniciar el mapeo de directivas permitidas en el proyecto,
+ * junto con las características de cada directiva: número de argumentos, ambito de declaración
+ * tipo de directiva.
+ */
 void	Parser::_setDirectives( void )
 {
 	_directives["server"] = build_directive( 0, E_GLOBAL, E_BLOCK );
@@ -76,11 +81,6 @@ Parser	&Parser::_tokenizeConfig( void )
 		token = strtok(NULL, delimiters);
 	}
 
-	for ( tokenIter it = _tokens.begin(); \
-		it != _tokens.end(); it ++ )
-		std::cout << *it << " | ";
-	std::cout << std::endl;
-
 	delete[] cleaned_str;
 	return ( *this );
 }
@@ -99,10 +99,14 @@ Parser	&Parser::setConfigFile( const char* config_file_path )
 	return ( *this );
 }
 
-/** Función para parsear el fichero de configuración
- * @param conf Objeto Config donde cargar los valores parseados.
+/** Función para parsear el fichero de configuración.
+ * @param loc Vector donde se cargarán todos los objetos Location
+ * 		generados del parseo de fichero de configuración. Habra 
+ * 		un objeto `Location`por cada `location` que salga en el fichero
+ * 		de configuración, uno extra por cada `server` que no tenga 
+ * 		declaradas `location`s en su interior.
  */
-void 	Parser::parseConfigFile( void )
+void 	Parser::parseConfigFile( std::vector<Location> &loc )
 {
 	std::string str;
 	if ( !this->_configFile.is_open() )
@@ -112,13 +116,20 @@ void 	Parser::parseConfigFile( void )
 	while ( std::getline(this->_configFile, str) )
 		this->_cleanComments(str);
 	this->_configFile.close();
-	this->_forbidenCharsCheck()._tokenizeConfig()._processTokens();
+	this->_forbidenCharsCheck()._tokenizeConfig()._processTokens( loc );
 }
 
-void		Parser::_processTokens( void )
+/** Función que va analizando los tokens almacenados en this->_tokens.
+ * se considera token a un conjunto de caracteres entre espacios.
+ * @param loc Vector donde se cargarán todos los objetos Location
+ * 		generados del parseo de fichero de configuración. Habra 
+ * 		un objeto `Location`por cada `location` que salga en el fichero
+ * 		de configuración, uno extra por cada `server` que no tenga 
+ * 		declaradas `location`s en su interior.
+ * 
+ */
+void		Parser::_processTokens( std::vector<Location> &loc )
 {
-	std::vector<Location> loc;
-
 	tokenIter it = this->_tokens.begin();
 	if ( Parser::_directives.empty())
 		Parser::_setDirectives();
@@ -131,7 +142,6 @@ void		Parser::_processTokens( void )
 			std::vector<std::string> subvector(it, this->_tokens.end());
 			it += this->_serverProcessing( loc, subvector );
 		}
-		std::cout << *it << std::endl;
 		it ++;
 	}
 	std::cout << "Resultado final." << std::endl;
@@ -140,6 +150,14 @@ void		Parser::_processTokens( void )
 		std::cout << *it << std::endl;
 }
 
+/** Funcion auxulia para construir items t_directive
+ * @param args Número de argumentos aceptados por una directiva.
+ * @param context Contexto en el que puede utilizarse una directiva, consultar
+ * 		la enumeración `t_context` del header para ver opciones.
+ * @param type Indica el tipo de directiva, enumeración `t_type` del header.
+ * 
+ * @return La directiva construida.
+ */
 t_directive	build_directive( int args, unsigned int context, t_type type )
 {
 	t_directive	dir;
@@ -150,6 +168,20 @@ t_directive	build_directive( int args, unsigned int context, t_type type )
 	return ( dir );
 }
 
+/** Procesa los toques localizados dentro de una directiva `server`
+ * añadiendo objetos Location al vector de localizaciones `locs`.
+ *  @param loc Referencia a vector donde se cargarán todos los objetos `Location`
+ * 		generados del parseo de fichero de configuración. Habra 
+ * 		un objeto `Location`por cada `location` que salga en el fichero
+ * 		de configuración, uno extra por cada `server` que no tenga 
+ * 		declaradas `location`s en su interior.
+ * @param v_str Vector de tokens a procesar. Comenzando desde la primera
+ * 		palabra `server` tras procesamientos previos.
+ * 
+ * @return entero con el número de tokens procesados para continuar siguientes
+ * 		pasos a partir del último token procesado.
+ * 
+*/
 int	Parser::_serverProcessing( std::vector<Location> &locs, \
 			std::vector<std::string> v_str )
 {
@@ -190,17 +222,22 @@ int	Parser::_serverProcessing( std::vector<Location> &locs, \
 		locs.insert( locs.end(), server_locations.begin(), server_locations.end());
 	else
 		locs.push_back( server );
-	std::cout << server << std::endl;
 	return ( std::distance( v_str.begin(), it) );
 }
 
+/** Lógica de tratamiento e inclusión de cada una de las directivas
+ * disponibles dentro de la directiva `server` en el objeto Location
+ * recibido a través del argumento `server`
+ * @param server Objeto `Location` en el que cargar la directiva procesada.
+ * @param it	Iterador de tokens que apunta a la palabra identificadora de la directiva.
+ */
 void					Parser::_handleServerDirective(	Location &server, tokenIter &it )
 {
 	if ( "server_name" == *it \
-		&& this->_checkUnique( *it, server.getServerName().empty()) )
+		&& this->_checkUnique( *it, !server.getServerName().empty()) )
 		server.setServerName( *(++it) );
 	else if ( "listen" == *it \
-		&& this->_checkUnique( *it, server.getListen().empty()) )
+		&& this->_checkUnique( *it, !server.getListen().empty()) )
 		server.setListen( *(++it) );
 	else if ( "error_page" == *it )
 	{
@@ -226,10 +263,17 @@ void					Parser::_handleServerDirective(	Location &server, tokenIter &it )
 		server.setRoot( *(++it) );
 	else if ( "alias" == *it )
 		server.setAlias( *(++it) );
-	std::cout << *it << std::endl;
 	it++;	
 }
 
+/** Lógica de tratamiento e inclusión de cada una de las directivas
+ * disponibles dentro de la directiva `location` en el objeto Location
+ * recibido a través del argumento `location`
+ * @param location Objeto `Location` en el que cargar la directiva procesada.
+ * @param it	Iterador de tokens que apunta a la palabra identificadora de la directiva.
+ * @param end	Iterador que apunta al final del bloque `location` para saber cuando
+ * 		parar el procesamiento del bloque
+*/
 void	Parser::_handleLocationDirective( Location &location, tokenIter &it, tokenIter end )
 {
 

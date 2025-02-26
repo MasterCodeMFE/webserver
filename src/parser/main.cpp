@@ -7,13 +7,13 @@
 //static std::string	ft_curate_line( std::string str );
 int main( int argc, const char **argv )
 {
-	Parser					p;
+	std::vector<Location> loc;
 
 	if (argc == 2)
-		p.setConfigFile(argv[1]);
+		Parser().setConfigFile(argv[1]).parseConfigFile(loc);
 	try
 	{
-		p.parseConfigFile();
+		Parser().parseConfigFile(loc);
 	}
 	catch ( Parser::ParsingException &e)
 	{

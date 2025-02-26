@@ -57,7 +57,7 @@ class Parser
 		Parser					&_forbidenCharsCheck( void );
 		Parser					&_cleanComments( std::string str );
 		Parser					&_tokenizeConfig( void );
-		void					_processTokens(  void );
+		void					_processTokens(  std::vector<Location> &loc );
 		int						_serverProcessing( std::vector<Location> &locs, \
 									std::vector<std::string> v_str );
 
@@ -78,7 +78,7 @@ class Parser
 		~Parser( void );
 		
 		Parser	&setConfigFile( const char* config_file_path );
-		void	parseConfigFile( void );
+		void	parseConfigFile( std::vector<Location> &loc );
 		class ParsingException: public std::logic_error
 		{
 			public:
