@@ -9,11 +9,12 @@ int main( int argc, const char **argv )
 {
 	std::vector<Location> loc;
 
-	if (argc == 2)
-		Parser().setConfigFile(argv[1]).parseConfigFile(loc);
 	try
 	{
-		Parser().parseConfigFile(loc);
+		if (argc == 2)
+			Parser().setConfigFile(argv[1]).parseConfigFile(loc);
+		else
+			Parser().parseConfigFile(loc);
 	}
 	catch ( Parser::ParsingException &e)
 	{

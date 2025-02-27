@@ -92,10 +92,10 @@ std::ostream	&operator<<( std::ostream &o, Location const &src)
 	o << "\troot " << src.getRoot() << ";" << std::endl;
 	for (std::map<std::string, std::string>::const_iterator it = src.getMRedirections().begin(); \
 		it != src.getMRedirections().end(); it++)
-		o << "\t\tredirection " << it->first << " " << it->second << ";"  << std::endl;
+		o << "\tredirection " << it->first << " " << it->second << ";"  << std::endl;
 	for (std::vector<std::string>::const_iterator it = src.getVMethods().begin(); \
 		it != src.getVMethods().end(); it++)
-		o << "\t\tmethod " << *it << ";" << std::endl;
+		o << "\tmethod " << *it << ";" << std::endl;
 	o << "\t}" << std::endl;
 	return ( o );
 }
