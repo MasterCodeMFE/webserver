@@ -192,13 +192,15 @@ int	Parser::_serverProcessing( std::vector<Location> &locs, \
 
 	(void)locs;
 	if ( v_str.end() == ++it || *it != "{" )
-		throw Parser::ParsingException("Expected space followed by `{` after `server` directive" );
+		throw Parser::ParsingException("Expected space followed by `{` after `server` directive" );	
+	
+	if ( v_str.end() == ++it )
+		this->_checkDirective( "" );
 	if ( *it == "}" )
 	{
 		std::cout << "\033[1;38;5;226m" << "WARNING - Empty server ignored." << "\033[0m" << std::endl;
 		return ( std::distance( v_str.begin(), it) );
 	}
-	
 	while ( it != v_str.end() && *it != "}" )
 	{
 		this->_checkDirective( *it )
@@ -224,7 +226,7 @@ int	Parser::_serverProcessing( std::vector<Location> &locs, \
 		}
 		it ++;
 	}
-	if ( !server_locations.empty())
+	if ( !server_locations.empty() )
 		locs.insert( locs.end(), server_locations.begin(), server_locations.end());
 	else
 		locs.push_back( server );
@@ -282,7 +284,6 @@ void					Parser::_handleServerDirective(	Location &server, tokenIter &it )
 */
 void	Parser::_handleLocationDirective( Location &location, tokenIter &it, tokenIter end )
 {
-
 	while ( it != end )
 	{
 		this->_checkDirective( *it )
