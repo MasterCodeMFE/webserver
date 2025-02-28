@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Status.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pabad-ap <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/11 12:44:28 by pabad-ap          #+#    #+#             */
-/*   Updated: 2025/02/11 15:33:36 by pabad-ap         ###   ########.fr       */
+/*   Updated: 2025/02/21 11:25:04 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,10 +141,13 @@ std::string			Status::getStatusResponse( int status_code )
  */
 std::string		Status::getErrorPage( int status_code )
 {
-	std::stringstream	msg_page;
+    std::stringstream msg_page;
+	std::string status_message;
+
 
 	if ( Status::_m_status_responses.empty() )
 		Status::_setStatusResponses();
+	status_message =  Status::_m_status_responses[status_code];
 	if (Status::_inErrorRange( status_code))
 	{
 		msg_page << "<!DOCTYPE html>\n"
@@ -154,16 +157,27 @@ std::string		Status::getErrorPage( int status_code )
 				<< "content=\"IE=edge\" /><meta name=\"viewport\" "
 				<< "content=\"width=device-width, initial-scale=1\" />\n"
 			<< "\t<title>" << status_code 
-				<< " - " << Status::_m_status_responses[status_code] << "</title>\n"
+				<< " - " << status_message << "</title>\n"
 			<< "</head>\n"
 			<< "<body>\n"
-			<< "\t<div class=\"cover\"><h1>" << Status::_m_status_responses[status_code]
+			<< "\t<div class=\"cover\"><h1>" << status_message
 				<< " " << status_code << "</h1>\n"
 			<< "\t<footer><p>Technical Contact: <a href=\"mailto:x@example.com\">"
 				<< "support@example.com</a></p></footer>\n"
 			<< "</body>\n"
 			<< "</html>\n";
 	}
+	std::string body = msg_page.str();
+    std::stringstream response;
+
+    response << "HTTP/1.1 " << status_code << " " << status_message << "\r\n"
+             << "Content-Type: text/html\r\n"
+             << "Content-Length: " << body.size() << "\r\n"
+             << "Connection: close\r\n"
+             << "\r\n"
+             << body;
+
+    return response.str();
 	return ( msg_page.str() );
 }
 
