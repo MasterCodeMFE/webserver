@@ -190,7 +190,6 @@ int	Parser::_serverProcessing( std::vector<Location> &locs, \
 	std::vector<Location> 						server_locations;
 	Location									server;	
 
-	(void)locs;
 	if ( v_str.end() == ++it || *it != "{" )
 		throw Parser::ParsingException("Expected space followed by `{` after `server` directive" );	
 	
@@ -206,7 +205,7 @@ int	Parser::_serverProcessing( std::vector<Location> &locs, \
 		this->_checkDirective( *it )
 			._checkContext( E_SERVER, *it )
 			._checkArgs( it, v_str.end())
-			._checkLocationLast(*it, !server_locations.empty() );
+			._checkLocationLast( *it, !server_locations.empty() );
 
 		if ( *it == "location" )
 		{
@@ -214,7 +213,7 @@ int	Parser::_serverProcessing( std::vector<Location> &locs, \
 			tokenIter	block_close = find( it, v_str.end(), "}");
 
 			new_location.setPath( *(++it) );
-			it++;
+			++it;
 			this->_checkClosedBlock( it++, v_str.end())
 				._handleLocationDirective(new_location, it, block_close );
 			server_locations.push_back(new_location);
@@ -281,9 +280,11 @@ void					Parser::_handleServerDirective(	Location &server, tokenIter &it )
  * @param it	Iterador de tokens que apunta a la palabra identificadora de la directiva.
  * @param end	Iterador que apunta al final del bloque `location` para saber cuando
  * 		parar el procesamiento del bloque
-*/
+ */
 void	Parser::_handleLocationDirective( Location &location, tokenIter &it, tokenIter end )
 {
+	if ( it == end )
+		location.setPath( std::string() );
 	while ( it != end )
 	{
 		this->_checkDirective( *it )

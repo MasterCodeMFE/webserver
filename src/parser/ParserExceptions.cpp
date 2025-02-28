@@ -76,7 +76,7 @@ Parser				&Parser::_checkArgs( tokenIter kw, tokenIter end )
 	if ( std::distance( kw, end) < args + 1)
 	{
 		oss << "Directive `" << *kw << "` expected " 
-			<< args << std::endl;
+			<< args << " argument." << std::endl;
 		throw Parser::ParsingException(oss.str()) ;
 	}
 	else if ( E_DIRECTIVE ==  type &&  ";" != *( kw + args + 1 ) )
@@ -85,7 +85,8 @@ Parser				&Parser::_checkArgs( tokenIter kw, tokenIter end )
 			<< " arguments followed by space and `;`." << std::endl;
 		throw Parser::ParsingException( oss.str() );
 	}
-	else if ( E_BLOCK ==  type &&  "{" != *( kw + args + 1 ) )
+	else if ( E_BLOCK ==  type && \
+		( kw + args + 1 == end || "{" != *( kw + args + 1 ) ) )
 	{
 		oss << "Directive `" << *kw << "` expected " << args
 			<< " arguments followed by space and `{`." << std::endl;
@@ -106,7 +107,7 @@ Parser					&Parser::_checkClosedBlock( tokenIter begin, tokenIter end )
 
 	if ( end == find( begin, end, "}") )
 	{
-		oss << "Block directive expected clossing with `}`." << std::endl;
+		oss << "Block directive expected `}` clossing." << std::endl;
 		throw Parser::ParsingException( oss.str() );
 	}
 	return ( *this );
