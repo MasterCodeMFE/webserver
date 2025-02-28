@@ -66,7 +66,8 @@ class Parser
 		Parser					&_checkArgs( tokenIter kw, tokenIter end );
 		Parser					&_checkClosedBlock( tokenIter begin, tokenIter end );
 		Parser					&_checkLocationLast( std::string directive, bool locationInServer );
-		bool					_checkUnique( std::string directive, bool alreadyHasValue );
+		bool					_checkUniqueDirective( std::string directive, bool alreadyHasValue );
+		Parser					&_checkUniqueLocation(  std::string path, std::vector<Location> server_locations );
 
 		void					_handleServerDirective( Location &server, tokenIter &it );
 		void					_handleLocationDirective( Location &location, tokenIter &it, tokenIter end );

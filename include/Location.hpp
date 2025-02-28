@@ -13,7 +13,7 @@
 #ifndef LOCATION_CLASS_HPP
 # define LOCATION_CLASS_HPP
 
-# include <vector>
+# include <set>
 # include <string>
 # include <iostream>
 # include "Server.hpp"
@@ -22,7 +22,7 @@ class Location: public Server
 {
 	private:
 		std::string									_path;
-		std::vector<std::string>					_v_methods;	
+		std::set<std::string>					_s_methods;	
 		std::string									_alias;
 
 	public:
@@ -33,12 +33,13 @@ class Location: public Server
 		
 		Location	&operator=( Location const &src );
 
-		std::string const				&getPath( void ) const;
-		std::vector<std::string> const	&getVMethods( void ) const;
+		std::string const			&getPath( void ) const;
+		std::set<std::string> const	&getSMethods( void ) const;
+		std::string	const			&getAlias( void ) const;
 
-		Location 						&setPath( std::string path );
-		Location 						&addVMethod( std::string method );
-		Location						&setAlias( std::string alias );
+		Location 					&setPath( std::string path );
+		Location 					&addSMethod( std::string method );
+		Location					&setAlias( std::string alias );
 };
 
 std::ostream	&operator<<( std::ostream &o, Location const &src);

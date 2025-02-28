@@ -215,9 +215,11 @@ int	Parser::_serverProcessing( std::vector<Location> &locs, \
 			new_location.setPath( *(++it) );
 			++it;
 			this->_checkClosedBlock( it++, v_str.end())
+				._checkUniqueLocation( new_location.getPath(), server_locations )
 				._handleLocationDirective(new_location, it, block_close );
 			server_locations.push_back(new_location);
 			it = block_close;
+			this->_checkClosedBlock( it + 1, v_str.end());
 		}
 		else
 		{
@@ -241,10 +243,10 @@ int	Parser::_serverProcessing( std::vector<Location> &locs, \
 void					Parser::_handleServerDirective(	Location &server, tokenIter &it )
 {
 	if ( "server_name" == *it \
-		&& this->_checkUnique( *it, !server.getServerName().empty()) )
+		&& this->_checkUniqueDirective( *it, !server.getServerName().empty()) )
 		server.setServerName( *(++it) );
 	else if ( "listen" == *it \
-		&& this->_checkUnique( *it, !server.getListen().empty()) )
+		&& this->_checkUniqueDirective( *it, !server.getListen().empty()) )
 		server.setListen( *(++it) );
 	else if ( "error_page" == *it )
 	{
@@ -254,7 +256,7 @@ void					Parser::_handleServerDirective(	Location &server, tokenIter &it )
 	else if ( "client_max_body_size" == *it )
 		server.setClienteMaxBodySize( *(++it) );
 	else if ( "method" == *it )
-		server.addVMethod( *(++it) );
+		server.addSMethod( *(++it) );
 	else if ( "redirect" == *it )
 	{
 		server.addMRedirection( *(it + 1), *(it + 2) );

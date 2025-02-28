@@ -18,7 +18,7 @@ Location::Location( Server const &server, std::string path ): Server( server ), 
 	_path(path){}
 
 Location::Location( Location const &src ): Server( src ), \
-	_path(src._path), _v_methods(src._v_methods), _alias(src._alias)
+	_path(src._path), _s_methods(src._s_methods), _alias(src._alias)
 {
 	//this->_m_status_pages = src._m_status_pages;
 	//this->_client_max_body_size = src._client_max_body_size;
@@ -31,7 +31,7 @@ Location::Location( Location const &src ): Server( src ), \
 
 Location::~Location( void )
 {
-	this->_v_methods.clear();
+	this->_s_methods.clear();
 }
 
 Location	&Location::operator=( Location const &src )
@@ -40,7 +40,7 @@ Location	&Location::operator=( Location const &src )
 		// Llamar al operador de asignación por copia de la clase base
 		Server::operator=(src);
 		this->_path = src._path;
-		this->_v_methods = src._v_methods;
+		this->_s_methods = src._s_methods;
 		this->_alias = src._alias;
 	}
 	return( *this );
@@ -51,9 +51,14 @@ std::string const							&Location::getPath( void ) const
 	return ( this->_path );
 }
 
-std::vector<std::string> const				&Location::getVMethods( void ) const
+std::set<std::string> const				&Location::getSMethods( void ) const
 {
-	return ( this->_v_methods );
+	return ( this->_s_methods );
+}
+
+std::string const				&Location::getAlias( void ) const
+{
+	return ( this->_alias);
 }
 
 Location									&Location::setPath( std::string path )
@@ -62,9 +67,9 @@ Location									&Location::setPath( std::string path )
 	return ( *this );
 }
 
-Location									&Location::addVMethod( std::string method)
+Location									&Location::addSMethod( std::string method)
 {
-	this->_v_methods.push_back(method);
+	this->_s_methods.insert(method);
 	return ( *this );
 }
 
@@ -90,11 +95,12 @@ std::ostream	&operator<<( std::ostream &o, Location const &src)
 	o << "\tindex " << src.getIndex() << ";" << std::endl;
 	o << "\tcgi " << src.getCgi() << ";" << std::endl;
 	o << "\troot " << src.getRoot() << ";" << std::endl;
+	o << "\talias " << src.getAlias() << ";" << std::endl;
 	for (std::map<std::string, std::string>::const_iterator it = src.getMRedirections().begin(); \
 		it != src.getMRedirections().end(); it++)
 		o << "\tredirection " << it->first << " " << it->second << ";"  << std::endl;
-	for (std::vector<std::string>::const_iterator it = src.getVMethods().begin(); \
-		it != src.getVMethods().end(); it++)
+	for (std::set<std::string>::const_iterator it = src.getSMethods().begin(); \
+		it != src.getSMethods().end(); it++)
 		o << "\tmethod " << *it << ";" << std::endl;
 	o << "\t}" << std::endl;
 	return ( o );

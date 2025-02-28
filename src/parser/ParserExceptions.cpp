@@ -142,7 +142,7 @@ Parser					&Parser::_checkLocationLast( std::string directive, bool locationInSe
  * 
  * @return Resultado de la comprobación 
  */
-bool					Parser::_checkUnique( std::string directive, bool alreadyHasValue )
+bool					Parser::_checkUniqueDirective( std::string directive, bool alreadyHasValue )
 {
 	std::ostringstream	oss;
 
@@ -155,3 +155,26 @@ bool					Parser::_checkUnique( std::string directive, bool alreadyHasValue )
 	return ( !alreadyHasValue );
 
 }
+
+
+/** Comprueba que las rutas declaradas en un servidor son únicas`.
+ * @param path Ruta de la nueva `location`.
+ * @param server_lcoations localizaciones actuales en el bloque `server`.
+ * 
+ * @return Resultado de la comprobación 
+ */
+Parser					&Parser::_checkUniqueLocation( std::string path, \
+	std::vector<Location> server_locations )
+{
+	std::ostringstream	oss;
+
+	oss << "Duplicate location `" << path << "` in the same server." << std::endl;
+	for ( std::vector<Location>::const_iterator it = server_locations.begin(); \
+		it != server_locations.end(); it ++ )
+	{
+		if ( it->getPath() == path )
+			throw Parser::ParsingException( oss.str() );
+	}
+	return ( *this );
+}
+
