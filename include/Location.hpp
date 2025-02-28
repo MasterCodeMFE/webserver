@@ -13,31 +13,33 @@
 #ifndef LOCATION_CLASS_HPP
 # define LOCATION_CLASS_HPP
 
-# include <vector>
+# include <set>
 # include <string>
 # include <iostream>
-# include "ACommonConfigs.hpp"
-# include "AServerBlockConfigs.hpp"
+# include "Server.hpp"
 
-class Location: public ACommonConfigs, public AServerBlockConfigs
+class Location: public Server
 {
 	private:
 		std::string									_path;
-		std::vector<std::string>					_v_methods;	
-
-		Location( void );
-
-		Location	&operator=( Location const &src );
+		std::set<std::string>					_s_methods;	
+		std::string									_alias;
 
 	public:
+		Location( void );
 		Location( Location const &src );
-		Location( std::string path );
+		Location( Server const &server, std::string path );
 		~Location( void );
+		
+		Location	&operator=( Location const &src );
 
-		std::string const							&getPath( void ) const;
-		std::vector<std::string> const				&getVMethods( void ) const;
+		std::string const			&getPath( void ) const;
+		std::set<std::string> const	&getSMethods( void ) const;
+		std::string	const			&getAlias( void ) const;
 
-		void										addVMethod( std::string method );
+		Location 					&setPath( std::string path );
+		Location 					&addSMethod( std::string method );
+		Location					&setAlias( std::string alias );
 };
 
 std::ostream	&operator<<( std::ostream &o, Location const &src);

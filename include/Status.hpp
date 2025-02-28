@@ -22,10 +22,10 @@ class Status
 {
 	private:	
 		static std::map<int, std::string>	_m_status_responses;
-		int									_status_code;
-		std::string							_error_page_path;
 
 		Status( void );
+		Status( Status const &src );
+		~Status( void );
 
 		Status	&operator=( Status const &src );
 		
@@ -33,19 +33,9 @@ class Status
 		static bool							_inErrorRange( int status_code );
 		
 	public:
-		Status( Status const &src );
-		Status( int status_code, std::string error_page_path );
-		~Status( void );
-
-
-		static std::string					getDefaultStatusResponse( int status_code );
-		static std::string 					getDefaultErrorPage( int status_code );
-		
-		int									getStatusCode( void ) const;
-		std::string const					&getErrorPagePath( void ) const;
-		std::string	 						getErrorPage( void ) const;
+		static std::string					getStatusResponse( int status_code );
+		static std::string 					getErrorPage( int status_code );
+		static std::string 					getErrorPage( std::string code_file_path );
 };
-
-std::ostream	&operator<<( std::ostream &o, Status const &src);
 
 #endif

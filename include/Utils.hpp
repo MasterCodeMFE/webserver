@@ -32,7 +32,7 @@ void        ft_clearContainer(Container& container);
 template <typename Container>
 Container   deepCopyContainer(Container const & src);
 
-bool        ft_isDigit( std::string size );
+bool        ft_isDigit( std::string str );
 
 # include "Utils.tpp"
 #endif

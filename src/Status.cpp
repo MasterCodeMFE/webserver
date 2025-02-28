@@ -96,30 +96,11 @@ void	Status::_setStatusResponses( void )
 
 Status::Status( void ){}
 
-Status::Status( Status const &src ): _status_code(src._status_code), \
-	_error_page_path(src._error_page_path){}
-
-/** Constructor to set customized error page path.
- * If `_m_status_responses_`is empty it loadas it.
-*/
-Status::Status( int status_code, std::string error_page_path ): \
-	_status_code(status_code), _error_page_path(error_page_path)
-{
-	if ( Status::_m_status_responses.empty() )
-		Status::_setStatusResponses();
-}
+Status::Status( Status const &src ){(void)src;}
 
 Status::~Status( void ){}
 
-Status	&Status::operator=( Status const &src )
-{
-	if ( this != &src )
-	{
-		this->_status_code = src._status_code;
-		this->_error_page_path = src._error_page_path;
-	}
-	return ( *this );
-}
+Status	&Status::operator=( Status const &src ){ (void)src; return ( *this ); }
 
 bool	Status::_inErrorRange( int status_code )
 {
@@ -137,10 +118,10 @@ bool	Status::_inErrorRange( int status_code )
 	return( inRange );
 }
 
- /** Get default response associated to status_code. Used
-  * to get it when no custom response is setted.
+ /** Devuelve la respues asociada al `status_code`. Usado como mensaje de cabecera
+  * jusnto con el codifo de error.
   */
-std::string			Status::getDefaultStatusResponse( int status_code )
+std::string			Status::getStatusResponse( int status_code )
 {
 	std::string	response;
 	if ( Status::_m_status_responses.empty() )
@@ -152,7 +133,13 @@ std::string			Status::getDefaultStatusResponse( int status_code )
 	return ( response );
 }
 
-std::string		Status::getDefaultErrorPage( int status_code )
+/** Devuelve una plantilla de error predefinida, en la que se ajustan el código de error
+ * y el mensaje asociado en base al `status_code`recibido como parametro.
+ * @param status_code Codigo de error del que se quiere obtener la página.
+ * 
+ * @return String que mostrar como error.
+ */
+std::string		Status::getErrorPage( int status_code )
 {
 	std::stringstream	msg_page;
 
@@ -180,32 +167,16 @@ std::string		Status::getDefaultErrorPage( int status_code )
 	return ( msg_page.str() );
 }
 
-int		Status::getStatusCode( void ) const
+/** Devuelve el contenido del fichero asociado al `code_file_path` */
+std::string			Status::getErrorPage( std::string code_file_path )
 {
-	return ( this->_status_code );
-}
-
-std::string const &Status::getErrorPagePath( void ) const
-{
-	return ( this->_error_page_path );
-}
-
-/** Return text of `_error_page_path` file.*/
-std::string			Status::getErrorPage( void ) const
-{
-	std::ifstream file(this->_error_page_path.c_str());
+	std::ifstream file(code_file_path.c_str());
     if (!file.is_open()) {
-        std::cout << "Could not open the file: " << this->_error_page_path << std::endl;
+        std::cout << "Could not open the file: " << code_file_path << std::endl;
         return "";
     }
 
     std::stringstream buffer;
     buffer << file.rdbuf();
     return buffer.str();
-}
-
-std::ostream	&operator<<( std::ostream &o, Status const &src)
-{
-	o << "error_page " << src.getStatusCode() << " " << src.getErrorPagePath() << ";" << std::endl;
-	return ( o );
 }
