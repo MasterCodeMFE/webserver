@@ -17,23 +17,25 @@
 // - 0 si todo fue bien.
 // - -1 en caso de error.
 int setup_server_listeners(const std::vector<int>& server_fds,
-                           const Config& config,
-                           std::vector<pollfd>& fds)
+                            const listenSet &config,
+                            std::vector<pollfd>& fds)
 {
+    listenSet::const_iterator confit = config.begin();
+
     for (size_t i = 0; i < server_fds.size(); i++)
     {
         if (listen(server_fds[i], SOMAXCONN) == -1)
         {
             std::cerr << "[ERROR] No se pudo poner en escucha el socket en "
-                      << config.getVServers()[i]->getVListen()[0] << " ("
-                      << config.getVServers()[i]->getServerName()[0] << "): "
+                      << confit->first << " ("
+                      << confit->second << "): "
                       << strerror(errno) << std::endl;
             return -1;
         }
 
         std::cout << "[INFO] Servidor en escucha en "
-                  << config.getVServers()[i]->getServerName()[0]
-                  << ":" << config.getVServers()[i]->getVListen()[0]
+                  << confit->second
+                  << ":" << confit->first
                   << std::endl;
 
         // Configurar el socket en poll para monitorizar eventos de entrada y salida.
@@ -41,6 +43,7 @@ int setup_server_listeners(const std::vector<int>& server_fds,
         server_pollfd.fd = server_fds[i];
         server_pollfd.events = POLLIN | POLLOUT;
         fds.push_back(server_pollfd);
+        confit ++;
     }
     return 0;
 }
@@ -58,8 +61,8 @@ int setup_server_listeners(const std::vector<int>& server_fds,
 // - config: Configuración general.
 // - fds: Vector de `pollfd` donde se registran los sockets (tanto de servidores como de clientes).
 void process_server_events(const std::vector<int>& server_fds,
-                           const Config& config,
-                           std::vector<pollfd>& fds)
+                            const listenSet &config,
+                            std::vector<pollfd>& fds)
 {
     for (size_t i = 0; i < server_fds.size(); i++)
     {
@@ -91,8 +94,8 @@ void process_server_events(const std::vector<int>& server_fds,
 // - config: Configuración general.
 // - fds: Vector de `pollfd` que contiene tanto servidores como clientes.
 void process_client_events(size_t start_index,
-                           const Config& config,
-                           std::vector<pollfd>& fds)
+                            const listenSet &config,
+                            std::vector<pollfd>& fds)
 {
     for (size_t i = start_index; i < fds.size(); ++i)
     {
@@ -127,7 +130,7 @@ void process_client_events(size_t start_index,
 // Retorno:
 // - 0 si todo se ejecuta correctamente.
 // - -1 en caso de error.
-int run_server_event_loop(const std::vector<int>& server_fds, const Config& config)
+int run_server_event_loop(const std::vector<int>& server_fds, const listenSet &config)
 {
     std::vector<pollfd> fds;
 

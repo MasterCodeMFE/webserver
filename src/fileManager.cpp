@@ -33,7 +33,7 @@ std::string listDirectory(const std::string &dirPath, const std::string &request
         std::cerr << "Error: No se pudo abrir el directorio " << dirPath
                   << " (" << strerror(errno) << ")" << std::endl;
 
-        return Status::getDefaultErrorPage(404); // Retorna una página de error 404 si el directorio no existe
+        return Status::getErrorPage(404); // Retorna una página de error 404 si el directorio no existe
     }
 
     // Construye la respuesta HTML con el índice del directorio

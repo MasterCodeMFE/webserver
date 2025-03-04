@@ -30,7 +30,7 @@ void	Parser::_setDirectives( void )
  * Al no especificarse un fichero de configuración, se indica la ruta del
  * fichero de configuración por defecto para su procesamineto.
  */
-Parser::Parser( void ): _configFile( "./src/parser/webserv.conf" ){}
+Parser::Parser( void ): _configFile( "./webserv.conf" ){}
 
 /** Copy constructor. Al ser privado, no se utilizará, por lo tanto tampoco
  * definimos su comportamiento.

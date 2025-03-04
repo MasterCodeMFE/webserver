@@ -19,7 +19,7 @@
 // Retorno:
 // - Una cadena con la respuesta HTTP correspondiente.
 
-std::string handle_get(const HttpRequest& request, const Config &config)
+std::string handle_get(const HttpRequest& request, const listenSet &config)
 {
     (void)config; // Config no utilizado en este ejemplo
     
@@ -32,7 +32,7 @@ std::string handle_get(const HttpRequest& request, const Config &config)
     if (::stat(filepath.c_str(), &file_stat) != 0)
     {
         std::cerr << "Error: No se encontró el archivo o directorio " << filepath << std::endl;
-        return Status::getDefaultErrorPage(404); // Retorna error 404 si no existe
+        return Status::getErrorPage(404); // Retorna error 404 si no existe
     }
     
     // Si es un directorio, genera un listado de su contenido
@@ -44,14 +44,14 @@ std::string handle_get(const HttpRequest& request, const Config &config)
     // Verifica si el archivo tiene permisos de lectura
     if (access(filepath.c_str(), R_OK) != 0)
     {
-        return Status::getDefaultErrorPage(403); // Retorna error 403 si no hay permisos
+        return Status::getErrorPage(403); // Retorna error 403 si no hay permisos
     }
 
     // Lee el contenido del archivo
     std::string content = read_file(filepath);
     if (content.empty())
     {
-        return Status::getDefaultErrorPage(500); // Retorna error 500 si hay un problema interno
+        return Status::getErrorPage(500); // Retorna error 500 si hay un problema interno
     }
 
     // Obtiene el tipo de contenido (MIME type) del archivo

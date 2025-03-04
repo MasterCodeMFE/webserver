@@ -118,7 +118,7 @@ void configureKeepAliveTimes(int client_fd, int keep_idle = 5, int keep_intvl = 
 // Retorno:
 // - Descriptor del socket del cliente si la conexión es exitosa.
 // - -1 en caso de error.
-int accept_client_connection(int server_fd, Config const &config) {
+int accept_client_connection(int server_fd, const listenSet &config ) {
     (void)config; // `config` se ignora en este ejemplo, pero puede usarse en futuras mejoras.
 
     int client_fd = acceptConnection(server_fd);

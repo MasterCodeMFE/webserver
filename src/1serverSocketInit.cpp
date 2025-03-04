@@ -62,16 +62,17 @@ int create_and_configure_socket() {
 // Esta función realiza dos pasos:
 // 1. Crea y configura un socket con `create_and_configure_socket()`.
 // 2. Llama a `configure_and_bind_socket()` para enlazarlo y prepararlo.
-int setup_server_socket(const Config &config, size_t index) {
+int setup_server_socket( std::pair<std::string, std::string> const &config ) {
     // Se crea el socket para el servidor en la posición `index`.
     int server_fd = create_and_configure_socket();
     if (server_fd == -1) { // Si no se pudo crear el socket, se devuelve error.
-        std::cerr << "Error creando socket para servidor " << index << std::endl;
+        std::cerr << "Error creando socket para servidor `" << config.second 
+            << "`(" << config.first << ")"<<  std::endl;
         return -1;
     }
 
     // `configure_and_bind_socket` debe encargarse de hacer bind() y posiblemente listen().
-    if (configure_and_bind_socket(server_fd, config, index) == -1) {
+    if (configure_and_bind_socket( server_fd, config ) == -1) {
         close_socket(server_fd); // Si la configuración falla, se cierra el socket.
         return -1;
     }
@@ -91,16 +92,16 @@ int setup_server_socket(const Config &config, size_t index) {
 // - Si no se pudo inicializar ningún socket, devuelve un vector vacío.
 //
 // Esta función recorre la lista de servidores en `config.getVServers()` y configura un socket para cada uno.
-std::vector<int> init_server_sockets(const Config &config) {
+std::vector<int> init_server_sockets(const listenSet &config) {
     std::vector<int> server_fds; // Vector donde se almacenarán los descriptores de socket creados.
 
     // Se recorren todos los servidores definidos en la configuración.
-    for (size_t i = 0; i < config.getVServers().size(); ++i) {
-        int server_fd = setup_server_socket(config, i);
+    for (listenSet::const_iterator it = config.begin(); it != config.end(); it++ ) {
+        int server_fd = setup_server_socket( *it );
         if (server_fd != -1) { // Si el socket se configuró correctamente, se agrega al vector.
             server_fds.push_back(server_fd);
         } else {
-            std::cerr << "No se pudo configurar el socket para el servidor " << i << std::endl;
+            std::cerr << "No se pudo configurar el socket para el servidor `" << it->second << "`(" << it->first << ")"<< std::endl;
         }
     }
     return server_fds; // Se devuelve el vector con los sockets configurados.
@@ -122,7 +123,7 @@ std::vector<int> init_server_sockets(const Config &config) {
 // 1. Se inicializan los sockets de los servidores.
 // 2. Se llama a `run_server_event_loop()` para manejar las conexiones de los clientes.
 // 3. Se cierran todos los sockets al finalizar.
-int initialize_server_sockets(const Config &config) {
+int initialize_server_sockets(const listenSet &config) {
     // Inicializa los sockets de todos los servidores según la configuración.
     std::vector<int> server_fds = init_server_sockets(config);
     if (server_fds.empty()) { // Si no se pudo configurar ningún socket, se reporta un error.

@@ -166,7 +166,7 @@ std::string read_http_body(int client_fd, const std::string& raw_request, int co
 // Retorno:
 // - 0 si la solicitud se procesa correctamente.
 // - -1 en caso de error.
-int handle_client_request(int client_fd, const Config& config) {
+int handle_client_request(int client_fd, const listenSet &config) {
     // Recibir solicitud inicial
     std::string raw_request = receive_request(client_fd);
     if (raw_request.empty())

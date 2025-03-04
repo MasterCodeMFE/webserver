@@ -115,9 +115,9 @@ int attemptBind(int server_fd, struct addrinfo* res, const std::string& ip, int 
 //
 // Retorno:
 // - 0 si la configuración y vinculación fueron exitosas, -1 si hubo error.
-int configure_and_bind_socket(int server_fd, const Config &config, int i) {
+int configure_and_bind_socket(int server_fd, std::pair<std::string, std::string> const &config) {
     // Obtener la cadena de escucha del servidor.
-    std::string listen_str = config.getVServers()[i]->getVListen()[0];
+    std::string listen_str = config.first;
     
     // Extraer la IP y el puerto.
     std::pair<std::string, std::string> listenPair = parseListenString(listen_str);

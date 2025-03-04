@@ -18,7 +18,7 @@
 //
 // Retorno:
 // - 0 si la solicitud se procesa correctamente.
-int dispatch_http_request(int client_fd, const HttpRequest& httpRequest, const Config &config) {
+int dispatch_http_request(int client_fd, const HttpRequest& httpRequest, const listenSet &config ) {
     std::string response;
 
     // Verificar si la solicitud es para un script CGI

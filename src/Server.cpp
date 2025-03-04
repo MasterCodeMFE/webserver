@@ -100,7 +100,7 @@ std::string		 							Server::getErrorPage( unsigned int status_code ) const
 	return ( Status::getErrorPage( status_code ) );
 }
 
-unsigned int	const						&Server::getClienteMaxBodySize( void ) const
+long unsigned int	const						&Server::getClienteMaxBodySize( void ) const
 {
 	return ( this->_client_max_body_size );
 }
@@ -127,7 +127,7 @@ std::string const							&Server::getRoot( void ) const
 
 Server										&Server::setClienteMaxBodySize( std::string size )
 {
-	unsigned int max_body_size = 0;
+	long unsigned int max_body_size = 0;
 
 	if (size.empty()) {
 		this->_client_max_body_size = 1 * 1024 * 1024; // 1MB by default

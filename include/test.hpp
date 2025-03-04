@@ -28,9 +28,16 @@
 #include <netdb.h>
 #include <signal.h>
 
-#include "./../templates/Config.hpp"
+#include "Location.hpp"
+#include "main.hpp"
+#include "Parser.hpp"
+#include "Server.hpp"
+#include "Status.hpp"
+#include "Utils.hpp"
 
 #define PORT 8080  // 🔹 Puerto por defecto para el servidor
+
+typedef std::set<std::pair<std::string, std::string> > listenSet;
 
 // ========================================
 //  ESTRUCTURA: HttpRequest
@@ -59,20 +66,21 @@ struct HttpRequest {
 // ========================================
 
 // 🔹 Funciones de creación y gestión de sockets
+
 int create_socket();
 void close_client(int client_fd);
-int initialize_server_sockets(const Config &config);
-int configure_and_bind_socket(int server_fd, const Config &config, int i);
-int run_server_event_loop(const std::vector<int>& server_fds, const Config& config);
-int accept_client_connection(int server_fd, const Config &config);
+int initialize_server_sockets( const listenSet &config );
+int configure_and_bind_socket(int server_fd, std::pair<std::string, std::string> const &config);
+int run_server_event_loop(const std::vector<int>& server_fds, const listenSet &config );
+int accept_client_connection(int server_fd, const listenSet &config );
 
 // 🔹 Manejo de solicitudes HTTP
-int handle_client_request(int client_fd, const Config &config);
-int dispatch_http_request(int client_fd, const HttpRequest& httpRequest, const Config &config);
+int handle_client_request(int client_fd, const listenSet &config );
+int dispatch_http_request(int client_fd, const HttpRequest& httpRequest, const listenSet &config );
 std::string handle_cgi(const std::string &script_path, const std::string &query_string);
 std::string handle_delete(const HttpRequest& httpRequest);
 std::string handle_post(const HttpRequest& httpRequest);
-std::string handle_get(const HttpRequest& request, const Config &config);
+std::string handle_get(const HttpRequest& request, const listenSet &config );
 
 // 🔹 Utilidades para el manejo de archivos y respuestas HTTP
 std::string get_file_path(const std::string& request_path);
