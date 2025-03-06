@@ -1,59 +1,21 @@
-#include "test.hpp"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   cgi.cpp                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/03/06 19:11:50 by manufern          #+#    #+#             */
+/*   Updated: 2025/03/06 19:11:53 by manufern         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-// ========================================
-//  FUNCIÓN: setup_cgi_env
-// ========================================
-// Configura las variables de entorno para la ejecución de un script CGI.
-//
-// Se encarga de:
-// 1. Establecer la variable QUERY_STRING con los parámetros de la solicitud.
-// 2. Definir el método de la solicitud como "GET".
-// 3. Configurar la ruta del script CGI.
-// 4. Indicar un estado de redirección exitoso (REDIRECT_STATUS=200).
-// 5. Almacenar las variables de entorno en un vector de punteros.
-//
-// Parámetros:
-// - script_path: Ruta del script CGI sin la query string.
-// - query_string: Cadena con los parámetros de la consulta.
-// - env: Vector donde se almacenarán las variables de entorno.
-//
-// Retorno:
-// - Ninguno.
-void setup_cgi_env(const std::string &script_path, const std::string &query_string, std::vector<char*>& env)
-{
-    std::string query = "QUERY_STRING=" + query_string;
-    std::string method = "REQUEST_METHOD=GET";
-    std::string script = "SCRIPT_FILENAME=" + script_path;
-    std::string redirect = "REDIRECT_STATUS=200";
-    
-    env.push_back(strdup(query.c_str()));
-    env.push_back(strdup(method.c_str()));
-    env.push_back(strdup(script.c_str()));
-    env.push_back(strdup(redirect.c_str()));
-    env.push_back(NULL);  // Termina el arreglo de variables de entorno
-}
 
-// ========================================
-//  FUNCIÓN: handle_cgi
-// ========================================
-// Ejecuta un script CGI y devuelve su salida HTTP.
-//
-// Se encarga de:
-// 1. Extraer la ruta del script y la query string si están combinadas en la solicitud.
-// 2. Crear un pipe para la comunicación entre el proceso padre e hijo.
-// 3. Generar un proceso hijo para ejecutar el script CGI.
-// 4. Detectar el intérprete necesario según el shebang o la extensión del script.
-// 5. Leer la salida del script CGI y devolverla como respuesta HTTP.
-//
-// Parámetros:
-// - script_path: Ruta del script CGI (puede incluir la query string).
-// - query_string: Parámetros de la consulta HTTP.
-//
-// Retorno:
-// - Cadena con la respuesta HTTP generada por el script CGI.
-std::string handle_cgi(const std::string &script_path, const std::string &query_string)
+#include "Request.hpp"
+
+std::string  Request::handle_cgi(const std::string &script_path, const std::string &query_string)
 {
-    // Extraer la ruta del script y la query string si están combinadas
+        // Extraer la ruta del script y la query string si están combinadas
     std::string actual_script_path = script_path;
     std::string actual_query_string = query_string;
     size_t pos = script_path.find('?');
@@ -132,7 +94,7 @@ std::string handle_cgi(const std::string &script_path, const std::string &query_
         
         // Configurar las variables de entorno para CGI
         std::vector<char*> env;
-        setup_cgi_env(full_script_path, actual_query_string, env);
+        Request::_setup_cgi_env(full_script_path, actual_query_string, env);
         
         // Ejecutar el script CGI con el intérprete adecuado
         char *argv[] = { const_cast<char*>(interpreter.c_str()),
@@ -163,6 +125,39 @@ std::string handle_cgi(const std::string &script_path, const std::string &query_
         int status;
         waitpid(pid, &status, 0);
         
-        return build_http_response(cgi_output, "text/html", 200);
+        return Request::build_http_response(cgi_output, "text/html", 200);
     }
+}
+
+// ========================================
+//  FUNCIÓN: setup_cgi_env
+// ========================================
+// Configura las variables de entorno para la ejecución de un script CGI.
+//
+// Se encarga de:
+// 1. Establecer la variable QUERY_STRING con los parámetros de la solicitud.
+// 2. Definir el método de la solicitud como "GET".
+// 3. Configurar la ruta del script CGI.
+// 4. Indicar un estado de redirección exitoso (REDIRECT_STATUS=200).
+// 5. Almacenar las variables de entorno en un vector de punteros.
+//
+// Parámetros:
+// - script_path: Ruta del script CGI sin la query string.
+// - query_string: Cadena con los parámetros de la consulta.
+// - env: Vector donde se almacenarán las variables de entorno.
+//
+// Retorno:
+// - Ninguno.
+void    Request::_setup_cgi_env(const std::string &script_path, const std::string &query_string, std::vector<char*>& env)
+{
+    std::string query = "QUERY_STRING=" + query_string;
+    std::string method = "REQUEST_METHOD=GET";
+    std::string script = "SCRIPT_FILENAME=" + script_path;
+    std::string redirect = "REDIRECT_STATUS=200";
+    
+    env.push_back(strdup(query.c_str()));
+    env.push_back(strdup(method.c_str()));
+    env.push_back(strdup(script.c_str()));
+    env.push_back(strdup(redirect.c_str()));
+    env.push_back(NULL);  // Termina el arreglo de variables de entorno
 }

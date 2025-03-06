@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   serverBind.cpp                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/03/06 19:07:58 by manufern          #+#    #+#             */
+/*   Updated: 2025/03/06 19:07:59 by manufern         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 // 2️⃣ Configurar la dirección del servidor y Vincular el socket
 
-#include "test.hpp"
+#include "DeployServer.hpp"
 
 // ========================================
 //  FUNCIÓN: string_to_int
@@ -94,7 +106,7 @@ int attemptBind(int server_fd, struct addrinfo* res, const std::string& ip, int 
                   << (ip.empty() ? "INADDR_ANY" : ip)
                   << ":" << port << ": " << strerror(errno) << std::endl;
         freeaddrinfo(res);
-        // meter funcion que borre el server que falla
+        
         return -1;
     }
     freeaddrinfo(res);
@@ -116,9 +128,9 @@ int attemptBind(int server_fd, struct addrinfo* res, const std::string& ip, int 
 //
 // Retorno:
 // - 0 si la configuración y vinculación fueron exitosas, -1 si hubo error.
-int configure_and_bind_socket(int server_fd, std::pair<std::string, std::string> const &config) {
+int configure_and_bind_socket(int server_fd, std::pair<std::string, std::string> const &listener) {
     // Obtener la cadena de escucha del servidor.
-    std::string listen_str = config.first;
+    std::string listen_str = listener.first;
     
     // Extraer la IP y el puerto.
     std::pair<std::string, std::string> listenPair = parseListenString(listen_str);

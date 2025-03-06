@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: pabad-ap <marvin@42.fr>                    +#+  +:+       +#+         #
+#    By: manufern <manufern@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/02/13 17:29:06 by pabad-ap          #+#    #+#              #
-#    Updated: 2025/02/13 17:29:09 by pabad-ap         ###   ########.fr        #
+#    Updated: 2025/03/06 19:16:18 by manufern         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,29 +16,30 @@ CC = c++
 FLAGS = -Wall -Wextra -Werror -std=c++98 #-Wconversion -Wunused
 
 INCLUDE		= -I./include/						#Directiva de los headers
-HEADERS		= main.hpp Location.hpp Server.hpp Status.hpp Utils.hpp Parser.hpp test.hpp
+HEADERS		= main.hpp Location.hpp Server.hpp Status.hpp Utils.hpp Parser.hpp Request.hpp
 HEADERS		:= $(addprefix ./include/, $(HEADERS))
 
 
-SRC = ./src/Location.cpp \
+SRC = ./src/main.cpp \
+	./src/Location.cpp \
 	./src/Server.cpp \
 	./src/Status.cpp \
 	./src/Utils.cpp \
 	./src/parser/Parser.cpp \
 	./src/parser/ParserExceptions.cpp \
-    ./src/mainTestConfig.cpp \
-    ./src/1serverSocketInit.cpp \
-    ./src/2serverBind.cpp \
-    ./src/3socketPolling.cpp \
-    ./src/4connectionHandling.cpp \
-    ./src/5clientRequestHandler.cpp \
-    ./src/6httpRequestDispatcher.cpp \
-    ./src/cgi.cpp \
-    ./src/delete.cpp \
-    ./src/get.cpp \
-    ./src/post.cpp \
-    ./src/fileManager.cpp \
-    ./src/httpUtils.cpp
+	./src/DeployServer/ClientRequestHandler.cpp \
+	./src/DeployServer/DeployServer.cpp \
+	./src/DeployServer/InitializeServer.cpp \
+	./src/DeployServer/SocketPolling.cpp \
+	./src/DeployServer/ConnectionHandling.cpp \
+	./src/DeployServer/serverBind.cpp \
+	./src/Request/cgi.cpp  \
+	./src/Request/delete.cpp  \
+	./src/Request/get.cpp  \
+	./src/Request/httpUtils.cpp  \
+	./src/Request/post.cpp  \
+	./src/Request/Request.cpp
+	
 
 #Object files
 OBJ_DIR	= ./build/
@@ -47,6 +48,8 @@ OBJ		= $(addprefix $(OBJ_DIR), $(notdir $(patsubst %.cpp, %.o, $(SRC))))
 ##Directories
 DIR_SRC		= ./src/
 DIR_PARSER		= $(DIR_SRC)parser/
+DIR_DEPLOY		= $(DIR_SRC)DeployServer/
+DIR_REQUEST		= $(DIR_SRC)Request/
 
 all: $(NAME)
 
@@ -62,6 +65,14 @@ $(OBJ_DIR)%.o: $(DIR_SRC)%.cpp $(HEADERS) Makefile | $(OBJ_DIR)
 
 #.cpp en carpeta PARSER
 $(OBJ_DIR)%.o: $(DIR_PARSER)%.cpp $(HEADERS) Makefile | $(OBJ_DIR)
+	$(CC) -c $(FLAGS) $(INCLUDE) $< -o $@
+
+#.cpp en carpeta DEPLOY
+$(OBJ_DIR)%.o: $(DIR_DEPLOY)%.cpp $(HEADERS) Makefile | $(OBJ_DIR)
+	$(CC) -c $(FLAGS) $(INCLUDE) $< -o $@
+
+#.cpp en carpeta REQUEST
+$(OBJ_DIR)%.o: $(DIR_REQUEST)%.cpp $(HEADERS) Makefile | $(OBJ_DIR)
 	$(CC) -c $(FLAGS) $(INCLUDE) $< -o $@
 
 clean:

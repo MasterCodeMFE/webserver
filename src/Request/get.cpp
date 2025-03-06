@@ -1,8 +1,78 @@
-#include "test.hpp"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get.cpp                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/03/06 19:12:07 by manufern          #+#    #+#             */
+/*   Updated: 2025/03/06 19:12:08 by manufern         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-// -----------------------------------------------------------------------------
-// Manejo de archivos y directorios
-// -----------------------------------------------------------------------------
+#include "Request.hpp"
+
+std::string  Request::handle_get(const HttpRequest& request )
+{    
+    // Obtiene la ruta del archivo solicitado
+    std::string filepath = Request::_get_file_path(request.path);
+
+    struct stat file_stat;
+    
+    // Verifica si el archivo o directorio existe
+    if (::stat(filepath.c_str(), &file_stat) != 0)
+    {
+        std::cerr << "Error: No se encontró el archivo o directorio " << filepath << std::endl;
+        return Status::getErrorPage(404); // Retorna error 404 si no existe
+    }
+    
+    // Si es un directorio, genera un listado de su contenido
+    if (S_ISDIR(file_stat.st_mode))
+    {
+        return Request::_listDirectory(filepath, request.path);
+    }
+    
+    // Verifica si el archivo tiene permisos de lectura
+    if (access(filepath.c_str(), R_OK) != 0)
+    {
+        return Status::getErrorPage(403); // Retorna error 403 si no hay permisos
+    }
+
+    // Lee el contenido del archivo
+    std::string content = Request::_read_file(filepath);
+    if (content.empty())
+    {
+        return Status::getErrorPage(500); // Retorna error 500 si hay un problema interno
+    }
+
+    // Obtiene el tipo de contenido (MIME type) del archivo
+    std::string content_type = Request::_get_content_type(filepath);
+
+    // Construye y retorna la respuesta HTTP con el archivo solicitado
+    return build_http_response(content, content_type, 200);
+}
+
+
+// ========================================
+//  FUNCIÓN: get_file_path
+// ========================================
+// Devuelve la ruta de un archivo en el servidor basada en la solicitud HTTP.
+//
+// Se encarga de:
+// 1. Retornar la ruta del archivo solicitado dentro del directorio "www".
+// 2. Si la solicitud es "/", se devuelve "www/index.html".
+//
+// Parámetros:
+// - request_path: Ruta solicitada por el cliente.
+//
+// Retorno:
+// - Cadena con la ruta del archivo en el sistema.
+std::string Request::_get_file_path(const std::string& request_path)
+{
+    if (request_path == "/")
+        return "www/index.html"; // Retorna el archivo index por defecto
+    return "www" + request_path; // Construye la ruta del archivo en la carpeta "www"
+}
 
 // ========================================
 //  FUNCIÓN: listDirectory
@@ -21,8 +91,7 @@
 //
 // Retorno:
 // - Una cadena con la respuesta HTTP en formato HTML.
-
-std::string listDirectory(const std::string &dirPath, const std::string &requestPath)
+std::string Request::_listDirectory(const std::string &dirPath, const std::string &requestPath)
 {
     std::cout << "Intentando listar: " << dirPath << std::endl;
     
@@ -93,26 +162,4 @@ std::string listDirectory(const std::string &dirPath, const std::string &request
              << responseBody.str();
 
     return response.str();
-}
-
-// ========================================
-//  FUNCIÓN: get_file_path
-// ========================================
-// Devuelve la ruta de un archivo en el servidor basada en la solicitud HTTP.
-//
-// Se encarga de:
-// 1. Retornar la ruta del archivo solicitado dentro del directorio "www".
-// 2. Si la solicitud es "/", se devuelve "www/index.html".
-//
-// Parámetros:
-// - request_path: Ruta solicitada por el cliente.
-//
-// Retorno:
-// - Cadena con la ruta del archivo en el sistema.
-
-std::string get_file_path(const std::string& request_path)
-{
-    if (request_path == "/")
-        return "www/index.html"; // Retorna el archivo index por defecto
-    return "www" + request_path; // Construye la ruta del archivo en la carpeta "www"
 }

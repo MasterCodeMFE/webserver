@@ -1,4 +1,16 @@
-#include "test.hpp"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   httpUtils.cpp                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/03/06 19:12:13 by manufern          #+#    #+#             */
+/*   Updated: 2025/03/06 19:12:14 by manufern         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "Request.hpp"
 
 // ========================================
 //  FUNCIÓN: read_file
@@ -11,8 +23,7 @@
 // Retorno:
 // - El contenido del archivo como una cadena de caracteres.
 // - Si no se puede abrir el archivo, retorna una cadena vacía.
-
-std::string read_file(const std::string& filepath)
+std::string Request::_read_file(const std::string& filepath)
 {
     std::ifstream file(filepath.c_str(), std::ios::binary);
     if (!file.is_open())
@@ -34,8 +45,7 @@ std::string read_file(const std::string& filepath)
 //
 // Retorno:
 // - Representación en cadena del número.
-
-std::string int_to_string(int number)
+std::string Request::_int_to_string(int number)
 {
     std::stringstream ss;
     ss << number;
@@ -54,7 +64,7 @@ std::string int_to_string(int number)
 // - El tipo MIME correspondiente a la extensión del archivo.
 // - Si la extensión no está en la lista, devuelve "application/octet-stream".
 
-std::string get_content_type(const std::string& filepath)
+std::string Request::_get_content_type(const std::string& filepath)
 {
     std::map<std::string, std::string> mime_types;
     mime_types[".html"] = "text/html";
@@ -91,7 +101,7 @@ std::string get_content_type(const std::string& filepath)
 // Retorno:
 // - Cadena con la respuesta HTTP completa, incluyendo encabezados y cuerpo.
 
-std::string build_http_response(const std::string& content, const std::string& content_type, int status_code)
+std::string Request::build_http_response(const std::string& content, const std::string& content_type, int status_code)
 {
     std::string status_text;
     switch (status_code)
@@ -104,9 +114,9 @@ std::string build_http_response(const std::string& content, const std::string& c
         case 500: status_text = "Internal Server Error"; break;
         default: status_text = "OK"; break;
     }
-    return "HTTP/1.1 " + int_to_string(status_code) + " " + status_text + "\r\n"
+    return "HTTP/1.1 " + Request::_int_to_string(status_code) + " " + status_text + "\r\n"
            "Content-Type: " + content_type + "\r\n"
-           "Content-Length: " + int_to_string(content.size()) + "\r\n\r\n" + content;
+           "Content-Length: " + Request::_int_to_string(content.size()) + "\r\n\r\n" + content;
 }
 
 // ========================================
@@ -124,7 +134,7 @@ std::string build_http_response(const std::string& content, const std::string& c
 // - Número total de bytes enviados si la operación es exitosa.
 // - Retorna -1 si ocurre un error.
 
-ssize_t send_all(int sockfd, const char* buffer, size_t length)
+ssize_t Request::send_all(int sockfd, const char* buffer, size_t length)
 {
     size_t total_sent = 0;
     while (total_sent < length)
