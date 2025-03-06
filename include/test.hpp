@@ -67,6 +67,18 @@ struct HttpRequest {
 
 // 🔹 Funciones de creación y gestión de sockets
 
+/*class deployServer
+{
+    private:
+        const listenSet liseners; // lista de parejas unicas entre server name y listen
+        std::vector<int> server_fds; // vector de fids de servidores
+        std::vector<Location> locations; //listas de rutas
+
+    public:
+}*/
+
+
+
 int create_socket();
 void close_client(int client_fd);
 int initialize_server_sockets( const listenSet &config );

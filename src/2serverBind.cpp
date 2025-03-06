@@ -94,6 +94,7 @@ int attemptBind(int server_fd, struct addrinfo* res, const std::string& ip, int 
                   << (ip.empty() ? "INADDR_ANY" : ip)
                   << ":" << port << ": " << strerror(errno) << std::endl;
         freeaddrinfo(res);
+        // meter funcion que borre el server que falla
         return -1;
     }
     freeaddrinfo(res);
