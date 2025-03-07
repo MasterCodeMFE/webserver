@@ -12,6 +12,22 @@
 
 #include "Request.hpp"
 
+// ========================================
+//  FUNCIÓN: handle_delete
+// ========================================
+// Maneja las solicitudes HTTP DELETE para eliminar archivos del servidor.
+//
+// Se encarga de:
+// 1. Construir la ruta del archivo basándose en la solicitud HTTP.
+// 2. Verificar si el archivo existe antes de intentar eliminarlo.
+// 3. Intentar eliminar el archivo y manejar posibles errores.
+// 4. Devolver una respuesta HTTP apropiada según el resultado de la operación.
+//
+// Parámetros:
+// - httpRequest: Objeto que representa la solicitud HTTP, incluyendo la ruta del archivo.
+//
+// Retorno:
+// - Cadena con la respuesta HTTP, indicando éxito o error en la eliminación.
 std::string Request::handle_delete(const HttpRequest& httpRequest)
 {
     // Construye la ruta del archivo a eliminar dentro del directorio "www"

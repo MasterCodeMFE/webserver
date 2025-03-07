@@ -12,6 +12,24 @@
 
 #include "Request.hpp"
 
+// ========================================
+//  FUNCIÓN: handle_get
+// ========================================
+// Maneja las solicitudes HTTP GET.
+//
+// Se encarga de:
+// 1. Obtener la ruta del archivo solicitado.
+// 2. Verificar si el archivo o directorio existe.
+// 3. Si es un directorio, listar su contenido.
+// 4. Si no hay permisos de lectura, devolver un error 403.
+// 5. Leer el contenido del archivo y generar una respuesta HTTP.
+//
+// Parámetros:
+// - request: Objeto HttpRequest que contiene la información de la solicitud.
+// - config: Configuración del servidor (no se usa en este ejemplo).
+//
+// Retorno:
+// - Una cadena con la respuesta HTTP correspondiente.
 std::string  Request::handle_get(const HttpRequest& request )
 {    
     // Obtiene la ruta del archivo solicitado
