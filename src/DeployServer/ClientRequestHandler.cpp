@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:07:20 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/06 19:07:21 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/10 17:44:16 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,7 +135,7 @@ static HttpRequest parse_request(const std::string& request)
 	HttpRequest httpRequest;
 	std::istringstream stream(request);
 	std::string line;
-
+	
 	// Extraer la primera línea: método, ruta y protocolo
 	if (std::getline(stream, line)) {
 		std::istringstream first_line(line);
