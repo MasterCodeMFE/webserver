@@ -20,7 +20,7 @@ DeployServer::DeployServer( void ){}
 
 DeployServer::DeployServer( DeployServer const &src ){ ( void )src;}
 
-DeployServer::DeployServer( std::vector<Location> locations )
+DeployServer::DeployServer( std::vector<Location> locations ): locations( locations )
 {
     for ( std::vector<Location>::const_iterator it = locations.begin(); it != locations.end(); it ++ )
     {
