@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:13:35 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/06 19:13:36 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/10 17:41:34 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,6 +99,7 @@ class DeployServer
 
 int create_socket();
 int configure_and_bind_socket(int server_fd, std::pair<std::string, std::string> const &config);
+Location findLocation(const HttpRequest& httpRequest, std::vector<Location> locations);
 
 
 #endif

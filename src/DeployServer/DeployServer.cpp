@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:07:34 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/06 19:07:37 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/10 18:59:36 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ DeployServer::DeployServer( void ){}
 
 DeployServer::DeployServer( DeployServer const &src ){ ( void )src;}
 
-DeployServer::DeployServer( std::vector<Location> locations )
+DeployServer::DeployServer( std::vector<Location> locations ): locations(locations)
 {
     for ( std::vector<Location>::const_iterator it = locations.begin(); it != locations.end(); it ++ )
     {
@@ -38,6 +38,11 @@ DeployServer    &DeployServer::operator=( DeployServer const &src ){ ( void )src
 int             DeployServer::_dispatch_http_request(int client_fd, const HttpRequest& httpRequest )
 {
     std::string response;
+    Location location;
+
+    location = findLocation(httpRequest, this->locations);
+
+    std::cout << location << std::endl;
 
     // Verificar si la solicitud es para un script CGI
     if (httpRequest.path.find("/cgi-bin/") == 0) {
