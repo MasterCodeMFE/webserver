@@ -6,33 +6,16 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:11:50 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/06 19:11:53 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/11 11:03:34 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #include "Request.hpp"
 
-// ========================================
-//  FUNCIÓN: handle_cgi
-// ========================================
-// Ejecuta un script CGI y devuelve su salida HTTP.
-//
-// Se encarga de:
-// 1. Extraer la ruta del script y la query string si están combinadas en la solicitud.
-// 2. Crear un pipe para la comunicación entre el proceso padre e hijo.
-// 3. Generar un proceso hijo para ejecutar el script CGI.
-// 4. Detectar el intérprete necesario según el shebang o la extensión del script.
-// 5. Leer la salida del script CGI y devolverla como respuesta HTTP.
-//
-// Parámetros:
-// - script_path: Ruta del script CGI (puede incluir la query string).
-// - query_string: Parámetros de la consulta HTTP.
-//
-// Retorno:
-// - Cadena con la respuesta HTTP generada por el script CGI.
-std::string  Request::handle_cgi(const std::string &script_path, const std::string &query_string)
+std::string  Request::handle_cgi(const std::string &script_path, const std::string &query_string, Location location)
 {
+    (void)location;
         // Extraer la ruta del script y la query string si están combinadas
     std::string actual_script_path = script_path;
     std::string actual_query_string = query_string;

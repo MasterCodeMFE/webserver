@@ -4,15 +4,16 @@
 /*   Status.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
-/*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/02/11 12:44:28 by pabad-ap          #+#    #+#             */
-/*   Updated: 2025/02/21 11:25:04 by manufern         ###   ########.fr       */
-/*   Updated: 2025/02/21 11:25:04 by manufern         ###   ########.fr       */
+/*   Created: Invalid date        by                   #+#    #+#             */
+/*   Updated: 2025/03/11 12:31:13 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+/* ************************************************************************** */
+
 #include "Status.hpp"
+#include "Request.hpp"
 
 
 /** Variable that stores default status codes and their default description */
@@ -107,12 +108,12 @@ Status	&Status::operator=( Status const &src ){ (void)src; return ( *this ); }
 bool	Status::_inErrorRange( int status_code )
 {
 	bool inRange = false;
-	if ( (400 <= status_code && 418 <= status_code) \
+	if ( (400 <= status_code && 418 >= status_code) \
 		|| (421 <= status_code && 426 >= status_code) \
 		|| 428 == status_code || 429 == status_code  \
 		|| 431 == status_code || 451 == status_code )
 		inRange = true;
-	else if ( 500 <= status_code && 511 <= status_code \
+	else if ( 500 <= status_code && 511 >= status_code \
 		&& 509 != status_code)
 		inRange = true;
 	else
@@ -141,58 +142,73 @@ std::string			Status::getStatusResponse( int status_code )
  * 
  * @return String que mostrar como error.
  */
-std::string		Status::getErrorPage( int status_code )
+std::string Status::getErrorPage(int status_code)
 {
     std::stringstream msg_page;
-	std::string status_message;
+    std::string status_message;
 
-
-	if ( Status::_m_status_responses.empty() )
-		Status::_setStatusResponses();
-	status_message =  Status::_m_status_responses[status_code];
-	if (Status::_inErrorRange( status_code))
-	{
-		msg_page << "<!DOCTYPE html>\n"
-			<< "<html lang=\"en\">\n"
-			<< "<head>\n"
-			<< "\t<meta charset=\"utf-8\" /><meta http-equiv=\"X-UA-Compatible\" "
-				<< "content=\"IE=edge\" /><meta name=\"viewport\" "
-				<< "content=\"width=device-width, initial-scale=1\" />\n"
-			<< "\t<title>" << status_code 
-				<< " - " << status_message << "</title>\n"
-			<< "</head>\n"
-			<< "<body>\n"
-			<< "\t<div class=\"cover\"><h1>" << status_message
-				<< " " << status_code << "</h1>\n"
-			<< "\t<footer><p>Technical Contact: <a href=\"mailto:x@example.com\">"
-				<< "support@example.com</a></p></footer>\n"
-			<< "</body>\n"
-			<< "</html>\n";
-	}
-	std::string body = msg_page.str();
+    if (Status::_m_status_responses.empty())
+        Status::_setStatusResponses();
+    
+    status_message = Status::_m_status_responses[status_code];
+    
+    if (Status::_inErrorRange(status_code))
+    {
+        msg_page << "<!DOCTYPE html>\n"
+                 << "<html lang=\"es\">\n"
+                 << "<head>\n"
+                 << "\t<meta charset=\"UTF-8\">\n"
+                 << "\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
+                 << "\t<title>Error " << status_code << " - " << status_message << "</title>\n"
+                 << "\t<style>\n"
+                 << "\t* { margin: 0; padding: 0; box-sizing: border-box; }\n"
+                 << "\tbody { font-family: Arial, sans-serif; background-color: #1e1e1e; color: #fff; text-align: center; display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column; }\n"
+                 << "\th1 { font-size: 5rem; color: #ff4757; }\n"
+                 << "\tp { font-size: 1.5rem; margin-bottom: 20px; }\n"
+                 << "\ta { color: #1e90ff; text-decoration: none; font-size: 1.2rem; border: 2px solid #1e90ff; padding: 10px 20px; border-radius: 5px; transition: background 0.3s, color 0.3s; }\n"
+                 << "\ta:hover { background: #1e90ff; color: #fff; }\n"
+                 << "\t</style>\n"
+                 << "</head>\n"
+                 << "<body>\n"
+                 << "\t<h1>" << status_code << "</h1>\n"
+                 << "\t<p>" << status_message <<  "</p>\n"
+                 << "</body>\n"
+                 << "</html>\n";
+    }
+    
+    std::string body = msg_page.str();
     std::stringstream response;
-
+    
     response << "HTTP/1.1 " << status_code << " " << status_message << "\r\n"
              << "Content-Type: text/html\r\n"
              << "Content-Length: " << body.size() << "\r\n"
              << "Connection: close\r\n"
              << "\r\n"
              << body;
-
+    
     return response.str();
-	return ( msg_page.str() );
 }
 
-/** Devuelve el contenido del fichero asociado al `code_file_path` */
-std::string			Status::getErrorPage( std::string code_file_path )
-{
-	std::ifstream file(code_file_path.c_str());
-    if (!file.is_open()) {
-        std::cout << "Could not open the file: " << code_file_path << std::endl;
-        return "";
-    }
 
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    return buffer.str();
+
+
+/** Devuelve el contenido del fichero asociado al `code_file_path` */
+std::string			Status::getErrorPage( std::string code_file_path, int status_code )
+{
+	std::cout << "code: " << status_code << std::endl;
+	std::ifstream file(code_file_path.c_str());
+    if (!file.is_open())
+	{
+        std::cout << "Could not open the file: " << code_file_path << std::endl;
+        return Status::getErrorPage(404);
+    }
+	
+	std::string content = Request::_read_file(code_file_path);
+    if (content.empty())
+    {
+        return Status::getErrorPage(500); // Retorna error 500 si hay un problema interno
+    }
+   std::string content_type = Request::_get_content_type(code_file_path);
+
+    return Request::build_http_response(content, content_type, 200);
 }

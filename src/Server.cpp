@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pabad-ap <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/13 16:55:10 by pabad-ap          #+#    #+#             */
-/*   Updated: 2025/02/13 16:55:11 by pabad-ap         ###   ########.fr       */
+/*   Updated: 2025/03/11 11:50:27 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,7 @@ std::string		 							Server::getErrorPage( unsigned int status_code ) const
 	if ( this->_m_status_pages.end() !=  it )
 	{
 		std::cout << status_code << "tiene error_code personalizado." << std::endl;
-		return ( Status::getErrorPage( it->second ) );
+		return ( Status::getErrorPage( it->second, status_code ) );
 	}
 	return ( Status::getErrorPage( status_code ) );
 }

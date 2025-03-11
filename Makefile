@@ -6,7 +6,7 @@
 #    By: manufern <manufern@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/02/13 17:29:06 by pabad-ap          #+#    #+#              #
-#    Updated: 2025/03/06 19:16:18 by manufern         ###   ########.fr        #
+#    Updated: 2025/03/10 12:40:23 by manufern         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -38,7 +38,8 @@ SRC = ./src/main.cpp \
 	./src/Request/get.cpp  \
 	./src/Request/httpUtils.cpp  \
 	./src/Request/post.cpp  \
-	./src/Request/Request.cpp
+	./src/Request/Request.cpp \
+	./src/DeployServer/findLocation.cpp
 	
 
 #Object files

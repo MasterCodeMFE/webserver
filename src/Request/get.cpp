@@ -6,34 +6,16 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:12:07 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/06 19:12:08 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/11 12:35:55 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
 
-// ========================================
-//  FUNCIÓN: handle_get
-// ========================================
-// Maneja las solicitudes HTTP GET.
-//
-// Se encarga de:
-// 1. Obtener la ruta del archivo solicitado.
-// 2. Verificar si el archivo o directorio existe.
-// 3. Si es un directorio, listar su contenido.
-// 4. Si no hay permisos de lectura, devolver un error 403.
-// 5. Leer el contenido del archivo y generar una respuesta HTTP.
-//
-// Parámetros:
-// - request: Objeto HttpRequest que contiene la información de la solicitud.
-// - config: Configuración del servidor (no se usa en este ejemplo).
-//
-// Retorno:
-// - Una cadena con la respuesta HTTP correspondiente.
-std::string  Request::handle_get(const HttpRequest& request )
-{    
+std::string  Request::handle_get(const HttpRequest& request, Location location)
+{
     // Obtiene la ruta del archivo solicitado
-    std::string filepath = Request::_get_file_path(request.path);
+    std::string filepath = Request::_get_file_path(request.path, location);
 
     struct stat file_stat;
     
@@ -41,7 +23,7 @@ std::string  Request::handle_get(const HttpRequest& request )
     if (::stat(filepath.c_str(), &file_stat) != 0)
     {
         std::cerr << "Error: No se encontró el archivo o directorio " << filepath << std::endl;
-        return Status::getErrorPage(404); // Retorna error 404 si no existe
+        return (location.getErrorPage(404));
     }
     
     // Si es un directorio, genera un listado de su contenido
@@ -60,7 +42,7 @@ std::string  Request::handle_get(const HttpRequest& request )
     std::string content = Request::_read_file(filepath);
     if (content.empty())
     {
-        return Status::getErrorPage(500); // Retorna error 500 si hay un problema interno
+        return (location.getErrorPage(500)); // Retorna error 500 si hay un problema interno
     }
 
     // Obtiene el tipo de contenido (MIME type) del archivo
@@ -85,7 +67,7 @@ std::string  Request::handle_get(const HttpRequest& request )
 //
 // Retorno:
 // - Cadena con la ruta del archivo en el sistema.
-std::string Request::_get_file_path(const std::string& request_path)
+std::string Request::_get_file_path(const std::string& request_path, Location location)
 {
     if (request_path == "/")
         return "www/index.html"; // Retorna el archivo index por defecto
