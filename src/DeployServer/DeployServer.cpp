@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:07:34 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/10 19:16:34 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/11 10:59:54 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,19 +46,19 @@ int             DeployServer::_dispatch_http_request(int client_fd, const HttpRe
 
     // Verificar si la solicitud es para un script CGI
     if (httpRequest.path.find("/cgi-bin/") == 0) {
-        response = Request::handle_cgi("." + httpRequest.path, httpRequest.query_string);
+        response = Request::handle_cgi("." + httpRequest.path, httpRequest.query_string, location);
     }
     // Manejar solicitud GET
     else if (httpRequest.method == "GET") {
-        response = Request::handle_get(httpRequest);
+        response = Request::handle_get(httpRequest, location);
     }
     // Manejar solicitud POST
     else if (httpRequest.method == "POST") {
-        response = Request::handle_post(httpRequest);
+        response = Request::handle_post(httpRequest, location);
     }
     // Manejar solicitud DELETE
     else if (httpRequest.method == "DELETE") {
-        response = Request::handle_delete(httpRequest);
+        response = Request::handle_delete(httpRequest, location);
     }
     // Responder con error 405 si el método no es reconocido
     else {

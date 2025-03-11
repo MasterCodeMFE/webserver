@@ -16,8 +16,9 @@ static std::string extract_filename(const std::string& body);
 // Retorno:
 // - Respuesta HTTP generada en función del contenido recibido.
 // ========================================
-std::string Request::handle_post(const HttpRequest& httpRequest)
+std::string Request::handle_post(const HttpRequest& httpRequest, Location location)
 {
+    (void)location;
     // Verificar existencia de Content-Type
     std::map<std::string, std::string>::const_iterator it = httpRequest.headers.find("Content-Type");
     if (it == httpRequest.headers.end()) {

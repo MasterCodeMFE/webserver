@@ -6,15 +6,16 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:11:50 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/06 19:11:53 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/11 11:03:34 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #include "Request.hpp"
 
-std::string  Request::handle_cgi(const std::string &script_path, const std::string &query_string)
+std::string  Request::handle_cgi(const std::string &script_path, const std::string &query_string, Location location)
 {
+    (void)location;
         // Extraer la ruta del script y la query string si están combinadas
     std::string actual_script_path = script_path;
     std::string actual_query_string = query_string;

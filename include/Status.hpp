@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Status.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pabad-ap <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/11 11:06:18 by pabad-ap          #+#    #+#             */
-/*   Updated: 2025/02/11 15:35:09 by pabad-ap         ###   ########.fr       */
+/*   Updated: 2025/03/11 11:55:36 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ class Status
 	public:
 		static std::string					getStatusResponse( int status_code );
 		static std::string 					getErrorPage( int status_code );
-		static std::string 					getErrorPage( std::string code_file_path );
+		static std::string 					getErrorPage( std::string code_file_path, int status_code );
 };
 
 #endif

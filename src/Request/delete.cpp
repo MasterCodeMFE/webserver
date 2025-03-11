@@ -6,14 +6,15 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:12:03 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/06 19:12:04 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/11 11:03:14 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
 
-std::string Request::handle_delete(const HttpRequest& httpRequest)
+std::string Request::handle_delete(const HttpRequest& httpRequest, Location location)
 {
+    (void)location;
     // Construye la ruta del archivo a eliminar dentro del directorio "www"
     std::string filepath = "www" + httpRequest.path;
 
