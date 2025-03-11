@@ -48,6 +48,7 @@
 class Request
 {
 	private:
+
 		int tmp; //Atributo aleatorio, pdte. definir atributos reales
 
 		Request( void );
@@ -57,8 +58,8 @@ class Request
 		Request &operator=( Request const &src );
 
 		//GET
-		static std::string	_get_file_path(const std::string& request_path); 
-		static std::string	_listDirectory(const std::string &dirPath, const std::string &requestPath);
+		static std::string _get_file_path(const std::string& request_path, Location location); 
+		static std::string	_listDirectory(const std::string &dirPath, const std::string &requestPath, Location location);
 
 		//HTTP UTILS
 		static std::string	_int_to_string(int number);
@@ -71,8 +72,8 @@ class Request
 		static std::string	_read_file(const std::string& filepath);
 		static std::string	_get_content_type(const std::string& filepath);
 		static std::string  handle_get(const HttpRequest& request, Location location);
-		static std::string handle_post(const HttpRequest& httpRequest, Location location);
-		static std::string handle_delete(const HttpRequest& httpRequest, Location location);
+		static std::string	handle_post(const HttpRequest& httpRequest, Location location);
+		static std::string	handle_delete(const HttpRequest& httpRequest, Location location);
 		static std::string  handle_cgi(const std::string &script_path, const std::string &query_string, Location location);
 		static std::string	build_http_response(const std::string& content, const std::string& content_type, int status_code);
 		static ssize_t		send_all(int sockfd, const char* buffer, size_t length);

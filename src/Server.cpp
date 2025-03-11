@@ -16,7 +16,8 @@ Server::Server( void )
 {
 	this->_client_max_body_size = 1 * 1024 * 1024; // 1MB by default
 	this->_autoindex = false;
-	this->_index = "./index.html";
+	this->_index = "index.html";
+	this->_root  = "./www/";
 }
 
 Server::Server( Server const &src )
