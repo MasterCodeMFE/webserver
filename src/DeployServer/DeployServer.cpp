@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:07:34 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/11 10:59:54 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/12 16:54:11 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,15 +45,19 @@ int             DeployServer::_dispatch_http_request(int client_fd, HttpRequest&
 
     std::cout << location << std::endl;
 
-    // Verificar si la solicitud es para un script CGI
-    if (httpRequest.path.find("/cgi-bin/") == 0) {
-        response = Request::handle_cgi("." + httpRequest.path, httpRequest.query_string, location);
-    }
-    if ( !location.getAlias().empty() )
+    if (!location.getAlias().empty())
     {
-        std::clog << "##########################################" << std::endl;
-        httpRequest.path = location.getAlias() + httpRequest.path.substr(location.getAlias().size());
-
+        httpRequest.path = location.getAlias() + httpRequest.path.substr(location.getPath().size());
+    }
+    if (location.getAlias().empty())
+    {
+        httpRequest.path = location.getRoot() + httpRequest.path;
+    }
+    // Verificar si la solicitud es para un script CGI
+    if (httpRequest.path.find("/cgi-bin/") == 0)
+    {
+        httpRequest.path = Request::handle_cgi("." + httpRequest.path, httpRequest.query_string, location);
+        std::cout << "Alias: " << httpRequest.path << std::endl;
     }
     if (!is_valid_method)
     {
