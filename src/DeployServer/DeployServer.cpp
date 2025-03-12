@@ -35,18 +35,31 @@ DeployServer::~DeployServer( void ){}
 
 DeployServer    &DeployServer::operator=( DeployServer const &src ){ ( void )src; return( *this ); }
 
-int             DeployServer::_dispatch_http_request(int client_fd, const HttpRequest& httpRequest )
+int             DeployServer::_dispatch_http_request(int client_fd, HttpRequest& httpRequest )
 {
     std::string response;
     Location location;
 
     location = findLocation(httpRequest, this->locations);
+    bool is_valid_method = location.getSMethods().find(httpRequest.method) != location.getSMethods().end();    
 
     std::cout << location << std::endl;
 
     // Verificar si la solicitud es para un script CGI
     if (httpRequest.path.find("/cgi-bin/") == 0) {
         response = Request::handle_cgi("." + httpRequest.path, httpRequest.query_string, location);
+    }
+    if ( !location.getAlias().empty() )
+    {
+        std::clog << "##########################################" << std::endl;
+        httpRequest.path = location.getAlias() + httpRequest.path.substr(location.getAlias().size());
+
+    }
+    if (!is_valid_method)
+    {
+        std::string error = "Método no permitido\n";
+        std::clog << error << std::endl;
+        response = location.getErrorPage(405);
     }
     // Manejar solicitud GET
     else if (httpRequest.method == "GET") {
@@ -63,7 +76,7 @@ int             DeployServer::_dispatch_http_request(int client_fd, const HttpRe
     // Responder con error 405 si el método no es reconocido
     else {
         std::string error = "Método no permitido\n";
-        response = Request::build_http_response(error, "text/plain", 405);
+        response = location.getErrorPage(405);
     }
 
     // Enviar la respuesta al cliente
