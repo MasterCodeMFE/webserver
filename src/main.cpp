@@ -28,12 +28,7 @@ int main( int argc, const char **argv )
 	{
 		std::cout << RED << "PARSING ERROR: " << e.what() << DEFAULT << std::endl;
 	}
-    //listeners = getListeners( loc );
     DeployServer server(loc);
-
     server.initialize_server_sockets();
-    //initialize_server_sockets(listeners);
-    
-
     return 0;
 }

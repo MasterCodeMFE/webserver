@@ -62,25 +62,25 @@ class Parser
 		
 		Parser	&operator=( Parser const &src );
 		
-		Parser					&_forbidenCharsCheck( void );
-		Parser					&_cleanComments( std::string str );
-		Parser					&_tokenizeConfig( void );
-		void					_processTokens(  std::vector<Location> &loc );
-		int						_serverProcessing( std::vector<Location> &locs, \
-									std::vector<std::string> v_str );
+		Parser			&_forbidenCharsCheck( void );
+		Parser			&_cleanComments( std::string str );
+		Parser			&_tokenizeConfig( void );
+		void			_processTokens(  std::vector<Location> &loc );
+		int				_serverProcessing( std::vector<Location> &locs, \
+							std::vector<std::string> v_str );
+		Parser			&_checkDirective( std::string directive );
+		Parser			&_checkContext( t_context current_context, std::string directive );
+		Parser			&_checkArgs( tokenIter kw, tokenIter end );
+		Parser			&_checkClosedBlock( tokenIter begin, tokenIter end );
+		Parser			&_checkLocationLast( std::string directive, bool locationInServer );
+		bool			_checkUniqueDirective( std::string directive, bool alreadyHasValue );
+		Parser			&_checkUniqueLocation(  std::string path, std::vector<Location> server_locations );
+		bool			_checkHostPort( std::string hostPort );
 
-		Parser					&_checkDirective( std::string directive );
-		Parser					&_checkContext( t_context current_context, std::string directive );
-		Parser					&_checkArgs( tokenIter kw, tokenIter end );
-		Parser					&_checkClosedBlock( tokenIter begin, tokenIter end );
-		Parser					&_checkLocationLast( std::string directive, bool locationInServer );
-		bool					_checkUniqueDirective( std::string directive, bool alreadyHasValue );
-		Parser					&_checkUniqueLocation(  std::string path, std::vector<Location> server_locations );
 
-		void					_handleServerDirective( Location &server, tokenIter &it );
-		void					_handleLocationDirective( Location &location, tokenIter &it, tokenIter end );
-
-		static void				_setDirectives( void );
+		void			_handleServerDirective( Location &server, tokenIter &it );
+		void			_handleLocationDirective( Location &location, tokenIter &it, tokenIter end );
+	static void			_setDirectives( void );
 		
 	public:
 		Parser( void );

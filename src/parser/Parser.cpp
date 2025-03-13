@@ -258,7 +258,8 @@ void					Parser::_handleServerDirective(	Location &server, tokenIter &it )
 		&& this->_checkUniqueDirective( *it, !server.getServerName().empty()) )
 		server.setServerName( *(++it) );
 	else if ( "listen" == *it \
-		&& this->_checkUniqueDirective( *it, !server.getListen().empty()) )
+		&& this->_checkUniqueDirective( *it, !server.getListen().empty()) 
+		&& this->_checkHostPort( *(it + 1 )))
 		server.setListen( *(++it) );
 	else if ( "error_page" == *it )
 	{
