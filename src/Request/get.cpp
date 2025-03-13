@@ -106,7 +106,7 @@ std::string Request::_get_file_path(const std::string &request_path, Location lo
     if (index.empty()) {
         index = "index.html";
     }
-    std::string path = "www" + request_path;
+    std::string path = request_path;
     if (::stat(path.c_str(), &file_stat) != 0) {
         return "";
     }
@@ -122,7 +122,7 @@ std::string Request::_get_file_path(const std::string &request_path, Location lo
         }
     }
 
-    return "www" + request_path;
+    return request_path;
 }
 
 // ========================================

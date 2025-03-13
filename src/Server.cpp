@@ -195,6 +195,6 @@ Server										&Server::setCgi( std::string cgi )
 
 Server										&Server::setRoot( std::string root )
 {
-	this->_root = root;
+	this->_root += root;
 	return ( *this );
 }
