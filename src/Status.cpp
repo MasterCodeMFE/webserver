@@ -202,13 +202,13 @@ std::string			Status::getErrorPage( std::string code_file_path, int status_code 
         std::cout << "Could not open the file: " << code_file_path << std::endl;
         return Status::getErrorPage(404);
     }
-	
+
 	std::string content = Request::_read_file(code_file_path);
     if (content.empty())
     {
         return Status::getErrorPage(500); // Retorna error 500 si hay un problema interno
     }
-   std::string content_type = Request::_get_content_type(code_file_path);
-
+	std::string content_type = Request::_get_content_type(code_file_path);
+//
     return Request::build_http_response(content, content_type, 200);
 }

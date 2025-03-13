@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:07:34 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/11 10:59:54 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/12 16:54:11 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,18 +35,45 @@ DeployServer::~DeployServer( void ){}
 
 DeployServer    &DeployServer::operator=( DeployServer const &src ){ ( void )src; return( *this ); }
 
-int             DeployServer::_dispatch_http_request(int client_fd, const HttpRequest& httpRequest )
+int             DeployServer::_dispatch_http_request(int client_fd, HttpRequest& httpRequest )
 {
     std::string response;
     Location location;
 
     location = findLocation(httpRequest, this->locations);
+    bool is_valid_method = location.getSMethods().find(httpRequest.method) != location.getSMethods().end();    
 
     std::cout << location << std::endl;
 
+    /**
+     * Composición de la ruta/fichero a procesar:
+     * - Si existe un `alias` en `location` del config file que va a manejar la petición 
+     *      se debe añadir a la ruta base "./www/" el alias y el restante su la sustitución.
+     * - Si no existe `alias` se añade el `root` de la `location` delante de la ruta solicitada
+     *      en la petición. Por defecto el atributo `root`se almacena en locatión precedido 
+     *      por la ruta base "./www/", por lo que si no existe root en una `location`
+     *      location devuelve "./www/". Consultar el fichero "src/Server.cpp", función "setRoot"
+     *      para entender la implementación.
+     */ 
+    if (!location.getAlias().empty())
+    {
+        httpRequest.path = "./www/" + location.getAlias() + httpRequest.path.substr(location.getPath().size());
+    }
+    else
+    {
+        httpRequest.path = location.getRoot() + httpRequest.path;
+    }
     // Verificar si la solicitud es para un script CGI
-    if (httpRequest.path.find("/cgi-bin/") == 0) {
-        response = Request::handle_cgi("." + httpRequest.path, httpRequest.query_string, location);
+    if (httpRequest.path.find("/cgi-bin/") == 0)
+    {
+        httpRequest.path = Request::handle_cgi("." + httpRequest.path, httpRequest.query_string, location);
+        std::cout << "Alias: " << httpRequest.path << std::endl;
+    }
+    if (!is_valid_method)
+    {
+        std::string error = "Método no permitido\n";
+        std::clog << error << std::endl;
+        response = location.getErrorPage(405);
     }
     // Manejar solicitud GET
     else if (httpRequest.method == "GET") {
@@ -63,7 +90,7 @@ int             DeployServer::_dispatch_http_request(int client_fd, const HttpRe
     // Responder con error 405 si el método no es reconocido
     else {
         std::string error = "Método no permitido\n";
-        response = Request::build_http_response(error, "text/plain", 405);
+        response = location.getErrorPage(405);
     }
 
     // Enviar la respuesta al cliente
