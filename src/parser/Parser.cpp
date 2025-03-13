@@ -30,7 +30,7 @@ void	Parser::_setDirectives( void )
 	_directives["client_max_body_size"] = build_directive( 1, E_SERVER | E_LOCATION, E_DIRECTIVE );
 	_directives["location"] = build_directive( 1, E_SERVER, E_BLOCK );
 	_directives["method"] = build_directive( 1, E_LOCATION, E_DIRECTIVE );
-	_directives["redirect"] = build_directive( 2, E_SERVER | E_LOCATION, E_DIRECTIVE );
+	_directives["return"] = build_directive( 2, E_SERVER | E_LOCATION, E_DIRECTIVE );
 	_directives["autoindex"] = build_directive( 1, E_SERVER | E_LOCATION, E_DIRECTIVE );
 	_directives["index"] = build_directive( 1, E_SERVER | E_LOCATION, E_DIRECTIVE );
 	_directives["cgi"] = build_directive( 1, E_SERVER | E_LOCATION, E_DIRECTIVE );
@@ -209,7 +209,7 @@ int	Parser::_serverProcessing( std::vector<Location> &locs, \
 		this->_checkDirective( "" );
 	if ( *it == "}" )
 	{
-		std::cout << "\033[1;38;5;226m" << "WARNING - Empty server ignored." << "\033[0m" << std::endl;
+		std::cout << "\033[1;38;5;226m" << "[WARNING] Empty server ignored." << "\033[0m" << std::endl;
 		return ( std::distance( v_str.begin(), it) );
 	}
 	while ( it != v_str.end() && *it != "}" )
@@ -269,9 +269,9 @@ void					Parser::_handleServerDirective(	Location &server, tokenIter &it )
 		server.setClienteMaxBodySize( *(++it) );
 	else if ( "method" == *it )
 		server.addSMethod( *(++it) );
-	else if ( "redirect" == *it )
+	else if ( "return" == *it )
 	{
-		server.addMRedirection( *(it + 1), *(it + 2) );
+		server.setRedirection( *(it + 1), *(it + 2) );
 		it += 2;
 	}
 	else if ( "autoindex" == *it )

@@ -38,8 +38,6 @@ typedef enum e_type
 	E_DIRECTIVE
 }	t_type;
 
-
-
 typedef struct s_directive
 {
 	int				args;

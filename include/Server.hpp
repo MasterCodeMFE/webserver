@@ -24,15 +24,15 @@
 class Server
 {
 	protected:
-		std::string							_server_name;
-		std::string							_listen;
-		std::map<int, std::string>			_m_status_pages;
-        long unsigned int					_client_max_body_size;
-        bool								_autoindex;
-		std::string							_index;
-		std::string							_cgi;
-		std::string							_root;
-		std::map<std::string, std::string>	_m_redirections;
+		std::string					_server_name;
+		std::string					_listen;
+		std::map<int, std::string>	_m_status_pages;
+        long unsigned int			_client_max_body_size;
+        bool						_autoindex;
+		std::string					_index;
+		std::string					_cgi;
+		std::string					_root;
+		std::pair<int, std::string>	_redirection;
 
 	public:
 		Server( void );
@@ -43,7 +43,7 @@ class Server
 
 		Server										&setServerName( std::string server_name );
 		Server										&setListen( std::string listen );
-		Server										&addMRedirection( std::string from, std::string to);
+		Server										&setRedirection( std::string from, std::string to);
 		Server										&addStatusPage( std::string const &status_string, std::string const &page_path);
 		Server										&setClienteMaxBodySize( std::string size );
         Server										&setAutoindex( bool autoindex );
@@ -54,7 +54,7 @@ class Server
 		// Comprueba si hay pagina especificada, sino devuelve pagina de error por defecto.
 		std::string const							&getServerName( void )const;
 		std::string const							&getListen( void )const;
-		std::map<std::string, std::string> const	&getMRedirections( void ) const;
+		std::pair<int, std::string> const			&getRedirection( void ) const;
 		std::map<int, std::string> const			&getMStautsPages( void ) const;
 		std::string		 							getErrorPage( unsigned int status_code ) const;
 		long unsigned int	const					&getClienteMaxBodySize( void ) const;

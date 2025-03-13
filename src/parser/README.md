@@ -21,8 +21,9 @@
 	un directorio o un fichero. Error de duplicado si en el mismo server existe la misma location.
 12.	`method <metodo>;` Debe contenerse dentro del bloque `location`. Añade a la lista si no está duplicado.
 	Una declaración de método por palabra clave `method`.
-13.	`redirect from to;` Debe contenerse dentro de bloque server o location. Indica la redirección de la ruta from a to.
-	Si duplicado en el mismo bloque, actualiza.
+13.	`return redirection_status_code url;` Debe contenerse dentro de bloque server o location. Indica el código de redirección a retornar y la url a la que redirigir cuando
+se llame al servidor o localización donde este declarado. Si duplicado en el mismo bloque, actualiza. En el bloque que aparezca
+sera lo primero que se tenga en cuenta, ignorando el resto de directivas del bloque.
 14.	`alias /path` Dentro del bloque location. Convierte la location al path indicado. Si duplicado en el mismo bloque, actualiza. **En caso de declararse alias y root en location
 prevalecerá la especificación alias.**
 15.	`root path`puede incluirse en el bloque server y en el bloque location. 
@@ -45,7 +46,7 @@ Para configurar un CGI especificaremos una carpeta `location`y que cada vez que 
 | client_max_body_size |        |   X    |    X     |
 | location             |        |   X    |          |
 | method               |        |        |    X     |
-| redirect             |        |   X    |    X     |
+| return               |        |   X    |    X     |
 | alias                |        |        |    X     |
 | root                 |        |   X    |    X     |
 | autoindex            |        |   X    |    X     |
