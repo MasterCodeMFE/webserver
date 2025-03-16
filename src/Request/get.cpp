@@ -27,9 +27,15 @@ std::string  Request::handle_get(const HttpRequest& request, Location location)
     }
     
     // Si es un directorio, genera un listado de su contenido
-    if (S_ISDIR(file_stat.st_mode))
+    if (S_ISDIR(file_stat.st_mode)  && location.getAutoindex() == true)
     {
-        return Request::_listDirectory(filepath, request.path);
+        std::cerr << "ENTRA EN DIRECTOREIO" << std::endl;
+        return Request::_listDirectory(filepath, request.path, location);
+    }
+    else if(S_ISDIR(file_stat.st_mode)  && location.getAutoindex() == false)
+    {
+        std::cerr << "Error: autoindex off."<< std::endl;
+        return (location.getErrorPage(403));
     }
     
     // Verifica si el archivo tiene permisos de lectura
@@ -53,6 +59,31 @@ std::string  Request::handle_get(const HttpRequest& request, Location location)
 }
 
 
+bool containsIndexHtml(std::string directoryPath, std::string index)
+{
+    DIR *dir = opendir(directoryPath.c_str());
+    if (!dir)
+    {
+        std::cerr << "No se pudo abrir el directorio: " << directoryPath << std::endl;
+        return false;
+    }
+
+    struct dirent *entry;
+    std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
+    while ((entry = readdir(dir)) != NULL)
+    {
+        std::cout << entry->d_name << " | " << index.c_str() << std::endl;
+        if (std::strcmp(entry->d_name, index.c_str()) == 0)
+        {
+            closedir(dir);
+            return true;
+        }
+    }
+
+    closedir(dir);
+    return false;
+}
+
 // ========================================
 //  FUNCIÓN: get_file_path
 // ========================================
@@ -67,11 +98,31 @@ std::string  Request::handle_get(const HttpRequest& request, Location location)
 //
 // Retorno:
 // - Cadena con la ruta del archivo en el sistema.
-std::string Request::_get_file_path(const std::string& request_path, Location location)
-{
-    if (request_path == "/")
-        return "www/index.html"; // Retorna el archivo index por defecto
-    return "www" + request_path; // Construye la ruta del archivo en la carpeta "www"
+std::string Request::_get_file_path(const std::string &request_path, Location location) {
+    struct stat file_stat;
+    std::string index = location.getIndex();
+
+    std::clog << index << std::endl;
+    if (index.empty()) {
+        index = "index.html";
+    }
+    std::string path = request_path;
+    if (::stat(path.c_str(), &file_stat) != 0) {
+        return "";
+    }
+    std::cout << "index: " << index << std::endl;
+    if (S_ISDIR(file_stat.st_mode)) {
+        if (containsIndexHtml(path, index) == true) {
+            // Evita dobles "//" en la ruta final
+            if (path[path.size() - 1] != '/') {
+                path += "/";
+            }
+            path += index;
+            return path;
+        }
+    }
+
+    return request_path;
 }
 
 // ========================================
@@ -91,18 +142,22 @@ std::string Request::_get_file_path(const std::string& request_path, Location lo
 //
 // Retorno:
 // - Una cadena con la respuesta HTTP en formato HTML.
-std::string Request::_listDirectory(const std::string &dirPath, const std::string &requestPath)
+std::string Request::_listDirectory(const std::string &dirPath, const std::string &requestPath, Location location)
 {
     std::cout << "Intentando listar: " << dirPath << std::endl;
-    
+
+    // Verifica si el directorio existe y si tiene permisos de lectura
+    if (access(dirPath.c_str(), F_OK) != 0) {
+        return location.getErrorPage(404); // No existe el directorio
+    }
+    if (access(dirPath.c_str(), R_OK) != 0) {
+        return location.getErrorPage(403); // No hay permisos de lectura
+    }
+
     // Intenta abrir el directorio
     DIR *dir = opendir(dirPath.c_str());
-    if (!dir)
-    {
-        std::cerr << "Error: No se pudo abrir el directorio " << dirPath
-                  << " (" << strerror(errno) << ")" << std::endl;
-
-        return Status::getErrorPage(404); // Retorna una página de error 404 si el directorio no existe
+    if (!dir) {
+        return location.getErrorPage(500); // Otro error inesperado
     }
 
     // Construye la respuesta HTML con el índice del directorio
@@ -126,26 +181,28 @@ std::string Request::_listDirectory(const std::string &dirPath, const std::strin
                  << "<h1>Índice de " << dirPath << "</h1>\n"
                  << "<ul>\n";
 
-    // Recorre el contenido del directorio
     struct dirent *entry;
     while ((entry = readdir(dir)) != NULL)
     {
         std::string fileName = entry->d_name;
-        if (fileName != "." && fileName != "..")
-        {
-            std::string fullPath = dirPath + "/" + fileName;
-            struct stat fileStat;
-            
-            // Determina si es un archivo o un directorio y asigna un icono adecuado
-            std::string icon = "📄"; // Icono por defecto para archivos
-            if (stat(fullPath.c_str(), &fileStat) == 0 && S_ISDIR(fileStat.st_mode))
-            {
-                icon = "📁"; // Si es un directorio
-            }
-            
-            // Agrega el archivo/directorio a la lista en HTML
-            responseBody << "<li>" << icon << " <a href=\"" << requestPath + "/" + fileName << "\">" << fileName << "</a></li>\n";
+        if (fileName == "." || fileName == "..")
+            continue;
+
+        std::string fullPath = dirPath + "/" + fileName;
+        struct stat fileStat;
+        
+        // Verifica si stat() falla para evitar errores
+        if (stat(fullPath.c_str(), &fileStat) != 0) {
+            continue; // Si hay error al obtener información, ignora este archivo
         }
+
+        std::string icon = "📄"; // Icono por defecto para archivos
+        if (S_ISDIR(fileStat.st_mode)) {
+            icon = "📁"; // Si es un directorio
+        }
+
+        // Agrega el archivo/directorio a la lista en HTML
+        responseBody << "<li>" << icon << " <a href=\"" << requestPath + "/" + fileName << "\">" << fileName << "</a></li>\n";
     }
 
     // Cierra el directorio y finaliza la respuesta HTML

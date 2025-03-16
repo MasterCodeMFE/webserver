@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pabad-ap <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/11 08:54:05 by pabad-ap          #+#    #+#             */
-/*   Updated: 2025/02/11 09:36:55 by pabad-ap         ###   ########.fr       */
+/*   Updated: 2025/03/12 16:55:48 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,7 @@ std::ostream	&operator<<( std::ostream &o, Location const &src)
 
 	for (std::map<int, std::string>::const_iterator it = src.getMStautsPages().begin(); \
 			it != src.getMStautsPages().end(); ++it)
-		o << "\terror_code " << it->first << " " << it->second << ";" << std::endl;
+		o << "\terror_page " << it->first << " " << it->second << ";" << std::endl;
 	
 	o << "\tclient_max_body_size " << src.getClienteMaxBodySize() << ";" << std::endl;
 
@@ -96,9 +96,7 @@ std::ostream	&operator<<( std::ostream &o, Location const &src)
 	o << "\tcgi " << src.getCgi() << ";" << std::endl;
 	o << "\troot " << src.getRoot() << ";" << std::endl;
 	o << "\talias " << src.getAlias() << ";" << std::endl;
-	for (std::map<std::string, std::string>::const_iterator it = src.getMRedirections().begin(); \
-		it != src.getMRedirections().end(); it++)
-		o << "\tredirection " << it->first << " " << it->second << ";"  << std::endl;
+	o << "\tredirection " << src.getRedirection().first << " " << src.getRedirection().second << ";" << std::endl;
 	for (std::set<std::string>::const_iterator it = src.getSMethods().begin(); \
 		it != src.getSMethods().end(); it++)
 		o << "\tmethod " << *it << ";" << std::endl;

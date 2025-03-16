@@ -88,7 +88,7 @@ class DeployServer
 		int				_accept_client_connection(int server_fd );
 		int 			_handle_client_request( int client_fd );
 		int				_dispatch_http_request(int client_fd, \
-							const HttpRequest& httpRequest );
+							HttpRequest& httpRequest );
 
 	public:
 		DeployServer( std::vector<Location> locations );

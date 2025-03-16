@@ -167,19 +167,20 @@ static HttpRequest parse_request(const std::string& request)
 // - No tiene retorno.
 static void debug_print_http_request(const HttpRequest& httpRequest)
 {
-	std::cout << "Método: " << httpRequest.method << "\n";
-	std::cout << "Ruta: " << httpRequest.path << "\n";
-	std::cout << "Protocolo: " << httpRequest.protocol << "\n";
-
-	std::cout << "Encabezados:\n";
+	std::cout << "__________CLIENT REQUEST__________\n"
+				<< "Método: " << httpRequest.method << "\n"
+				<< "Ruta: " << httpRequest.path << "\n"
+				<< "Protocolo: " << httpRequest.protocol << "\n"
+				<< "Encabezados:\n";
 	for (std::map<std::string, std::string>::const_iterator it = httpRequest.headers.begin();
 		 it != httpRequest.headers.end(); ++it) {
-		std::cout << it->first << ": " << it->second << "\n";
+		std::cout << "\t" << it->first << ": " << it->second << "\n";
 	}
 
 	if (!httpRequest.body.empty()) {
 		std::cout << "Cuerpo:\n" << httpRequest.body << "\n";
 	}
+	std::cout << "----------------------------------\n";
 }
 
 // ========================================

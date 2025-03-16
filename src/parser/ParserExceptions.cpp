@@ -12,6 +12,9 @@
 
 #include "Parser.hpp"
 
+static int	isWrongHost(const std::string& ip);
+static int	isWrongPort(const std::string& port);
+
 /** Excepciónes de parseo */
 Parser::ParsingException::ParsingException ( std::string const &msg ): \
 	std::logic_error(msg){}
@@ -188,3 +191,73 @@ Parser					&Parser::_checkUniqueLocation( std::string path, \
 	return ( *this );
 }
 
+/** Comprueba que la ip y puerto de `listen`esten en el formato y rango correcto.
+ * @param hostPort Contiene un string con la IP y puerto a escuhar. Para 
+ * 		ser correcto debe tener el formato [0-255].[0-255].[0-255].[0-255]:[0-65535].
+ * @return `true` si el formato es correcto. Lanza un excepción sin no se cumplen las condiciones. 
+ */
+bool		Parser::_checkHostPort( std::string hostPort )
+{	
+	std::ostringstream	oss;
+	std::string host;
+    std::string	port;
+    size_t		colonPos;
+	int			error;
+	
+	oss << hostPort << " not found for `listen` directive." << std::endl;
+	colonPos = hostPort.find(':');
+	error = 0;
+    if (colonPos == std::string::npos)
+		error = 1;
+	else
+	{
+		host = hostPort.substr(0, colonPos);
+   		port = hostPort.substr(colonPos + 1);
+	}	
+	if ( error || isWrongHost(host) || isWrongPort(port) )
+		throw Parser::ParsingException( oss.str());
+    return ( true );
+}
+
+/** Comprueba si `host` tiene el formato correcto,
+ * [0-255].[0-255].[0-255].[0-255].
+ * @param host IP de la que chequear el formato;
+ * 
+ * @return 1 si falla, 0 si es correcta
+ */
+static int isWrongHost(const std::string& host)
+{
+    std::vector<std::string> octets;
+    std::string octet;
+    std::istringstream hostStream(host);
+
+    while (std::getline(hostStream, octet, '.'))
+	{
+        octets.push_back(octet);
+	}
+    if (octets.size() != 4)
+	{
+        return ( 1 );
+    }
+    for (size_t i = 0; i < octets.size(); ++i)
+	{
+        int value = std::atoi(octets[i].c_str());
+        if (value < 0 || value > 255)
+		{
+            return ( 1 );
+		}
+    }
+    return ( 0 );
+}
+
+/** Comprueba si `port` tiene el formato correcto,
+ * un numero entre 0 y 65535.
+ * @param port Valor a chequear.
+ * 
+ * @return 1 si falla, 0 si es correcta
+ */
+static int isWrongPort(const std::string& port) 
+{
+    int value = std::atoi(port.c_str());
+    return ( value < 0 || value > 65535 );
+}
