@@ -15,9 +15,15 @@
 
 Location findLocation(const HttpRequest &httpRequest, std::vector<Location> locations) {
     std::string path(httpRequest.path);
-    std::string host = "127.0.0.1:8080"; 
-    if ( httpRequest.method == "GET" )
+    std::string host; 
+    try
+    {
         host = httpRequest.headers.at("Host");
+    }
+    catch(const std::out_of_range& e)
+    {
+        host = "127.0.0.1:8080";
+    }
     if ( path[0] != '/' )
 	    path = "/" + path;
     std::cout << "host: " << host << std::endl;
