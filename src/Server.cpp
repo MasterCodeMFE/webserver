@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/13 16:55:10 by pabad-ap          #+#    #+#             */
-/*   Updated: 2025/03/19 16:53:14 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/19 17:17:07 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,7 +161,7 @@ Server								&Server::setClienteMaxBodySize( std::string size )
 	{
 		max_body_size = strtoul(value.c_str(), NULL, 0) * 1024 * 1024 * 1024;
 	}
-	else if (unit.empty())
+	else if (!unit.empty())
 	{
 		max_body_size = strtoul(size.c_str(), NULL, 0);
 	}

@@ -18,11 +18,17 @@ static std::string extract_filename(const std::string& body);
 // ========================================
 std::string Request::handle_post(const HttpRequest& httpRequest, Location location)
 {
-    (void)location;
+    std::stringstream ss;
+    std::string error = "Falta Content-Type\n";
+    long unsigned int contentLenght;
+
+    ss << httpRequest.headers.at("Content-Length");
+    ss >> contentLenght;
+    if ( contentLenght > location.getClienteMaxBodySize() )
+        return (location.getErrorPage(413));
     // Verificar existencia de Content-Type
     std::map<std::string, std::string>::const_iterator it = httpRequest.headers.find("Content-Type");
     if (it == httpRequest.headers.end()) {
-        std::string error = "Falta Content-Type\n";
         return build_http_response(error, "text/plain", 400);
     }
 
