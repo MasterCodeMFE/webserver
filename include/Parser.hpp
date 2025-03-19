@@ -80,7 +80,7 @@ class Parser
 
 		void			_handleServerDirective( Location &server, tokenIter &it );
 		void			_handleLocationDirective( Location &location, tokenIter &it, tokenIter end );
-	static void			_setDirectives( void );
+		static void			_setDirectives( void );
 		
 	public:
 		Parser( void );

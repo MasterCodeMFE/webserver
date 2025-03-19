@@ -45,19 +45,9 @@ int             DeployServer::_dispatch_http_request(int client_fd, HttpRequest&
 
     std::cout << location << std::endl;
 
-    /**
-     * Composición de la ruta/fichero a procesar:
-     * - Si existe un `alias` en `location` del config file que va a manejar la petición 
-     *      se debe añadir a la ruta base "./www/" el alias y el restante su la sustitución.
-     * - Si no existe `alias` se añade el `root` de la `location` delante de la ruta solicitada
-     *      en la petición. Por defecto el atributo `root`se almacena en locatión precedido 
-     *      por la ruta base "./www/", por lo que si no existe root en una `location`
-     *      location devuelve "./www/". Consultar el fichero "src/Server.cpp", función "setRoot"
-     *      para entender la implementación.
-     */ 
     if (!location.getAlias().empty())
     {
-        httpRequest.path = "./www/" + location.getAlias() + httpRequest.path.substr(location.getPath().size());
+        httpRequest.path = location.getAlias() + httpRequest.path.substr(location.getPath().size() - 1);
     }
     else
     {

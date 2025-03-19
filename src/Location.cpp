@@ -18,16 +18,7 @@ Location::Location( Server const &server, std::string path ): Server( server ), 
 	_path(path){}
 
 Location::Location( Location const &src ): Server( src ), \
-	_path(src._path), _s_methods(src._s_methods), _alias(src._alias)
-{
-	//this->_m_status_pages = src._m_status_pages;
-	//this->_client_max_body_size = src._client_max_body_size;
-	//this->_m_redirections = src._m_redirections;
-	//this->_autoindex = src._autoindex;
-	//this->_index = src._index;
-	//this->_cgi = src._cgi;
-	//this->_root = src._root;
-}
+	_path(src._path), _s_methods(src._s_methods), _alias(src._alias){}
 
 Location::~Location( void )
 {
@@ -75,7 +66,7 @@ Location									&Location::addSMethod( std::string method)
 
 Location									&Location::setAlias( std::string alias )
 {
-	this->_alias = alias;
+	this->_alias = this->_root.substr( 0, this->_root.find("/", 2)) + alias;
 	return ( *this );
 }
 

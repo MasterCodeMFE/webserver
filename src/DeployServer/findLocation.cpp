@@ -69,6 +69,11 @@ Location findLocation(const HttpRequest &httpRequest, std::vector<Location> loca
                 std::cout << "encontrado" << std::endl;
                 return *locIt;
             }
+            if( !(*segmentIt + "/").compare( locIt->getPath() ) && !listen.compare( locIt->getListen() ))
+            {
+                std::cout << "encontrado" << std::endl;
+                return *locIt;
+            }
         }
         std::cout << std::endl; // Separar cada iteración de segmentos
     }
