@@ -12,8 +12,12 @@
 
 #include "main.hpp"
 
+static void handle_sigint(int signal);
+
 int main( int argc, const char **argv )
 {
+    std::signal(SIGINT, handle_sigint);
+	std::signal(SIGQUIT, handle_sigint);
 	std::vector<Location> loc;
     listenSet             listeners;
 
@@ -31,4 +35,13 @@ int main( int argc, const char **argv )
     DeployServer server(loc);
     server.initialize_server_sockets();
     return 0;
+}
+
+/** Gestiona las señales que causan paradas abruptas del sistema
+ * para que se ejecuten los destructores y evitar leaks.
+ * @param signal Número asociado a la señal recibida.
+ */
+static void handle_sigint(int signal)
+{
+   (void) signal;
 }

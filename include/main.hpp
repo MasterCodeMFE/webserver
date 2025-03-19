@@ -23,5 +23,6 @@
 # include "Parser.hpp"
 # include "Request.hpp"
 
+# include <csignal>
 
 #endif
