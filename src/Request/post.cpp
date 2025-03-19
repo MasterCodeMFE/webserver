@@ -22,7 +22,14 @@ std::string Request::handle_post(const HttpRequest& httpRequest, Location locati
     std::string error = "Falta Content-Type\n";
     long unsigned int contentLenght;
 
-    ss << httpRequest.headers.at("Content-Length");
+    try
+    {
+        ss << httpRequest.headers.at("Content-Length");
+    }
+    catch ( std::out_of_range &e)
+    {
+       return (location.getErrorPage(400));
+    }
     ss >> contentLenght;
     if ( contentLenght > location.getClienteMaxBodySize() )
         return (location.getErrorPage(413));

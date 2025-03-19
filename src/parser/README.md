@@ -29,7 +29,7 @@ prevalecerá la especificación alias.**
 15.	`root path`puede incluirse en el bloque server y en el bloque location. 
 	Indica el directorio de partida. Si duplicado en el mismo bloque, actualiza.
 16.	`autoindex on|off` puede incluirse en el bloque server y en el bloque location. Si duplicado en el mismo bloque, actualiza. `on` lo establece a `true`, el resto de valores serán `false`, aunque es conveniente usar on y off.
-	Indica si se listan los ficheros de un directorio cuando se pasa una ruta en vez de un archivo e index no esta especificado
+	Indica si se listan los ficheros de un directorio cuando se pasa una ruta en vez de un archivo e index no esta especificado.
 17. `index str` puede incluirse  en el bloque server y en el bloque location. Si duplicado en el mismo bloque, actualiza.
 	 Fichero que se usa por defecto al solicitar una directiva.
 

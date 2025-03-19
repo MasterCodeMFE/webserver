@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/13 16:55:10 by pabad-ap          #+#    #+#             */
-/*   Updated: 2025/03/19 17:17:07 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/19 18:37:45 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -211,6 +211,6 @@ Server								&Server::setCgi( std::string cgi )
 
 Server								&Server::setRoot( std::string root )
 {
-	this->_root += root;
+	this->_root = "./www/" + root;
 	return ( *this );
 }

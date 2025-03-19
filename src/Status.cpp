@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/03/11 12:31:13 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/19 18:03:32 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,14 +126,9 @@ bool	Status::_inErrorRange( int status_code )
   */
 std::string			Status::getStatusResponse( int status_code )
 {
-	std::string	response;
 	if ( Status::_m_status_responses.empty() )
 		Status::_setStatusResponses();
-	if (Status::_inErrorRange( status_code))
-	{
-		response = Status::_m_status_responses[status_code];
-	}
-	return ( response );
+	return ( Status::_m_status_responses[status_code] );
 }
 
 /** Devuelve una plantilla de error predefinida, en la que se ajustan el código de error
@@ -210,5 +205,5 @@ std::string			Status::getErrorPage( std::string code_file_path, int status_code 
     }
 	std::string content_type = Request::_get_content_type(code_file_path);
 //
-    return Request::build_http_response(content, content_type, 200);
+    return Request::build_http_response(content, content_type, status_code);
 }
