@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/13 16:55:10 by pabad-ap          #+#    #+#             */
-/*   Updated: 2025/03/11 11:50:27 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/19 16:53:14 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,7 +105,7 @@ std::string		 					Server::getErrorPage( unsigned int status_code ) const
 	if ( this->_m_status_pages.end() !=  it )
 	{
 		std::cout << status_code << "tiene error_code personalizado." << std::endl;
-		return ( Status::getErrorPage( it->second, status_code ) );
+		return ( Status::getErrorPage( this->getRoot() + it->second, status_code ) );
 	}
 	return ( Status::getErrorPage( status_code ) );
 }
