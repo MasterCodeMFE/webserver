@@ -23,7 +23,7 @@
             border-radius: 10px;
             text-align: center;
         }
-        button {
+        .button {
             margin-top: 10px;
             padding: 10px;
             border: none;
@@ -49,6 +49,21 @@
         <div class="card">
             <h2>Cuadro 2</h2>
             <a href="#" class="button">Otro botón</a>
+        </div>
+        <div class="card">
+            <h2>CGI PHP</h2>
+            <a href="/cgi/php.php" class="button">Ir a PHP</a>
+        </div>
+        <div class="card">
+            <h2>CGI PHP-post</h2>
+            <form action="/cgi/php-post.php" method="POST">
+                <input type="text" name="mensaje" placeholder="Escribe algo...">
+                <button type="submit" class="button">Enviar</button>
+            </form>
+        </div>
+        <div class="card">
+            <h2>CGI PHP-infi</h2>
+            <a href="/cgi/php-infi.php" class="button">Ir a PHP-infi</a>
         </div>
     </div>
 </body>

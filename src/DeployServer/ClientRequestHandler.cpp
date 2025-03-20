@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:07:20 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/20 13:52:20 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/20 17:00:04 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,12 @@ int DeployServer::_handle_client_request( int client_fd )
 	// Parsear la solicitud HTTP
 	httpRequest = parse_request(raw_request);
 	debug_print_http_request(httpRequest);
+
+/*
+	std::cout << "**********************************************************************************\n"
+		<< "RAWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW: \n" << raw_request
+		<< "**********************************************************************************\n" << std::endl;
+*/
 
 	// Verificar si existe el encabezado "Content-Length" para leer el cuerpo de la solicitud
 	std::map<std::string, std::string>::const_iterator it = httpRequest.headers.find("Content-Length");
@@ -147,7 +153,11 @@ static HttpRequest parse_request(const std::string& request)
 			httpRequest.headers[key] = value;
 		}
 	}
+	
+	while (std::getline(stream, line) && line != "\r")
+		httpRequest.body += line;
 
+	std::cout << "____________________BODY__________________\n" << httpRequest.body << std::endl;
 	return httpRequest;
 }
 
@@ -176,6 +186,7 @@ static void debug_print_http_request(const HttpRequest& httpRequest)
 	if (!httpRequest.body.empty()) {
 		std::cout << "Cuerpo:\n" << httpRequest.body << "\n";
 	}
+
 	std::cout << "----------------------------------\n";
 }
 

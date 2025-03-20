@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:07:34 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/20 13:57:19 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/20 18:18:31 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 
 #include "DeployServer.hpp"
 #include "Request.hpp"
+
+static int string_to_int(const std::string &str);
 
 
 DeployServer::DeployServer( void ){}
@@ -41,6 +43,13 @@ int             DeployServer::_dispatch_http_request(int client_fd, HttpRequest&
     Location location;
 
     location = findLocation(httpRequest, this->locations);
+    if (httpRequest.method != "GET" && string_to_int (httpRequest.headers.at("Content-Length")) >  static_cast<int>(location.getClienteMaxBodySize()) )
+    {
+        response = location.getErrorPage(413);
+        Request::send_all(client_fd, response.c_str(), response.size());
+        return ( 0 );
+    }
+    std::cout << location << std::endl;
     bool is_valid_method = location.getSMethods().find(httpRequest.method) != location.getSMethods().end();    
 
     if (location.getRedirection().first != 0) // Verifica si hay un código de redirección
@@ -59,9 +68,13 @@ int             DeployServer::_dispatch_http_request(int client_fd, HttpRequest&
         httpRequest.path = location.getRoot() + httpRequest.path;
     }
     // Verificar si la solicitud es para un script CGI
-    if (httpRequest.path.find("/cgi-bin/") == 0)
+    if (httpRequest.path.size() >= 4 && httpRequest.path.compare(httpRequest.path.size() - 4, 4, ".php") == 0)
     {
-        httpRequest.path = Request::handle_cgi("." + httpRequest.path, httpRequest.query_string, location);
+        std::cout << "-----------path: "  << httpRequest.path << std::endl;
+        std::cout << "-----------query_string: "  << httpRequest.query_string << std::endl;
+        response = Request::handle_cgi(httpRequest.path, httpRequest.body, httpRequest.method, httpRequest.body, location);
+        Request::send_all(client_fd, response.c_str(), response.size());
+        return(0);
     }
     if (!is_valid_method)
     {
@@ -91,4 +104,12 @@ int             DeployServer::_dispatch_http_request(int client_fd, HttpRequest&
     Request::send_all(client_fd, response.c_str(), response.size());
 
     return 0;
+}
+
+
+static int string_to_int(const std::string &str) {
+    std::stringstream ss(str);
+    int value;
+    ss >> value;
+    return value;
 }
