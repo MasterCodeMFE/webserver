@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:07:20 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/10 17:44:16 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/20 12:05:07 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -220,3 +220,32 @@ static std::string read_http_body(int client_fd, const std::string& raw_request,
 	return body;
 }
 
+std::string DeployServer::_handle_redirection(int status_code, const std::string& location, const Location& location_config)
+{
+    std::ostringstream response;
+	std::cout << "----------------------------entro" << std::endl;
+    // Lista de códigos HTTP válidos para redirección
+    if (status_code == 301 || status_code == 302 || status_code == 307 || status_code == 308)
+    {
+        std::string status_message;
+        switch (status_code)
+        {
+            case 301: status_message = "Moved Permanently"; break;
+            case 302: status_message = "Found"; break;
+            case 307: status_message = "Temporary Redirect"; break;
+            case 308: status_message = "Permanent Redirect"; break;
+        }
+
+        response << "HTTP/1.1 " << status_code << " " << status_message << "\r\n"
+                 << "Location: " << location << "\r\n"
+                 << "Content-Length: 0\r\n"
+                 << "Connection: close\r\n\r\n";
+    }
+    else
+    {
+        std::cerr << "⚠️ Código de redirección inválido: " << status_code << ". Devolviendo error 500.\n";
+        return location_config.getErrorPage(500);
+    }
+
+    return response.str();
+}

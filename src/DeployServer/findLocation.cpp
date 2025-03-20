@@ -17,7 +17,7 @@ std::string resolveHostnameToIP(const std::string &hostname);
 
 Location findLocation(const HttpRequest &httpRequest, std::vector<Location> locations) {
     std::string path(httpRequest.path);
-    std::string host; 
+    std::string host;
     try
     {
         host = httpRequest.headers.at("Host");

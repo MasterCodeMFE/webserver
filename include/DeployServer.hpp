@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:13:35 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/10 17:41:34 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/20 11:57:54 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,7 @@ class DeployServer
 		int 			_handle_client_request( int client_fd );
 		int				_dispatch_http_request(int client_fd, \
 							HttpRequest& httpRequest );
+		std::string 	_handle_redirection(int status_code, const std::string& location, const Location& location_config);					
 
 	public:
 		DeployServer( std::vector<Location> locations );
