@@ -6,13 +6,12 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:10:44 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/06 19:10:48 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/19 15:29:24 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Parser.hpp"
 
-static int	isWrongHost(const std::string& ip);
 static int	isWrongPort(const std::string& port);
 
 /** Excepciónes de parseo */
@@ -214,40 +213,9 @@ bool		Parser::_checkHostPort( std::string hostPort )
 		host = hostPort.substr(0, colonPos);
    		port = hostPort.substr(colonPos + 1);
 	}	
-	if ( error || isWrongHost(host) || isWrongPort(port) )
+	if ( error || isWrongPort(port) )
 		throw Parser::ParsingException( oss.str());
     return ( true );
-}
-
-/** Comprueba si `host` tiene el formato correcto,
- * [0-255].[0-255].[0-255].[0-255].
- * @param host IP de la que chequear el formato;
- * 
- * @return 1 si falla, 0 si es correcta
- */
-static int isWrongHost(const std::string& host)
-{
-    std::vector<std::string> octets;
-    std::string octet;
-    std::istringstream hostStream(host);
-
-    while (std::getline(hostStream, octet, '.'))
-	{
-        octets.push_back(octet);
-	}
-    if (octets.size() != 4)
-	{
-        return ( 1 );
-    }
-    for (size_t i = 0; i < octets.size(); ++i)
-	{
-        int value = std::atoi(octets[i].c_str());
-        if (value < 0 || value > 255)
-		{
-            return ( 1 );
-		}
-    }
-    return ( 0 );
 }
 
 /** Comprueba si `port` tiene el formato correcto,

@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/13 16:55:10 by pabad-ap          #+#    #+#             */
-/*   Updated: 2025/03/11 11:50:27 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/19 18:37:45 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,7 +105,7 @@ std::string		 					Server::getErrorPage( unsigned int status_code ) const
 	if ( this->_m_status_pages.end() !=  it )
 	{
 		std::cout << status_code << "tiene error_code personalizado." << std::endl;
-		return ( Status::getErrorPage( it->second, status_code ) );
+		return ( Status::getErrorPage( this->getRoot() + it->second, status_code ) );
 	}
 	return ( Status::getErrorPage( status_code ) );
 }
@@ -161,7 +161,7 @@ Server								&Server::setClienteMaxBodySize( std::string size )
 	{
 		max_body_size = strtoul(value.c_str(), NULL, 0) * 1024 * 1024 * 1024;
 	}
-	else if (unit.empty())
+	else if (!unit.empty())
 	{
 		max_body_size = strtoul(size.c_str(), NULL, 0);
 	}
@@ -211,6 +211,6 @@ Server								&Server::setCgi( std::string cgi )
 
 Server								&Server::setRoot( std::string root )
 {
-	this->_root += root;
+	this->_root = "./www/" + root;
 	return ( *this );
 }

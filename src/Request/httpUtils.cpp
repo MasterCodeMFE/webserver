@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:12:13 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/06 19:12:14 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/19 17:39:15 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,18 +103,7 @@ std::string Request::_get_content_type(const std::string& filepath)
 
 std::string Request::build_http_response(const std::string& content, const std::string& content_type, int status_code)
 {
-    std::string status_text;
-    switch (status_code)
-    {
-        case 200: status_text = "OK"; break;
-        case 400: status_text = "Bad Request"; break;
-        case 403: status_text = "Forbidden"; break;
-        case 404: status_text = "Not Found"; break;
-        case 405: status_text = "Method Not Allowed"; break;
-        case 500: status_text = "Internal Server Error"; break;
-        default: status_text = "OK"; break;
-    }
-    return "HTTP/1.1 " + Request::_int_to_string(status_code) + " " + status_text + "\r\n"
+    return "HTTP/1.1 " + Request::_int_to_string(status_code) + " " + Status::getStatusResponse(status_code) + "\r\n"
            "Content-Type: " + content_type + "\r\n"
            "Content-Length: " + Request::_int_to_string(content.size()) + "\r\n\r\n" + content;
 }

@@ -46,11 +46,6 @@ std::string  Request::handle_get(const HttpRequest& request, Location location)
 
     // Lee el contenido del archivo
     std::string content = Request::_read_file(filepath);
-    if (content.empty())
-    {
-        return (location.getErrorPage(500)); // Retorna error 500 si hay un problema interno
-    }
-
     // Obtiene el tipo de contenido (MIME type) del archivo
     std::string content_type = Request::_get_content_type(filepath);
 
