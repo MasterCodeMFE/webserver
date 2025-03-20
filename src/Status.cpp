@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/03/19 18:03:32 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/20 13:48:12 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,8 +116,6 @@ bool	Status::_inErrorRange( int status_code )
 	else if ( 500 <= status_code && 511 >= status_code \
 		&& 509 != status_code)
 		inRange = true;
-	else
-		std::cout << "ERROR - Status code out of error codes range." << std::endl;
 	return( inRange );
 }
 
@@ -190,11 +188,9 @@ std::string Status::getErrorPage(int status_code)
 /** Devuelve el contenido del fichero asociado al `code_file_path` */
 std::string			Status::getErrorPage( std::string code_file_path, int status_code )
 {
-	std::cout << "code: " << status_code << std::endl;
 	std::ifstream file(code_file_path.c_str());
     if (!file.is_open())
 	{
-        std::cout << "Could not open the file: " << code_file_path << std::endl;
         return Status::getErrorPage(404);
     }
 

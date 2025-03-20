@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:07:20 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/20 12:05:07 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/20 13:52:20 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,12 +57,8 @@ int DeployServer::_handle_client_request( int client_fd )
 		int content_length = 0;
 		std::istringstream iss(it->second);
 		iss >> content_length;
-		std::cout << "Content-Length encontrado: " << content_length << "\n";
 
 		httpRequest.body = read_http_body(client_fd, raw_request, content_length);
-		if (!httpRequest.body.empty()) {
-			std::cout << "Cuerpo:\n" << httpRequest.body << "\n";
-		}
 	}
 
 	// Pasar la solicitud completa a la siguiente etapa (por ejemplo, a handle_http_method)
@@ -107,12 +103,12 @@ static std::string receive_request(int client_fd)
 
 	if (bytes_received == 0)
 	{
-		std::cout << "Cliente cerró la pestaña o desconectó.\n";
+		//std::cout << "Cliente cerró la pestaña o desconectó." << std::endl;
 		close_client(client_fd);
 		return "";
 	} else if (bytes_received < 0)
 	{
-		std::cerr << "Error en recv().\n";
+		std::cerr << "Error en recv()." << std::endl;
 		return "";
 	}
 
@@ -167,7 +163,7 @@ static HttpRequest parse_request(const std::string& request)
 // - No tiene retorno.
 static void debug_print_http_request(const HttpRequest& httpRequest)
 {
-	std::cout << "__________CLIENT REQUEST__________\n"
+	std::cout << "\n\n__________CLIENT REQUEST__________\n"
 				<< "Método: " << httpRequest.method << "\n"
 				<< "Ruta: " << httpRequest.path << "\n"
 				<< "Protocolo: " << httpRequest.protocol << "\n"
@@ -223,7 +219,6 @@ static std::string read_http_body(int client_fd, const std::string& raw_request,
 std::string DeployServer::_handle_redirection(int status_code, const std::string& location, const Location& location_config)
 {
     std::ostringstream response;
-	std::cout << "----------------------------entro" << std::endl;
     // Lista de códigos HTTP válidos para redirección
     if (status_code == 301 || status_code == 302 || status_code == 307 || status_code == 308)
     {

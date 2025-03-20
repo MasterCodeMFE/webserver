@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:13:35 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/20 11:57:54 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/20 14:25:17 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,8 @@
 # include <iterator>
 
 # include "Location.hpp"
+
+extern volatile sig_atomic_t g_signal;
 
 typedef std::set<std::pair<std::string, std::string> > listenSet;
 

@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:12:13 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/19 17:39:15 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/20 13:57:47 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,6 +125,11 @@ std::string Request::build_http_response(const std::string& content, const std::
 
 ssize_t Request::send_all(int sockfd, const char* buffer, size_t length)
 {
+    std::cout << "📤 Enviando respuesta al cliente:\n";
+    std::cout << "-------------------------------\n";
+    std::cout << std::string(buffer, length) << "\n";
+    std::cout << "-------------------------------\n\n\n";
+
     size_t total_sent = 0;
     while (total_sent < length)
     {

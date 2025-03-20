@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:07:34 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/20 12:05:44 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/20 13:57:19 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ DeployServer::DeployServer( std::vector<Location> locations ): locations( locati
     }
 
     for ( std::set<std::pair<std::string, std::string> >::const_iterator it = listeners.begin(); it != listeners.end(); it ++ )
-        std::cout << "listening: " << it->first << " server name: " << it->second << std::endl;
+        std::cout << "listening: " << it->first << " server name: " << it->second << "\n\n" << std::endl;
 }
 
 DeployServer::~DeployServer( void ){}
@@ -43,7 +43,6 @@ int             DeployServer::_dispatch_http_request(int client_fd, HttpRequest&
     location = findLocation(httpRequest, this->locations);
     bool is_valid_method = location.getSMethods().find(httpRequest.method) != location.getSMethods().end();    
 
-    std::cout << location << std::endl;
     if (location.getRedirection().first != 0) // Verifica si hay un código de redirección
     {
         response = _handle_redirection(location.getRedirection().first,  location.getRedirection().second, location);
@@ -63,7 +62,6 @@ int             DeployServer::_dispatch_http_request(int client_fd, HttpRequest&
     if (httpRequest.path.find("/cgi-bin/") == 0)
     {
         httpRequest.path = Request::handle_cgi("." + httpRequest.path, httpRequest.query_string, location);
-        std::cout << "Alias: " << httpRequest.path << std::endl;
     }
     if (!is_valid_method)
     {
@@ -90,7 +88,6 @@ int             DeployServer::_dispatch_http_request(int client_fd, HttpRequest&
     }
 
     // Enviar la respuesta al cliente
-    std::cout << "\U0001F4E4 Enviando respuesta...\n";
     Request::send_all(client_fd, response.c_str(), response.size());
 
     return 0;

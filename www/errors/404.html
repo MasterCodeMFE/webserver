@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error 404 - Página no encontrada</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+        h1 {
+            font-size: 48px;
+            color: #d9534f;
+        }
+        p {
+            font-size: 18px;
+        }
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            font-size: 16px;
+            text-decoration: none;
+            color: #0275d8;
+        }
+    </style>
+</head>
+<body>
+    <h1>404</h1>
+    <p>Página no encontrada. Parece que te perdiste.</p>
+    <p id="chiste"></p>
+    <a href="/">Volver al inicio</a>
+
+    <script>
+        const chistes = [
+            "¿Por qué el navegador se perdió? Porque no pudo encontrar su ruta.",
+            "¿Qué hace un archivo en el bosque? Se pierde en la caché.",
+            "Error 404: Chiste no encontrado. Pero sí tu confusión.",
+            "Intenté encontrar mi camino en internet, pero me encontré con un 404.",
+            "El servidor fue a terapia, dice que tiene muchos problemas de conexión.",
+            "¿Por qué los programadores odian perderse? Porque no encuentran la referencia.",
+            "Si un 404 fuera un animal, sería un camaleón: siempre desapareciendo.",
+            "Fui a buscar la página… y terminé encontrando mi propósito en la vida.",
+            "¿Qué dijo el explorador cuando encontró un 404? ‘¡Maldita sea, otra vez!’", 
+            "La página no está perdida, solo está explorando otras dimensiones.",
+            "¿Qué hace un 404 en la montaña? Escalar errores.",
+            "Este sitio está tan perdido como yo en mi examen de matemáticas.",
+            "Perdido en el ciberespacio, pero al menos encontraste este chiste.",
+            "¿Dónde está la página? Seguramente en un universo paralelo con mi paciencia.",
+            "404 razones para no confiar en las direcciones web.",
+            "Dicen que el que busca encuentra… pero parece que no esta vez.",
+            "404: La página se ha ido a comprar pan y nunca volvió.",
+            "Esta página está más perdida que yo en una reunión de trabajo.",
+            "¡Mamá, me perdí en internet! No te preocupes, al menos encontraste este mensaje.",
+            "Error 404: Página no encontrada. Pero sí encontraste esta broma mediocre.",
+            "El 404 no es un error, es una señal de que debías tomar un descanso.",
+            "Si esta página fuera una película, sería 'Perdidos en el espacio'.",
+            "Esta página fue a dar un paseo y nunca regresó.",
+            "Este sitio está más perdido que mi WiFi cuando más lo necesito.",
+            "Si encuentras esta página, llama al 911. La estamos buscando.",
+            "Página no encontrada. Seguro está de vacaciones en una isla remota.",
+            "Este error 404 es como mis propósitos de Año Nuevo: desapareció.",
+            "Tu navegador ha tomado un desvío inesperado. Buena suerte regresando.",
+            "404: La página se ha cambiado de nombre y no nos avisó.",
+            "Esta página está tan perdida como mi dignidad después de un karaoke.",
+            "¿Por qué el servidor no va al cine? Porque siempre pierde las conexiones.",
+            "404: Página no encontrada. Pero puedes seguir esperando con fe.",
+            "Esta página es como un mago: ahora la ves, ahora no.",
+            "La URL que buscas no está disponible, como las mejores excusas para faltar al trabajo.",
+            "Si Google no la encuentra, nosotros menos. Suerte con eso.",
+            "¡Vaya! Has encontrado el legendario error 404. No tiene tesoro, pero sí este chiste.",
+            "Este error 404 ha sido traído a ti por el club de los que no leen bien las URLs.",
+            "El botón de 'Volver' es tu única esperanza. Corre antes de que desaparezca también.",
+            "404: Página no encontrada, pero puedes disfrutar esta pausa inesperada.",
+            "¿Acaso esperabas encontrar algo útil aquí? Ja, bienvenido al club.",
+            "La página que buscas se mudó sin dejar dirección. Nos dejó sin aviso.",
+            "Este error 404 es cortesía de tu mala puntería con el teclado.",
+            "No te preocupes, hasta los mejores se pierden. A veces.",
+            "Página no encontrada, pero al menos encontraste este mensaje de consuelo.",
+            "404: Página no encontrada, al igual que mi motivación para hacer ejercicio.",
+            "Error 404: La página se ha escapado, ¿quieres que la busquemos?",
+            "404: No hemos encontrado la página, pero encontramos un chiste malo para ti.",
+            "La página que buscas no existe. Pero este mensaje sí. Curioso, ¿no?",
+            "Perdí la página, pero encontré mi paciencia. Oh, espera, tampoco la encontré.",
+            "Intenté encontrar la URL correcta, pero terminé en esta dimensión paralela.",
+            "¿Un 404 en tu pantalla? Es solo el universo diciéndote que te relajes un rato.",
+            "Si sigues buscando, puede que encuentres la respuesta a la vida, el universo y todo lo demás.",
+            "Esta página decidió tomarse un descanso. Volverá... o no.",
+            "404: Página no encontrada, pero quizás un gato de Schrödinger la esté viendo." 
+        ];
+        document.getElementById("chiste").innerText = chistes[Math.floor(Math.random() * chistes.length)];
+    </script>
+</body>
+</html>

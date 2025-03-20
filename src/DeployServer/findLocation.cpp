@@ -28,11 +28,6 @@ Location findLocation(const HttpRequest &httpRequest, std::vector<Location> loca
     }
     if ( path[0] != '/' )
 	    path = "/" + path;
-    std::cout << "host: " << host << std::endl;
-    // Obtener la IP y el puerto del host
-   
-    
-
      //Añadir la ruta completa primero
     std::vector<std::string> pathSegments;
     pathSegments.push_back(path);
@@ -47,9 +42,6 @@ Location findLocation(const HttpRequest &httpRequest, std::vector<Location> loca
         }
         pathSegments.push_back(path);
     }
-
-    // Crear la cadena de listen
-
     // Imprimir segmentos de la ruta para depuración
     std::cout << "Segmentos de la ruta:" << std::endl;
     for (std::vector<std::string>::const_iterator it = pathSegments.begin(); it != pathSegments.end(); ++it) {
@@ -57,10 +49,8 @@ Location findLocation(const HttpRequest &httpRequest, std::vector<Location> loca
     }
 
     // Buscar la primera Location que coincide con los segmentos de la ruta y el host
-    for (std::vector<std::string>::const_iterator segmentIt = pathSegments.begin(); segmentIt != pathSegments.end(); ++segmentIt) {
-        /*std::cout << "--------------------------------" << std::endl; // Imprimir la ruta actual que se busca
-        std::cout << "Buscando en la ruta: " << *segmentIt << std::endl; // Imprimir la ruta actual que se busca
-        */
+    for (std::vector<std::string>::const_iterator segmentIt = pathSegments.begin(); segmentIt != pathSegments.end(); ++segmentIt)
+    {
         for (std::vector<Location>::const_iterator locIt = locations.begin(); locIt != locations.end(); ++locIt) {
             std::string listen(host);
             if (isspace(host[host.size() - 1])) //eliminar si el ultimo es espacio
@@ -77,35 +67,26 @@ Location findLocation(const HttpRequest &httpRequest, std::vector<Location> loca
                 return *locIt;
             }
         }
-        std::cout << std::endl; // Separar cada iteración de segmentos
     }
 
     std::string domain = host.substr(0, host.find(':'));
 
     // Resolver el dominio a una IP
     std::string resolvedIP = resolveHostnameToIP(domain);
-    if (!resolvedIP.empty()) {
+    if (!resolvedIP.empty())
+    {
         host = resolvedIP + host.substr(host.find(':')); // Reemplazar el nombre con la IP
     }
-
-    std::cout << "Host después de resolución: " << host << std::endl;
-
     if ( path[0] != '/' )
 	    path = "/" + path;
-    std::cout << "host: " << host << std::endl;
-    // Obtener la IP y el puerto del host
 
-    // Imprimir segmentos de la ruta para depuración
-    std::cout << "Segmentos de la ruta:" << std::endl;
+    std::cout << "Segmentos de la ruta despues de dnc:" << std::endl;
     for (std::vector<std::string>::const_iterator it = pathSegments.begin(); it != pathSegments.end(); ++it) {
         std::cout << *it << std::endl;
     }
 
     // Buscar la primera Location que coincide con los segmentos de la ruta y el host
     for (std::vector<std::string>::const_iterator segmentIt = pathSegments.begin(); segmentIt != pathSegments.end(); ++segmentIt) {
-        /*std::cout << "--------------------------------" << std::endl; // Imprimir la ruta actual que se busca
-        std::cout << "Buscando en la ruta: " << *segmentIt << std::endl; // Imprimir la ruta actual que se busca
-        */
         for (std::vector<Location>::const_iterator locIt = locations.begin(); locIt != locations.end(); ++locIt) {
             std::string listen(host);
             if (isspace(host[host.size() - 1])) //eliminar si el ultimo es espacio
@@ -122,7 +103,6 @@ Location findLocation(const HttpRequest &httpRequest, std::vector<Location> loca
                 return *locIt;
             }
         }
-        std::cout << std::endl; // Separar cada iteración de segmentos
     }
 
     // Si no se encuentra ninguna, devuelve un Location vacío

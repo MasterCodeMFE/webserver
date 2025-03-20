@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:07:58 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/06 19:07:59 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/20 14:05:49 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,11 +96,8 @@ struct addrinfo* getResolvedAddress(const std::string& ip, const std::string& po
 //
 // Retorno:
 // - 0 si la vinculación es exitosa, -1 si hay error.
-int attemptBind(int server_fd, struct addrinfo* res, const std::string& ip, int port) {
-    std::cout << "Intentando vincular el socket en " 
-              << (ip.empty() ? "INADDR_ANY" : ip)
-              << ":" << port << std::endl;
-
+int attemptBind(int server_fd, struct addrinfo* res, const std::string& ip, int port)
+{
     if (bind(server_fd, res->ai_addr, res->ai_addrlen) == -1) {
         std::cerr << "Error al vincular el socket en " 
                   << (ip.empty() ? "INADDR_ANY" : ip)
@@ -110,9 +107,6 @@ int attemptBind(int server_fd, struct addrinfo* res, const std::string& ip, int 
         return -1;
     }
     freeaddrinfo(res);
-    std::cout << "Se ha vinculado correctamente en " 
-              << (ip.empty() ? "INADDR_ANY" : ip)
-              << ":" << port << std::endl;
     return 0;
 }
 

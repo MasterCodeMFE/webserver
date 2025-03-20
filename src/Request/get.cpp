@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:12:07 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/11 12:35:55 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/20 14:10:48 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,10 +64,8 @@ bool containsIndexHtml(std::string directoryPath, std::string index)
     }
 
     struct dirent *entry;
-    std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
     while ((entry = readdir(dir)) != NULL)
     {
-        std::cout << entry->d_name << " | " << index.c_str() << std::endl;
         if (std::strcmp(entry->d_name, index.c_str()) == 0)
         {
             closedir(dir);
@@ -105,7 +103,6 @@ std::string Request::_get_file_path(const std::string &request_path, Location lo
     if (::stat(path.c_str(), &file_stat) != 0) {
         return "";
     }
-    std::cout << "index: " << index << std::endl;
     if (S_ISDIR(file_stat.st_mode)) {
         if (containsIndexHtml(path, index) == true) {
             // Evita dobles "//" en la ruta final
@@ -139,8 +136,6 @@ std::string Request::_get_file_path(const std::string &request_path, Location lo
 // - Una cadena con la respuesta HTTP en formato HTML.
 std::string Request::_listDirectory(const std::string &dirPath, const std::string &requestPath, Location location)
 {
-    std::cout << "Intentando listar: " << dirPath << std::endl;
-
     // Verifica si el directorio existe y si tiene permisos de lectura
     if (access(dirPath.c_str(), F_OK) != 0) {
         return location.getErrorPage(404); // No existe el directorio

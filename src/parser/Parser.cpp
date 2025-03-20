@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:08:15 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/10 14:50:53 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/20 14:07:36 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,8 +123,6 @@ void 	Parser::parseConfigFile( std::vector<Location> &loc )
 	std::string str;
 	if ( !this->_configFile.is_open() )
 		throw Parser::ParsingException( "Failure on file opening");
-	std::cout << "File opened!\n"
-		<< "Character count: " << this->_configFile.gcount() << std::endl;
 	while ( std::getline(this->_configFile, str) )
 		this->_cleanComments(str);
 	this->_configFile.close();
@@ -157,7 +155,6 @@ void		Parser::_processTokens( std::vector<Location> &loc )
 		if ( it != this->_tokens.end() )
 			it ++;
 	}
-	std::cout << "Resultado final." << std::endl;
 	for ( std::vector<Location>::const_iterator it = loc.begin(); \
 		it != loc.end(); it++ )
 		std::cout << *it << std::endl;

@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:07:52 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/06 19:07:53 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/20 14:04:16 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,8 +75,6 @@ DeployServer	&DeployServer::_init_server_sockets(void) {
 	// Utiliza un iterador no constante.
 	for (listenSet::iterator it = this->listeners.begin(); it != this->listeners.end();  ) {
 		server_fd = setup_server_socket(*it);
-		std::cout << "server_fd: " << server_fd << std::endl;
-
 		if (server_fd != -1) { // Si el socket se configuró correctamente, se agrega al vector.
 		{
 			this->server_fds.push_back(server_fd); // Avanzar al siguiente iterador solo si se configura correctamente.
@@ -153,8 +151,6 @@ static int create_and_configure_socket()
 		std::cerr << "Error al crear el socket." << std::endl;
 		return -1;
 	}
-	std::cout << "El socket se ha creado correctamente." << std::endl;
-	
 	// Configurar la opción SO_REUSEADDR.
 	// Esto evita problemas al reiniciar el servidor, permitiendo reutilizar la dirección de inmediato.
 	int opt = 1;

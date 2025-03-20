@@ -6,12 +6,13 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:12:34 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/10 15:39:20 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/20 14:22:53 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "main.hpp"
 
+volatile sig_atomic_t g_signal = 0;
 static void handle_sigint(int signal);
 
 int main( int argc, const char **argv )
@@ -44,4 +45,5 @@ int main( int argc, const char **argv )
 static void handle_sigint(int signal)
 {
    (void) signal;
+   g_signal = 1;
 }
