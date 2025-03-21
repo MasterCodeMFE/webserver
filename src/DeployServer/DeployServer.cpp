@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:07:34 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/20 18:18:31 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/21 10:37:26 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ int             DeployServer::_dispatch_http_request(int client_fd, HttpRequest&
     Location location;
 
     location = findLocation(httpRequest, this->locations);
-    if (httpRequest.method != "GET" && string_to_int (httpRequest.headers.at("Content-Length")) >  static_cast<int>(location.getClienteMaxBodySize()) )
+    if (httpRequest.headers.find("Content-Length") != httpRequest.headers.end() && string_to_int (httpRequest.headers.at("Content-Length")) >  static_cast<int>(location.getClienteMaxBodySize()) )
     {
         response = location.getErrorPage(413);
         Request::send_all(client_fd, response.c_str(), response.size());
