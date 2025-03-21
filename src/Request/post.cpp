@@ -140,6 +140,23 @@ std::string get_unique_filename(const std::string& directory, const std::string&
     return new_filename;
 }
 
+std::string remove_multipart_headers(const std::string& body) {
+    // Buscar el primer delimitador (inicio del archivo)
+    size_t file_start = body.find("\r\n\r\n");
+    if (file_start == std::string::npos) {
+        return ""; // No se encontró el inicio del archivo
+    }
+    file_start += 4; // Saltar los dos `\r\n`
+
+    // Buscar el delimitador final que indica el fin del archivo
+    size_t file_end = body.rfind("------WebKitFormBoundary");
+    if (file_end == std::string::npos) {
+        return body.substr(file_start); // Si no hay delimitador, devolver todo desde el inicio
+    }
+
+    return body.substr(file_start, file_end - file_start - 2); // Restar 2 para eliminar el `\r\n` final
+}
+
 std::string save_uploaded_file(HttpRequest httpRequest, Location location)
 {
     size_t content_length = 0;
@@ -159,8 +176,13 @@ std::string save_uploaded_file(HttpRequest httpRequest, Location location)
     const std::string& body = httpRequest.body;
     std::string filename = extract_filename(body); 
     
-    std::cout << "---------------ca--------------------" << std::endl << body << std::endl;
-    
+    // Eliminar cabeceras del multipart/form-data
+    std::string cleaned_body = remove_multipart_headers(body);
+
+    // Debug: Imprimir el contenido limpio antes de guardarlo
+    std::cout << "--------------- Contenido limpio --------------------" << std::endl 
+              << cleaned_body << std::endl;
+
     std::string upload_dir = "www/upload/";
     struct stat st;
     if (stat(upload_dir.c_str(), &st) != 0) {
@@ -178,7 +200,7 @@ std::string save_uploaded_file(HttpRequest httpRequest, Location location)
     if (!outfile) {
         return location.getErrorPage(500); // Error 500 si no se puede escribir el archivo
     }
-    outfile.write(body.c_str(), body.size());
+    outfile.write(cleaned_body.c_str(), cleaned_body.size());
     outfile.close();
     
     return "HTTP/1.1 201 Created\r\n"; // Éxito al guardar el archivo
