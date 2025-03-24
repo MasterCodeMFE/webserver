@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subir Archivo</title>
+    <title>Subida de Archivos</title>
 </head>
 <body>
-    <h2>Subir Archivo</h2>
-    <form action="http://127.0.0.1:8080/upload" method="POST" enctype="multipart/form-data">
-        <input type="file" name="file" required>
-        <button type="submit">Subir</button>
+    <h2>Subir un Archivo</h2>
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+        <input type="file" name="archivo" required>
+        <br><br>
+        <button type="submit">Subir Archivo</button>
     </form>
 </body>
 </html>

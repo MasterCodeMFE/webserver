@@ -1,44 +1,14 @@
-#!/usr/bin/env php
+#!/usr/bin/php
 <?php
+header("Content-Type: text/html; charset=UTF-8");
 
+$nombre = "Juan";
+$edad = 25;
+$url = "/cgi-bin/get_cgi.php?nombre=" . urlencode($nombre) . "&edad=" . urlencode($edad);
 
-// Récupérer la couleur sélectionnée par l'utilisateur
-$color = isset($_POST['color']) ? $_POST['color'] : 'white'; 
-
-// Assurez-vous que la couleur est une des options autorisées pour éviter tout code malveillant
-$valid_colors = ['red', 'blue', 'green', 'yellow', 'purple'];
-if (!in_array($color, $valid_colors)) {
-    $color = 'white'; // couleur par défaut si non valide
-}
-print(cococococococococo);
+echo "<html><body>";
+echo "<h1>Generación de URL con GET</h1>";
+echo "<p>Haz clic en el enlace para enviar datos con GET:</p>";
+echo "<a href='$url'>$url</a>";
+echo "</body></html>";
 ?>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Color Page</title>
-    <style>
-				@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: <?= htmlspecialchars($color) ?>;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            color: #333;
-        }
-        .container {
-            text-align: center;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Your Selected Color is: <?= htmlspecialchars(ucfirst($color)) ?></h1>
-        <p>The background color of this page is now <?= htmlspecialchars($color) ?>.</p>
-    </div>
-</body>
-</html>

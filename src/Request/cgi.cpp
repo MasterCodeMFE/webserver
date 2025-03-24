@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:11:50 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/20 18:53:34 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/24 10:38:17 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ std::string Request::handle_cgi(const std::string &script_path, const std::strin
         char *argv[] = { (char*)"/usr/bin/php-cgi", (char*)script_path.c_str(), NULL };
         execve(argv[0], argv, &env[0]);
         perror("execve");
-        exit(1);
+        return "";
     }
     else {
         close(pipe_stdout[1]);

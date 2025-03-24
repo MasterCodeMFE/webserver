@@ -26,7 +26,7 @@
                 return;
             }
 
-            fetch(`/upload/${filename}`, { method: "DELETE" })
+            fetch(`/${filename}`, { method: "DELETE" })
                 .then(response => {
                     if (response.ok) {
                         return response.text();

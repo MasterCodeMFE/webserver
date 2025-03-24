@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:08:05 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/20 14:23:04 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/24 11:16:46 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ int DeployServer::_run_server_event_loop( void )
     {
         // Esperar eventos en los sockets registrados
         int ret = poll(this->fds.data(), this->fds.size(), -1);
-        if (ret == -1)
+        if (ret == -1 && !g_signal)
         {
             std::cerr << "[ERROR] Error en poll(): " << strerror(errno) << std::endl;
             return -1;

@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:07:34 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/21 10:37:26 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/24 19:01:17 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,8 +64,8 @@ int             DeployServer::_dispatch_http_request(int client_fd, HttpRequest&
         httpRequest.path = location.getAlias() + httpRequest.path.substr(location.getPath().size() - 1);
     }
     else
-    {
-        httpRequest.path = location.getRoot() + httpRequest.path;
+        {
+            httpRequest.path = location.getRoot() + httpRequest.path;
     }
     // Verificar si la solicitud es para un script CGI
     if (httpRequest.path.size() >= 4 && httpRequest.path.compare(httpRequest.path.size() - 4, 4, ".php") == 0)
@@ -101,7 +101,11 @@ int             DeployServer::_dispatch_http_request(int client_fd, HttpRequest&
     }
 
     // Enviar la respuesta al cliente
-    Request::send_all(client_fd, response.c_str(), response.size());
+    if ( 0 > Request::send_all(client_fd, response.c_str(), response.size()) )
+    {
+        response = location.getErrorPage(503);
+        Request::send_all(client_fd, response.c_str(), response.size());
+    }
 
     return 0;
 }
