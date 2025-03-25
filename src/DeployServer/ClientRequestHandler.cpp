@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:07:20 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/20 17:00:04 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/25 17:16:45 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,24 +102,31 @@ static void close_client(int client_fd)
 // Retorno:
 // - La solicitud HTTP como una cadena de texto.
 // - Cadena vacía en caso de error o desconexión.
+static void close_client(int client_fd)
+{
+    // Cierra la conexión del cliente
+    close(client_fd);
+}
 static std::string receive_request(int client_fd)
 {
-	std::vector<char> buffer(4096);
-	ssize_t bytes_received = recv(client_fd, &buffer[0], buffer.size() - 1, 0);
+    std::vector<char> buffer(4096);
+    ssize_t bytes_received = recv(client_fd, &buffer[0], buffer.size() - 1, 0);
 
-	if (bytes_received == 0)
+    if (bytes_received < 0)
 	{
-		//std::cout << "Cliente cerró la pestaña o desconectó." << std::endl;
-		close_client(client_fd);
-		return "";
-	} else if (bytes_received < 0)
+        std::cerr << "Error al recibir datos:" << strerror(errno) << std::endl;
+        close_client(client_fd);
+        return ""; // Retorna vacío en caso de error
+    }
+    else if (bytes_received == 0)
 	{
-		std::cerr << "Error en recv()." << std::endl;
-		return "";
-	}
+        std::cerr << "Cliente cerró la conexión." << std::endl;
+        close_client(client_fd);
+        return ""; // Retorna vacío si el cliente se desconectó
+    }
 
-	buffer[bytes_received] = '\0';
-	return std::string(&buffer[0], bytes_received);
+    buffer[bytes_received] = '\0'; // Asegúrate de terminar la cadena correctamente
+    return std::string(&buffer[0], bytes_received); // Retorna los datos recibidos como std::string
 }
 
 // ========================================
@@ -132,43 +139,63 @@ static std::string receive_request(int client_fd)
 //
 // Retorno:
 // - Un objeto HttpRequest con la información extraída.
-static HttpRequest parse_request(const std::string& request)
-{
-	HttpRequest httpRequest;
-	std::istringstream stream(request);
-	std::string line;
-	
-	// Extraer la primera línea: método, ruta y protocolo
-	if (std::getline(stream, line)) {
-		std::istringstream first_line(line);
-		first_line >> httpRequest.method >> httpRequest.path >> httpRequest.protocol;
-	}
-
-	size_t pos = httpRequest.path.find("%20");
-    while (pos != std::string::npos) {
-        httpRequest.path.replace(pos, 3, " ");
-        pos = httpRequest.path.find("%20", pos + 1);
+static std::string url_decode(const std::string& encoded) {
+    std::string decoded;
+    for (size_t i = 0; i < encoded.length(); ++i) {
+        if (encoded[i] == '%') {
+            if (i + 2 < encoded.length()) {
+                std::stringstream ss;
+                ss << std::hex << encoded.substr(i + 1, 2);
+                unsigned int code;
+                ss >> code;
+                decoded += static_cast<char>(code);
+                i += 2;
+            } else {
+                // Error: % seguido de menos de 2 caracteres
+                return encoded;
+            }
+        } else {
+            decoded += encoded[i];
+        }
     }
-    pos = httpRequest.path.find("%2520");
-    while (pos != std::string::npos) {
-        httpRequest.path.replace(pos, 5, "%20");
-        pos = httpRequest.path.find("%2520", pos + 1);
-    }
-	// Extraer los encabezados
-	while (std::getline(stream, line) && line != "\r") {
-		std::size_t pos = line.find(": ");
-		if (pos != std::string::npos) {
-			std::string key = line.substr(0, pos);
-			std::string value = line.substr(pos + 2);
-			httpRequest.headers[key] = value;
-		}
-	}
-	
-	while (std::getline(stream, line) && line != "\r")
-		httpRequest.body += line;
+    return decoded;
+}
 
-	std::cout << "____________________BODY__________________\n" << httpRequest.body << std::endl;
-	return httpRequest;
+static HttpRequest parse_request(const std::string& request) {
+    HttpRequest httpRequest;
+    std::istringstream stream(request);
+    std::string line;
+
+    // Extraer la primera línea: método, ruta y protocolo
+    if (std::getline(stream, line)) {
+        std::istringstream first_line(line);
+        first_line >> httpRequest.method >> httpRequest.path >> httpRequest.protocol;
+        httpRequest.path = url_decode(httpRequest.path); // Decodificar la ruta
+    }
+
+    // Extraer los encabezados
+    while (std::getline(stream, line) && line != "\r" && line != "") {
+        std::size_t pos = line.find(": ");
+        if (pos != std::string::npos) {
+            std::string key = line.substr(0, pos);
+            std::string value = line.substr(pos + 2);
+            httpRequest.headers[key] = value;
+            std::cout << "Encabezado: " << key << " = " << value << std::endl; // Mensaje de depuración
+        }
+    }
+
+    // Extraer el cuerpo
+    while (std::getline(stream, line)) {
+        httpRequest.body += line + "\n"; // Agregar nueva línea
+    }
+
+    // Eliminar la última nueva línea si existe
+    if (!httpRequest.body.empty() && httpRequest.body[httpRequest.body.size() - 1] == '\n') {
+        httpRequest.body.erase(httpRequest.body.size() - 1); // Borrar el último carácter
+    }
+
+    std::cout << "____________________BODY__________________\n" << httpRequest.body << std::endl;
+    return httpRequest;
 }
 
 // ========================================
