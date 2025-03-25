@@ -20,13 +20,16 @@
 
     <script>
         function eliminarArchivo() {
-            const filename = document.getElementById("filename").value.trim();
+            let filename = document.getElementById("filename").value.trim();
             if (!filename) {
                 document.getElementById("mensaje").innerText = "⚠️ Ingresa un nombre de archivo.";
                 return;
             }
-
-            fetch(`/${filename}`, { method: "DELETE" })
+    
+            // Reemplazar espacios con %20 y %20 con %2520
+            filename = filename.replace(/%/g, "%25").replace(/ /g, "%20");
+    
+            fetch(`${filename}`, { method: "DELETE" })
                 .then(response => {
                     if (response.ok) {
                         return response.text();

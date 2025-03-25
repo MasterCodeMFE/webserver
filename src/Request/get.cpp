@@ -143,14 +143,11 @@ std::string Request::_listDirectory(const std::string &dirPath, const std::strin
     if (access(dirPath.c_str(), R_OK) != 0) {
         return location.getErrorPage(403); // No hay permisos de lectura
     }
-
     // Intenta abrir el directorio
     DIR *dir = opendir(dirPath.c_str());
     if (!dir) {
         return location.getErrorPage(500); // Otro error inesperado
-    }
-
-    // Construye la respuesta HTML con el índice del directorio
+    }    // Construye la respuesta HTML con el índice del directorio
     std::stringstream responseBody;
     responseBody << "<!DOCTYPE html>\n"
                  << "<html>\n"
@@ -159,28 +156,47 @@ std::string Request::_listDirectory(const std::string &dirPath, const std::strin
                  << "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
                  << "<title>Índice de " << dirPath << "</title>\n"
                  << "<style>\n"
-                 << "body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4; }\n"
+                 << "body { font-family: Arial, sans-serif; padding: 20px; background-color: #F4F4F4; }\n"
                  << "h1 { text-align: center; color: #333; }\n"
                  << "ul { list-style-type: none; padding: 0; max-width: 600px; margin: 20px auto; }\n"
                  << "li { background: white; margin: 10px 0; padding: 10px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }\n"
-                 << "a { text-decoration: none; color: #007bff; font-weight: bold; display: block; }\n"
-                 << "a:hover { color: #0056b3; }\n"
-                 << "</style>\n"
-                 << "</head>\n"
-                 << "<body>\n"
-                 << "<h1>Índice de " << dirPath << "</h1>\n"
-                 << "<ul>\n";
-
+                 << "a { text-decoration: none; color: #007BFF; font-weight: bold; display: inline-block; }\n"
+                 << "a:hover { color: #0056B3; }\n"
+                 << "button { margin-left: 10px; background-color: #DC3545; color: white; border: none; border-radius: 5px; cursor: pointer; }\n"
+                 << "button:hover { background-color: #C82333; }\n"
+                << "</style>\n"
+                << "<script>\n"
+                << "function deleteFile(filePath) {\n"
+                << "    if (confirm('¿Estás seguro de que deseas borrar este archivo?')) {\n"
+                << "        fetch(filePath, {\n"
+                << "            method: 'DELETE'\n"
+                << "        })\n"
+                << "        .then(response => {\n"
+                << "            if (response.ok) {\n"
+                << "                alert('Archivo borrado con éxito.');\n"
+                << "                location.reload(); // Recarga la página para actualizar la lista\n"
+                << "            } else {\n"
+                << "                alert('Archivo no borrable, detalles en response code.');\n"
+                << "            }\n"
+                << "        })\n"
+                << "        .catch(error => {\n"
+                << "            alert('Error al realizar la solicitud: ' + error.message);\n"
+                << "        });\n"
+                << "    }\n"
+                << "}\n"
+                << "</script>\n"       
+                << "</head>\n"
+                << "<body>\n"
+                << "<h1>Índice de " << dirPath << "</h1>\n"
+                << "<ul>\n";
     struct dirent *entry;
     while ((entry = readdir(dir)) != NULL)
     {
         std::string fileName = entry->d_name;
         if (fileName == "." || fileName == "..")
             continue;
-
         std::string fullPath = dirPath + "/" + fileName;
         struct stat fileStat;
-        
         // Verifica si stat() falla para evitar errores
         if (stat(fullPath.c_str(), &fileStat) != 0) {
             continue; // Si hay error al obtener información, ignora este archivo
@@ -190,15 +206,17 @@ std::string Request::_listDirectory(const std::string &dirPath, const std::strin
         if (S_ISDIR(fileStat.st_mode)) {
             icon = "📁"; // Si es un directorio
         }
-
         // Agrega el archivo/directorio a la lista en HTML
-        responseBody << "<li>" << icon << " <a href=\"" << requestPath + "/" + fileName << "\">" << fileName << "</a></li>\n";
+        responseBody << "<li>" << icon << " <a href=\"" << requestPath.substr(5) + "/" + fileName << "\">" << fileName << "</a>";
+        // Agrega el botón de borrado para archivos
+        if (!S_ISDIR(fileStat.st_mode)) { // Solo agregar botón para archivos
+            responseBody << "<button onclick=\"deleteFile('" << requestPath.substr(6) + "/" + fileName << "')\">Borrar</button>";
+        }
+        responseBody << "</li>\n";
     }
-
     // Cierra el directorio y finaliza la respuesta HTML
     closedir(dir);
     responseBody << "</ul>\n</body>\n</html>";
-
     // Construye la respuesta HTTP con el contenido generado
     std::stringstream response;
     response << "HTTP/1.1 200 OK\r\n"
@@ -207,6 +225,5 @@ std::string Request::_listDirectory(const std::string &dirPath, const std::strin
              << "Connection: close\r\n"
              << "\r\n"
              << responseBody.str();
-
     return response.str();
 }

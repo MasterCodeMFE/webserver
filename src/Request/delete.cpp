@@ -16,18 +16,12 @@ std::string Request::handle_delete(const HttpRequest& httpRequest, Location loca
 {
     // Obtener el nombre del archivo desde la ruta
     std::string filename = httpRequest.path;
-
+     
     std::cout << "Nombre del archivo recibido: " << filename << std::endl;
-
     // Verificar que el nombre del archivo sea válido
     if (filename.empty() || filename.find("..") != std::string::npos) {
         std::cerr << "Error: Nombre de archivo inválido." << std::endl;
         return location.getErrorPage(400);
-    }
-
-    // Eliminar la barra inicial (si existe)
-    if (filename[0] == '/') {
-        filename = filename.substr(1);
     }
 
     // Construir la ruta completa
@@ -35,10 +29,13 @@ std::string Request::handle_delete(const HttpRequest& httpRequest, Location loca
     std::cout << "Buscando archivo en: " << file_path << std::endl;
 
     // Verificar si el archivo existe
-    struct stat buffer;
-    if (stat(file_path.c_str(), &buffer) != 0) {
+    if ( access(file_path.c_str(), F_OK) != 0) {
         std::cerr << "Error al verificar archivo: " << strerror(errno) << std::endl;
         return location.getErrorPage(404);
+    }
+    //Verifica
+    if (access(file_path.c_str(), W_OK) != 0) {
+        return location.getErrorPage(403);
     }
 
     // Intentar eliminar el archivo
@@ -48,6 +45,7 @@ std::string Request::handle_delete(const HttpRequest& httpRequest, Location loca
     }
 
     std::cout << "✅ Archivo eliminado correctamente: " << filename << std::endl;
-    return "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nArchivo eliminado con éxito";
+    std::string response_body = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nArchivo eliminado con éxito";
+    return build_http_response(response_body, "text/plain", 200);
 }
     

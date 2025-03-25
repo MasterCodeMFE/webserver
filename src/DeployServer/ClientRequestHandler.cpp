@@ -144,6 +144,16 @@ static HttpRequest parse_request(const std::string& request)
 		first_line >> httpRequest.method >> httpRequest.path >> httpRequest.protocol;
 	}
 
+	size_t pos = httpRequest.path.find("%20");
+    while (pos != std::string::npos) {
+        httpRequest.path.replace(pos, 3, " ");
+        pos = httpRequest.path.find("%20", pos + 1);
+    }
+    pos = httpRequest.path.find("%2520");
+    while (pos != std::string::npos) {
+        httpRequest.path.replace(pos, 5, "%20");
+        pos = httpRequest.path.find("%2520", pos + 1);
+    }
 	// Extraer los encabezados
 	while (std::getline(stream, line) && line != "\r") {
 		std::size_t pos = line.find(": ");

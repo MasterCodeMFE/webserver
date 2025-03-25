@@ -20,7 +20,7 @@ Server::Server( void )
 	this->_client_max_body_size = 1 * 1024 * 1024; // 1MB by default
 	this->_autoindex = false;
 	this->_index = "index.html";
-	this->_root  = "./www/";
+	this->_root  = "./www";
 }
 
 Server::Server( Server const &src )
@@ -210,6 +210,6 @@ Server								&Server::setCgi( std::string cgi )
 
 Server								&Server::setRoot( std::string root )
 {
-	this->_root = "./www/" + root;
+	this->_root = "./www" + root;
 	return ( *this );
 }

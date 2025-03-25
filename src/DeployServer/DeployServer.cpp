@@ -64,8 +64,8 @@ int             DeployServer::_dispatch_http_request(int client_fd, HttpRequest&
         httpRequest.path = location.getAlias() + httpRequest.path.substr(location.getPath().size() - 1);
     }
     else
-        {
-            httpRequest.path = location.getRoot() + httpRequest.path;
+    {
+        httpRequest.path = location.getRoot() + httpRequest.path;
     }
     // Verificar si la solicitud es para un script CGI
     if (httpRequest.path.size() >= 4 && httpRequest.path.compare(httpRequest.path.size() - 4, 4, ".php") == 0)
