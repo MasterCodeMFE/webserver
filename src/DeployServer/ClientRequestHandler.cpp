@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:07:20 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/25 17:16:45 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/25 19:56:26 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,11 +102,6 @@ static void close_client(int client_fd)
 // Retorno:
 // - La solicitud HTTP como una cadena de texto.
 // - Cadena vacía en caso de error o desconexión.
-static void close_client(int client_fd)
-{
-    // Cierra la conexión del cliente
-    close(client_fd);
-}
 static std::string receive_request(int client_fd)
 {
     std::vector<char> buffer(4096);

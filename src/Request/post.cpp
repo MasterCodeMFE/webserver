@@ -189,7 +189,7 @@ std::string remove_multipart_headers(const std::string& body, const std::string&
     }
 
     // Extraer solo el contenido sin headers ni boundary final
-    std::string result = body.substr(content_start, j - content_start - 5);
+    std::string result = body.substr(content_start, j - content_start - 6);
 
     std::cout << "DESPUES... - " << result << std::endl;
 
