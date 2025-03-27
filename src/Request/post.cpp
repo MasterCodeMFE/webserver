@@ -39,8 +39,7 @@ static std::string extract_filename(const std::string& body);
         
             std::string response_body;
         
-            std::cout << "\n📥 Datos recibidos en el POST (Tamaño: " << httpRequest.body.size() << " bytes):\n"
-                    << httpRequest.body << "\n";
+            std::cout << "\n📥 Datos recibidos en el POST (Tamaño: " << httpRequest.body.size() << " bytes):\n";
         
             // Manejar multipart/form-data
             if (content_type.find("multipart/form-data") != std::string::npos) {
@@ -78,9 +77,6 @@ static std::string extract_filename(const std::string& body);
 
     std::string extract_filename(const std::string& body)
     {   
-        std::cout << "-----------------------------------body" << std::endl;
-        std::cout << body << std::endl;
-        std::cout << "----------------------------------- fin de body" << std::endl;
         size_t pos = body.find("filename=\"");
         if (pos == std::string::npos)
             return "";
@@ -190,9 +186,6 @@ std::string remove_multipart_headers(const std::string& body, const std::string&
 
     // Extraer solo el contenido sin headers ni boundary final
     std::string result = body.substr(content_start, j - content_start - 6);
-
-    std::cout << "DESPUES... - " << result << std::endl;
-
     return result;
 }
 
@@ -231,8 +224,6 @@ int save_uploaded_file(HttpRequest httpRequest, Location location)
 
     // Eliminar cabeceras y obtener solo los datos binarios
     std::string cleaned_body = remove_multipart_headers(body, boundary);
-
-    std::cout << "Contenido limpio:\n" << cleaned_body.substr(0, 100) << "...\n";
 
     std::string upload_dir = "www/upload/";
     struct stat st;

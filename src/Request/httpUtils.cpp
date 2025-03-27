@@ -122,14 +122,8 @@ std::string Request::build_http_response(const std::string& content, const std::
 // Retorno:
 // - Número total de bytes enviados si la operación es exitosa.
 // - Retorna -1 si ocurre un error.
-
 ssize_t Request::send_all(int sockfd, const char* buffer, size_t length)
 {
-    std::cout << "📤 Enviando respuesta al cliente:\n";
-    std::cout << "-------------------------------\n";
-    std::cout << std::string(buffer, length) << "\n";
-    std::cout << "-------------------------------\n\n\n";
-
     size_t total_sent = 0;
     while (total_sent < length)
     {

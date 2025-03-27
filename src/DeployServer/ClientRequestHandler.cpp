@@ -51,12 +51,6 @@ int DeployServer::_handle_client_request( int client_fd )
 	httpRequest = parse_request(raw_request);
 	debug_print_http_request(httpRequest);
 
-/*
-	std::cout << "**********************************************************************************\n"
-		<< "RAWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW: \n" << raw_request
-		<< "**********************************************************************************\n" << std::endl;
-*/
-
 	// Verificar si existe el encabezado "Content-Length" para leer el cuerpo de la solicitud
 	std::map<std::string, std::string>::const_iterator it = httpRequest.headers.find("Content-Length");
 	if (it != httpRequest.headers.end()) {
@@ -104,26 +98,107 @@ static void close_client(int client_fd)
 // - Cadena vacía en caso de error o desconexión.
 static std::string receive_request(int client_fd)
 {
-    std::vector<char> buffer(4096);
-    ssize_t bytes_received = recv(client_fd, &buffer[0], buffer.size() - 1, 0);
+    std::string msg;
+    char buffer[4096]; // Tamaño del buffer
+    ssize_t bytes_received;
 
-    if (bytes_received < 0)
-	{
-        std::cerr << "Error al recibir datos:" << strerror(errno) << std::endl;
-        close_client(client_fd);
-        return ""; // Retorna vacío en caso de error
-    }
-    else if (bytes_received == 0)
-	{
-        std::cerr << "Cliente cerró la conexión." << std::endl;
-        close_client(client_fd);
-        return ""; // Retorna vacío si el cliente se desconectó
+    while (true)
+    {
+        // Leer datos del socket
+        bytes_received = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
+
+        if (bytes_received < 0)
+        {
+            if (errno == EAGAIN || errno == EWOULDBLOCK)
+            {
+                // No hay datos disponibles en este momento, esperar más datos
+                break;
+            }
+            else
+            {
+                // Error al recibir datos
+                std::cerr << "Error al recibir datos: " << strerror(errno) << std::endl;
+                close_client(client_fd);
+                return ""; // Retorna vacío en caso de error
+            }
+        }
+        else if (bytes_received == 0)
+        {
+            // El cliente cerró la conexión
+            std::cerr << "Cliente cerró la conexión." << std::endl;
+            break; // Salir del bucle
+        }
+
+        // Agregar los datos recibidos al mensaje
+        buffer[bytes_received] = '\0'; // Asegurar que el buffer sea una cadena válida
+        msg.append(buffer, bytes_received);
+
+        // Verificar si hemos recibido el final de los encabezados HTTP
+        std::size_t pos = msg.find("\r\n\r\n");
+        if (pos != std::string::npos)
+        {
+            // Si encontramos el final de los encabezados, verificamos si hay un cuerpo
+            std::map<std::string, std::string> headers;
+            std::istringstream stream(msg.substr(0, pos));
+            std::string line;
+
+            // Parsear los encabezados
+            while (std::getline(stream, line) && line != "\r")
+            {
+                std::size_t delimiter = line.find(": ");
+                if (delimiter != std::string::npos)
+                {
+                    std::string key = line.substr(0, delimiter);
+                    std::string value = line.substr(delimiter + 2);
+                    headers[key] = value;
+                }
+            }
+
+            // Verificar si hay un encabezado Content-Length
+            if (headers.find("Content-Length") != headers.end())
+            {
+                int content_length = atoi(headers["Content-Length"].c_str());
+                std::size_t body_start = pos + 4; // Saltar "\r\n\r\n"
+                std::size_t body_received = msg.size() - body_start;
+
+                // Leer el resto del cuerpo si es necesario
+                while (body_received < static_cast<std::size_t>(content_length))
+                {
+                    bytes_received = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
+                    if (bytes_received < 0)
+                    {
+                        if (errno == EAGAIN || errno == EWOULDBLOCK)
+                        {
+                            // No hay datos disponibles en este momento, esperar más datos
+                            continue;
+                        }
+                        else
+                        {
+                            std::cerr << "Error al recibir el cuerpo: " << strerror(errno) << std::endl;
+                            close_client(client_fd);
+                            return "";
+                        }
+                    }
+                    else if (bytes_received == 0)
+                    {
+                        // El cliente cerró la conexión inesperadamente
+                        std::cerr << "Cliente cerró la conexión durante la recepción del cuerpo." << std::endl;
+                        close_client(client_fd);
+                        return "";
+                    }
+
+                    buffer[bytes_received] = '\0';
+                    msg.append(buffer, bytes_received);
+                    body_received += bytes_received;
+                }
+            }
+
+            break; // Salir del bucle, ya que hemos recibido todo el mensaje
+        }
     }
 
-    buffer[bytes_received] = '\0'; // Asegúrate de terminar la cadena correctamente
-    return std::string(&buffer[0], bytes_received); // Retorna los datos recibidos como std::string
+    return msg; // Retornar el mensaje completo
 }
-
 // ========================================
 //  FUNCIÓN: parse_request
 // ========================================
@@ -175,7 +250,6 @@ static HttpRequest parse_request(const std::string& request) {
             std::string key = line.substr(0, pos);
             std::string value = line.substr(pos + 2);
             httpRequest.headers[key] = value;
-            std::cout << "Encabezado: " << key << " = " << value << std::endl; // Mensaje de depuración
         }
     }
 
@@ -215,11 +289,6 @@ static void debug_print_http_request(const HttpRequest& httpRequest)
 		std::cout << "\t" << it->first << ": " << it->second << "\n";
 	}
 
-	if (!httpRequest.body.empty()) {
-		std::cout << "Cuerpo:\n" << httpRequest.body << "\n";
-	}
-
-	std::cout << "----------------------------------\n";
 }
 
 // ========================================

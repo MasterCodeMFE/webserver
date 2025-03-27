@@ -32,10 +32,7 @@
 // - 0 si todo se ejecuta correctamente.
 // - -1 en caso de error.
 int DeployServer::_run_server_event_loop( void )
-//int run_server_event_loop(const std::vector<int>& server_fds, const listenSet &config)
 {
-    std::vector<pollfd> fds;
-
     // Configurar los sockets en modo de escucha y añadirlos a `pollfd`
     if (this->_setup_server_listeners() == -1)
         return -1;

@@ -77,7 +77,8 @@ struct addrinfo* getResolvedAddress(const std::string& ip, const std::string& po
     int status = getaddrinfo(ip.empty() ? NULL : ip.c_str(), port_str.c_str(), &hints, &res);
     if (status != 0) {
         std::cerr << "Error en getaddrinfo con la IP: " 
-                  << (ip.empty() ? "INADDR_ANY" : ip) << std::endl;
+                  << (ip.empty() ? "INADDR_ANY" : ip)
+                  << ". Details: " << gai_strerror( status ) << std::endl;
         return NULL;
     }
     return res;
