@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:12:07 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/20 14:10:48 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/28 12:24:05 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ std::string  Request::handle_get(const HttpRequest& request, Location location)
     else if(S_ISDIR(file_stat.st_mode)  && location.getAutoindex() == false)
     {
         std::cerr << "Error: autoindex off."<< std::endl;
-        return (location.getErrorPage(403));
+        return (location.getErrorPage(404));
     }
     
     // Verifica si el archivo tiene permisos de lectura

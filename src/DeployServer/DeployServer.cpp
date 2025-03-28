@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:07:34 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/24 19:01:17 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/28 13:33:29 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ int             DeployServer::_dispatch_http_request(int client_fd, HttpRequest&
 
     if (!location.getAlias().empty())
     {
-        httpRequest.path = location.getAlias() + httpRequest.path.substr(location.getPath().size() - 1);
+        httpRequest.path = location.getAlias() + httpRequest.path.substr(location.getPath().size());
     }
     else
     {

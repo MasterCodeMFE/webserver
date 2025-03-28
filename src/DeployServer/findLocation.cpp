@@ -15,9 +15,29 @@
 
 std::string resolveHostnameToIP(const std::string &hostname);
 
+std::string extractExtension(const std::string &filename)
+{
+    // Encontrar la posición del último punto en la cadena
+    std::size_t lastDotPos = filename.find_last_of('.');
+    
+    // Comprobar si se encontró un punto y no es el primero
+    if (lastDotPos != std::string::npos && lastDotPos != 0)
+    {
+        // Devolver la subcadena desde el último punto hasta el final
+        return filename.substr(lastDotPos); // Incluye el punto
+    }
+    
+    // Si no hay punto o está en la primera posición, devolver una cadena vacía
+    return "";
+}
+
+
 Location findLocation(const HttpRequest &httpRequest, std::vector<Location> locations) {
     std::string path(httpRequest.path);
     std::string host;
+    std::string extension;
+    int i = 0;
+    extension = extractExtension(path);
     try
     {
         host = httpRequest.headers.at("Host");
@@ -53,9 +73,18 @@ Location findLocation(const HttpRequest &httpRequest, std::vector<Location> loca
     {
         for (std::vector<Location>::const_iterator locIt = locations.begin(); locIt != locations.end(); ++locIt) {
             std::string listen(host);
+            
             if (isspace(host[host.size() - 1])) //eliminar si el ultimo es espacio
                 listen = host.substr(0, host.size() - 1);
             // Comparar el segmento de la ruta con la Location
+            if (i == 1)
+            {
+               if( !(extension).compare( locIt->getPath() ) && !listen.compare( locIt->getListen() ))
+                {
+                    std::cout << "encontrado" << std::endl;
+                    return *locIt;
+                } 
+            }
             if( !(*segmentIt).compare( locIt->getPath() ) && !listen.compare( locIt->getListen() ))
             {
                 std::cout << "encontrado" << std::endl;
@@ -67,6 +96,7 @@ Location findLocation(const HttpRequest &httpRequest, std::vector<Location> loca
                 return *locIt;
             }
         }
+        i ++;
     }
 
     std::string domain = host.substr(0, host.find(':'));
