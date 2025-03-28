@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Gigante</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        h1 {
+            font-size: 32px;
+        }
+        p {
+            font-size: 18px;
+            line-height: 1.8;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Post Gigante de Prueba</h1>
+    
+    <div class="section">
+        <h2>Introducción</h2>
+        <p>Bienvenido a este post gigante. Esto es solo una prueba de contenido masivo.</p>
+    </div>
+
+    <!-- Generando múltiples secciones con mucho contenido -->
+    <!-- Secciones repetitivas para aumentar el tamaño del documento -->
+    
+    <script>
+        let body = document.body;
+        for (let i = 1; i <= 100; i++) {
+            let section = document.createElement("div");
+            section.className = "section";
+            let title = document.createElement("h2");
+            title.innerText = `Sección ${i}`;
+            let paragraph = document.createElement("p");
+            paragraph.innerText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi. Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum.".repeat(10);
+            section.appendChild(title);
+            section.appendChild(paragraph);
+            body.appendChild(section);
+        }
+    </script>
+</body>
+</html>
