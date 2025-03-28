@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:08:05 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/24 11:16:46 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/28 10:55:08 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,19 +143,24 @@ void    DeployServer::_process_server_events( void )
 // - start_index: Índice desde el cual inician los sockets de cliente en el vector `fds`.
 // - config: Configuración general.
 // - fds: Vector de `pollfd` que contiene tanto servidores como clientes.
-void    DeployServer::_process_client_events( size_t start_index )
+void DeployServer::_process_client_events(size_t start_index)
 {
     for (size_t i = start_index; i < this->fds.size(); ++i)
     {
-        if ( this->fds[i].revents & (POLLIN | POLLHUP | POLLERR) )
+        // Verificar si hay eventos en el socket del cliente
+        if (this->fds[i].revents & (POLLIN | POLLHUP | POLLERR))
         {
-            int res = this->_handle_client_request( fds[i].fd );
-            if (res == -1)  // Cliente desconectado
+            // Solo procesar si hay datos disponibles
+            if (this->fds[i].revents & POLLIN)
             {
-                std::cout << "[INFO] Cliente desconectado: " << this->fds[i].fd << "\n";
-                close(this->fds[i].fd);
-                this->fds.erase(this->fds.begin() + i);
-                --i; // Ajustar índice tras la eliminación
+                int res = this->_handle_client_request(this->fds[i].fd);
+                if (res == -1)  // Cliente desconectado
+                {
+                    std::cout << "[INFO] Cliente desconectado: " << this->fds[i].fd << "\n";
+                    close(this->fds[i].fd);
+                    this->fds.erase(this->fds.begin() + i);
+                    --i; // Ajustar índice tras la eliminación
+                }
             }
         }
     }

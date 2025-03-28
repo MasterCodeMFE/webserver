@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:13:35 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/21 11:22:39 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/28 11:20:33 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,8 @@
 #include <dirent.h>
 #include <netdb.h>
 #include <signal.h>
-# include <iterator>
+#include <iterator>
+#include <ctime> 
 
 # include "Location.hpp"
 

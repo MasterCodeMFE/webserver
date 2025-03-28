@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:07:20 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/25 19:56:26 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/28 11:43:55 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,16 @@ int DeployServer::_handle_client_request( int client_fd )
 	return res;
 }
 
+void fake_usleep(int milliseconds)
+{
+    clock_t start_time = clock(); // Obtiene el tiempo actual
+    // Bucle que consume tiempo
+    while (static_cast<double>(clock() - start_time) / CLOCKS_PER_SEC < milliseconds / 1000.0)
+    {
+        // No hacer nada, solo esperar
+    }
+}
+
 // ========================================
 //  FUNCIÓN: close_client
 // ========================================
@@ -101,6 +111,8 @@ static std::string receive_request(int client_fd)
     std::string msg;
     char buffer[4096]; // Tamaño del buffer
     ssize_t bytes_received;
+    int attempts = 15; // Intentos máximos
+    const int delay_ms = 100; // Retraso en milisegundos
 
     while (true)
     {
@@ -109,17 +121,18 @@ static std::string receive_request(int client_fd)
 
         if (bytes_received < 0)
         {
-            if (errno == EAGAIN || errno == EWOULDBLOCK)
+            attempts--;
+            // Esperar antes de intentar de nuevo
+            if (attempts > 0)
             {
-                // No hay datos disponibles en este momento, esperar más datos
-                break;
+                fake_usleep(delay_ms); // Usar el "usleep falso"
+                continue; // Volver a intentar recibir datos
             }
             else
             {
-                // Error al recibir datos
                 std::cerr << "Error al recibir datos: " << strerror(errno) << std::endl;
                 close_client(client_fd);
-                return ""; // Retorna vacío en caso de error
+                return ""; // Retornar vacío después de varios intentos fallidos
             }
         }
         else if (bytes_received == 0)
@@ -137,7 +150,7 @@ static std::string receive_request(int client_fd)
         std::size_t pos = msg.find("\r\n\r\n");
         if (pos != std::string::npos)
         {
-            // Si encontramos el final de los encabezados, verificamos si hay un cuerpo
+            // Procesar encabezados
             std::map<std::string, std::string> headers;
             std::istringstream stream(msg.substr(0, pos));
             std::string line;
@@ -162,21 +175,24 @@ static std::string receive_request(int client_fd)
                 std::size_t body_received = msg.size() - body_start;
 
                 // Leer el resto del cuerpo si es necesario
+                attempts = 15; // Reiniciar intentos para leer el cuerpo
                 while (body_received < static_cast<std::size_t>(content_length))
                 {
                     bytes_received = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
                     if (bytes_received < 0)
                     {
-                        if (errno == EAGAIN || errno == EWOULDBLOCK)
+                        attempts--;
+                        // Esperar antes de intentar de nuevo
+                        if (attempts > 0)
                         {
-                            // No hay datos disponibles en este momento, esperar más datos
-                            continue;
+                            fake_usleep(delay_ms); // Usar el "usleep falso"
+                            continue; // Volver a intentar recibir datos
                         }
                         else
                         {
-                            std::cerr << "Error al recibir el cuerpo: " << strerror(errno) << std::endl;
+                            std::cerr << "Error al recibir datos: " << strerror(errno) << std::endl;
                             close_client(client_fd);
-                            return "";
+                            return ""; // Retornar vacío después de varios intentos fallidos
                         }
                     }
                     else if (bytes_received == 0)
