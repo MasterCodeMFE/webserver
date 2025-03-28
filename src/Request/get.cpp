@@ -207,10 +207,10 @@ std::string Request::_listDirectory(const std::string &dirPath, const std::strin
             icon = "📁"; // Si es un directorio
         }
         // Agrega el archivo/directorio a la lista en HTML
-        responseBody << "<li>" << icon << " <a href=\"" << requestPath.substr(5) + "/" + fileName << "\">" << fileName << "</a>";
+        responseBody << "<li>" << icon << " <a href=\"" << requestPath.substr(location.getRoot().size()) + "/" + fileName << "\">" << fileName << "</a>";
         // Agrega el botón de borrado para archivos
         if (!S_ISDIR(fileStat.st_mode)) { // Solo agregar botón para archivos
-            responseBody << "<button onclick=\"deleteFile('" << requestPath.substr(6) + "/" + fileName << "')\">Borrar</button>";
+            responseBody << "<button onclick=\"deleteFile('" << requestPath.substr(location.getRoot().size()) + "/" + fileName << "')\">Borrar</button>";
         }
         responseBody << "</li>\n";
     }

@@ -225,7 +225,7 @@ int save_uploaded_file(HttpRequest httpRequest, Location location)
     // Eliminar cabeceras y obtener solo los datos binarios
     std::string cleaned_body = remove_multipart_headers(body, boundary);
 
-    std::string upload_dir = "www/upload/";
+    std::string upload_dir = location.getRoot() + "/upload/";
     struct stat st;
     if (stat(upload_dir.c_str(), &st) != 0) {
         if (mkdir(upload_dir.c_str(), 0777) != 0) {
