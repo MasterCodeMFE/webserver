@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:12:03 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/21 14:19:19 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/28 10:25:48 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,6 @@ std::string Request::handle_delete(const HttpRequest& httpRequest, Location loca
 
     std::cout << "✅ Archivo eliminado correctamente: " << filename << std::endl;
     std::string response_body = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nArchivo eliminado con éxito";
-    return build_http_response(response_body, "text/plain", 200);
+    return build_http_response(response_body, "text/plain", 204);
 }
     
