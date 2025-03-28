@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:07:34 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/28 13:33:29 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/28 14:02:28 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,15 @@ int             DeployServer::_dispatch_http_request(int client_fd, HttpRequest&
         response = Request::handle_cgi(httpRequest.path, httpRequest.body, httpRequest.method, httpRequest.body, location);
         Request::send_all(client_fd, response.c_str(), response.size());
         return(0);
+    }
+    if ( !location.getCgi().empty() && httpRequest.path.size() >= 4 \
+        && httpRequest.path.compare(httpRequest.path.size() - 4, 4, ".php") != 0 \
+        && httpRequest.method == "POST")
+    {
+        std::cout << "CHISPAS!!" << std::endl;
+        response = location.getErrorPage(400);
+        Request::send_all(client_fd, response.c_str(), response.size());
+        return 0;
     }
     if (!is_valid_method)
     {
