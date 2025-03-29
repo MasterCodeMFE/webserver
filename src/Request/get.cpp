@@ -195,7 +195,7 @@ std::string Request::_listDirectory(const std::string &dirPath, const std::strin
         std::string fileName = entry->d_name;
         if (fileName == "." || fileName == "..")
             continue;
-        std::string fullPath = dirPath + "/" + fileName;
+        std::string fullPath = dirPath + (dirPath[dirPath.size() - 1] == '/' ? "" : "/") + fileName;
         struct stat fileStat;
         // Verifica si stat() falla para evitar errores
         if (stat(fullPath.c_str(), &fileStat) != 0) {
@@ -205,6 +205,7 @@ std::string Request::_listDirectory(const std::string &dirPath, const std::strin
         std::string icon = "📄"; // Icono por defecto para archivos
         if (S_ISDIR(fileStat.st_mode)) {
             icon = "📁"; // Si es un directorio
+            responseBody << "<li>" << icon << " <a href=\"" << fullPath.substr(5) << "\">" << fileName << "</a>";
         }
         // Agrega el archivo/directorio a la lista en HTML
         responseBody << "<li>" << icon << " <a href=\"" << requestPath.substr(location.getRoot().size()) + "/" + fileName << "\">" << fileName << "</a>";
