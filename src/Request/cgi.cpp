@@ -6,12 +6,21 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:11:50 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/31 13:16:02 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/31 14:09:14 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #include "Request.hpp"
+
+void fake_sleep(int seconds) {
+    clock_t start_time = clock(); // Obtiene el tiempo actual
+
+    // Bucle que consume tiempo
+    while (static_cast<double>(clock() - start_time) / CLOCKS_PER_SEC < seconds) {
+        // No hacer nada, solo esperar
+    }
+}
 
 std::string Request::handle_cgi(const std::string &script_path, const std::string &query_string, const std::string &method, const std::string &body, Location location)
 {
@@ -49,36 +58,39 @@ std::string Request::handle_cgi(const std::string &script_path, const std::strin
         close(pipe_stdout[1]);
         close(pipe_stdin[0]);
 
-        if (method == "POST" && !body.empty()) {
-            write(pipe_stdin[1], body.c_str(), body.size());
+        // Enviar datos a través del pipe
+        if (method == "POST") {
+            if (!body.empty()) {
+                write(pipe_stdin[1], body.c_str(), body.size());
+            }
         }
         close(pipe_stdin[1]);
 
         int status;
-        int timeout = 10;
+        int timeout = 10; // Tiempo de espera de 10 segundos
         while (timeout > 0) {
             pid_t result = waitpid(pid, &status, WNOHANG);
             if (result == pid) {
-                break;
+                break; // El proceso ha terminado
             }
-            Request::fake_usleep(1000);
+            fake_sleep(1); // Esperar 1s
             timeout--;
         }
 
         if (timeout == 0) {
-            kill(pid, SIGKILL);
-            waitpid(pid, &status, 0);
-            return location.getErrorPage(504);
+            kill(pid, SIGKILL); // Matar el proceso si se excede el tiempo
+            waitpid(pid, &status, 0); // Esperar a que el proceso termine
+            return location.getErrorPage(504); // Error por timeout
         }
 
         if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
-            return location.getErrorPage(502);
+            return location.getErrorPage(502); // Error si el proceso no terminó correctamente
         }
 
         char buffer[1024];
         std::string cgi_output;
         ssize_t bytes_read;
-        
+
         while ((bytes_read = read(pipe_stdout[0], buffer, sizeof(buffer) - 1)) > 0) {
             buffer[bytes_read] = '\0';
             cgi_output += buffer;
@@ -86,7 +98,7 @@ std::string Request::handle_cgi(const std::string &script_path, const std::strin
         close(pipe_stdout[0]);
 
         if (cgi_output.empty()) {
-            return location.getErrorPage(500);
+            return location.getErrorPage(500); // Error si la salida está vacía
         }
 
         return Request::build_http_response_cgi(cgi_output);
@@ -130,7 +142,15 @@ void Request::_setup_cgi_env(const std::string &script_path, const std::string &
 
     if (method == "POST") {
         env.push_back(strdup((std::string("CONTENT_LENGTH=") + Request::_int_to_string(body.size())).c_str()));
-        env.push_back(strdup("CONTENT_TYPE=application/x-www-form-urlencoded"));
+        
+        // Manejar uploads: se asume que se recibe como multipart/form-data
+        if (body.find("Content-Disposition: form-data;") != std::string::npos) {
+            // Aquí deberías establecer el boundary si existe
+            std::string boundary = "---------------------------"; // Asegúrate de que esto coincida con lo que el cliente envía
+            env.push_back(strdup(("CONTENT_TYPE=multipart/form-data; boundary=" + boundary).c_str()));
+        } else {
+            env.push_back(strdup("CONTENT_TYPE=application/x-www-form-urlencoded"));
+        }
     }
 
     env.push_back(NULL);

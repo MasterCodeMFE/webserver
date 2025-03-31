@@ -88,7 +88,10 @@ Location findLocation(const HttpRequest &httpRequest, std::vector<Location> loca
 
     // Buscar la primera Location que coincide con los segmentos de la ruta y el host
     for (std::vector<std::string>::const_iterator segmentIt = pathSegments.begin(); segmentIt != pathSegments.end(); ++segmentIt)
-    {
+    {   
+        std::cout << "buscado: " << *segmentIt << std::endl;
+        std::cout << "file: " << file << std::endl;
+        std::cout << "extension: " << extension << std::endl;
         for (std::vector<Location>::const_iterator locIt = locations.begin(); locIt != locations.end(); ++locIt)
         {
             std::string listen = host;
@@ -105,28 +108,25 @@ Location findLocation(const HttpRequest &httpRequest, std::vector<Location> loca
                     std::cout << "encontrado" << std::endl;
                     return *locIt;
                 }
-            }
-            else if (i == 2)
-            {
-                std::cout << "-------hola--------" << std::endl;
-                if (extension == locIt->getPath() && listen == locIt->getListen())
+                else if (extension == locIt->getPath() && listen == locIt->getListen())
                 {
                     std::cout << "encontrado hola" << std::endl;
                     return *locIt;
                 }
+                continue;
             }
-            else if (*segmentIt == locIt->getPath() && listen == locIt->getListen())
+            if (*segmentIt == locIt->getPath() && listen == locIt->getListen())
             {
                 std::cout << "encontrado" << std::endl;
                 return *locIt;
             }
-            else if (*segmentIt + "/" == locIt->getPath() && listen == locIt->getListen())
+            if (*segmentIt + "/" == locIt->getPath() && listen == locIt->getListen())
             {
                 std::cout << "encontrado" << std::endl;
                 return *locIt;
             }
         }
-        i++;
+        i ++;
     }
 
 
@@ -166,7 +166,7 @@ Location findLocation(const HttpRequest &httpRequest, std::vector<Location> loca
                     return *locIt;
                 }
             }
-            else if (i == 2)
+            if (i == 2)
             {
                 std::cout << "-------hola--------" << std::endl;
                 if (extension == locIt->getPath() && listen == locIt->getListen())
@@ -175,12 +175,12 @@ Location findLocation(const HttpRequest &httpRequest, std::vector<Location> loca
                     return *locIt;
                 }
             }
-            else if (*segmentIt == locIt->getPath() && listen == locIt->getListen())
+            if (*segmentIt == locIt->getPath() && listen == locIt->getListen())
             {
                 std::cout << "encontrado" << std::endl;
                 return *locIt;
             }
-            else if (*segmentIt + "/" == locIt->getPath() && listen == locIt->getListen())
+            if (*segmentIt + "/" == locIt->getPath() && listen == locIt->getListen())
             {
                 std::cout << "encontrado" << std::endl;
                 return *locIt;
