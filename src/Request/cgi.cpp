@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:11:50 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/24 10:38:17 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/31 13:16:02 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,6 @@
 
 std::string Request::handle_cgi(const std::string &script_path, const std::string &query_string, const std::string &method, const std::string &body, Location location)
 {
-    std::cout << "===================> CGIIII!! \n" << std::endl;
-    std::cout << query_string << std::endl;
-    std::cout << "==========END QUERY STRING=========\n" << std::endl;
-    
     (void)location;
     int pipe_stdout[2]; // Para capturar salida de php-cgi
     int pipe_stdin[2];  // Para enviar datos POST
@@ -65,7 +61,7 @@ std::string Request::handle_cgi(const std::string &script_path, const std::strin
             if (result == pid) {
                 break;
             }
-            sleep(1);
+            Request::fake_usleep(1000);
             timeout--;
         }
 

@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:14:01 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/20 17:36:25 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/31 13:11:33 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,7 @@ class Request
 		static std::string	build_http_response(const std::string& content, const std::string& content_type, int status_code);
 		static ssize_t		send_all(int sockfd, const char* buffer, size_t length);
 		static std::string build_http_response_cgi(const std::string &cgi_output);
+		static void fake_usleep(int milliseconds);
 };
 
 #endif
