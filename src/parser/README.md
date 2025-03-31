@@ -18,7 +18,7 @@
 	Por defecto el tamaño es en bytes (k=kilobytes ...). 
 	Su declaración termina con `;`. Ejemplo: client_max_body_size 1g;
 11.	`location uri { ... }` Debe estar dentro de server y puede haber varias por server. La uri puede ser
-	un directorio o un fichero. Error de duplicado si en el mismo server existe la misma location.
+	un directorio o un fichero. Error de duplicado si en el mismo server existe la misma location. El orden de prioridades se localización será: coincidencia exacta, coincidencia en nombre de fichero, coincidencia en extensión de fichero, coincidencia más larga de la ruta desde el principio.
 12.	`method <metodo>;` Debe contenerse dentro del bloque `location`. Añade a la lista si no está duplicado.
 	Una declaración de método por palabra clave `method`.
 13.	`return redirection_status_code url;` Debe contenerse dentro de bloque server o location. Indica el código de redirección a retornar y la url a la que redirigir cuando
