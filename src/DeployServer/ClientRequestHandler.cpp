@@ -6,13 +6,14 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:07:20 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/28 11:43:55 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/31 13:16:23 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
  // 5️⃣ Leer datos del cliente y responder al cliente
 
 #include "DeployServer.hpp"
+#include "Request.hpp"
 
 static void			close_client(int client_fd);
 static std::string	receive_request(int client_fd);
@@ -66,7 +67,7 @@ int DeployServer::_handle_client_request( int client_fd )
 	return res;
 }
 
-void fake_usleep(int milliseconds)
+void Request::fake_usleep(int milliseconds)
 {
     clock_t start_time = clock(); // Obtiene el tiempo actual
     // Bucle que consume tiempo
@@ -125,7 +126,7 @@ static std::string receive_request(int client_fd)
             // Esperar antes de intentar de nuevo
             if (attempts > 0)
             {
-                fake_usleep(delay_ms); // Usar el "usleep falso"
+                Request::fake_usleep(delay_ms); // Usar el "usleep falso"
                 continue; // Volver a intentar recibir datos
             }
             else
@@ -185,7 +186,7 @@ static std::string receive_request(int client_fd)
                         // Esperar antes de intentar de nuevo
                         if (attempts > 0)
                         {
-                            fake_usleep(delay_ms); // Usar el "usleep falso"
+                            Request::fake_usleep(delay_ms); // Usar el "usleep falso"
                             continue; // Volver a intentar recibir datos
                         }
                         else

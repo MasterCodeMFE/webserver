@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:12:07 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/28 12:24:05 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/31 13:21:24 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -195,7 +195,7 @@ std::string Request::_listDirectory(const std::string &dirPath, const std::strin
         std::string fileName = entry->d_name;
         if (fileName == "." || fileName == "..")
             continue;
-        std::string fullPath = dirPath + "/" + fileName;
+        std::string fullPath = dirPath + (dirPath[dirPath.size() - 1] == '/' ? "" : "/") + fileName;
         struct stat fileStat;
         // Verifica si stat() falla para evitar errores
         if (stat(fullPath.c_str(), &fileStat) != 0) {
@@ -205,7 +205,7 @@ std::string Request::_listDirectory(const std::string &dirPath, const std::strin
         std::string icon = "📄"; // Icono por defecto para archivos
         if (S_ISDIR(fileStat.st_mode)) {
             icon = "📁"; // Si es un directorio
-            responseBody << "<li>" << icon << " <a href=\"" << fullPath.substr(6) << "\">" << fileName << "</a>";
+            responseBody << "<li>" << icon << " <a href=\"" << fullPath.substr(5) << "\">" << fileName << "</a>";
         }
         // Agrega el botón de borrado para archivos
         if (!S_ISDIR(fileStat.st_mode)) { // Solo agregar botón para archivos
