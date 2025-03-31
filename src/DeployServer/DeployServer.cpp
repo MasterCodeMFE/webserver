@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:07:34 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/28 14:02:28 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/31 16:42:11 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,8 @@ int             DeployServer::_dispatch_http_request(int client_fd, HttpRequest&
     std::string response;
     Location location;
 
+    std::cout << "path: " << httpRequest.path << std::endl;
+    
     location = findLocation(httpRequest, this->locations);
     if (httpRequest.headers.find("Content-Length") != httpRequest.headers.end() && string_to_int (httpRequest.headers.at("Content-Length")) >  static_cast<int>(location.getClienteMaxBodySize()) )
     {
@@ -68,13 +70,25 @@ int             DeployServer::_dispatch_http_request(int client_fd, HttpRequest&
         httpRequest.path = location.getRoot() + httpRequest.path;
     }
     // Verificar si la solicitud es para un script CGI
-    if (httpRequest.path.size() >= 4 && httpRequest.path.compare(httpRequest.path.size() - 4, 4, ".php") == 0)
+    if (!httpRequest.path.empty()) 
     {
-        std::cout << "-----------path: "  << httpRequest.path << std::endl;
-        std::cout << "-----------query_string: "  << httpRequest.query_string << std::endl;
-        response = Request::handle_cgi(httpRequest.path, httpRequest.body, httpRequest.method, httpRequest.body, location);
-        Request::send_all(client_fd, response.c_str(), response.size());
-        return(0);
+        std::string filename = httpRequest.path;
+        size_t questionMark = filename.find('?');   
+        if (questionMark != std::string::npos) {
+            filename = filename.substr(0, questionMark);
+        }
+        std::cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n --------------------------filename " << filename << "  \n\n\n\n\n\n\n\n\n\n\n\n";
+        if (filename.size() >= 4 && filename.compare(filename.size() - 4, 4, ".php") == 0)
+        {  
+            //size_t pos = httpRequest.path.find('?');
+            //httpRequest.body = (pos != std::string::npos) ? httpRequest.path.substr(pos + 1) : httpRequest.body;
+            std::cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n --------------------------funciona \n\n\n\n\n\n\n\n\n\n\n\n";
+            std::cout << "-----------path: "  << httpRequest.path << std::endl;
+            std::cout << "-----------query_string: "  << httpRequest.query_string << std::endl;
+            response = Request::handle_cgi(httpRequest.path, httpRequest.body, httpRequest.method, httpRequest.body, location);
+            Request::send_all(client_fd, response.c_str(), response.size());
+            return 0;
+        }
     }
     if ( !location.getCgi().empty() && httpRequest.path.size() >= 4 \
         && httpRequest.path.compare(httpRequest.path.size() - 4, 4, ".php") != 0 \

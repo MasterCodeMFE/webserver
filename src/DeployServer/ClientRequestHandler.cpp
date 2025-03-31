@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:07:20 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/31 13:16:23 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/31 16:39:04 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -280,6 +280,7 @@ static HttpRequest parse_request(const std::string& request) {
         httpRequest.body.erase(httpRequest.body.size() - 1); // Borrar el último carácter
     }
 
+    
     std::cout << "____________________BODY__________________\n" << httpRequest.body << std::endl;
     return httpRequest;
 }

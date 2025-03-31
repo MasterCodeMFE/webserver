@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:14:01 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/31 13:11:33 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/31 18:13:40 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ class Request
 		static std::string  handle_get(const HttpRequest& request, Location location);
 		static std::string	handle_post(const HttpRequest& httpRequest, Location location);
 		static std::string	handle_delete(const HttpRequest& httpRequest, Location location);
-		static std::string handle_cgi(const std::string &script_path, const std::string &query_string, const std::string &method, const std::string &body, Location location);
+		static std::string handle_cgi(const std::string &script_path, std::string &query_string, const std::string &method, const std::string &body, Location location);
 		static std::string	build_http_response(const std::string& content, const std::string& content_type, int status_code);
 		static ssize_t		send_all(int sockfd, const char* buffer, size_t length);
 		static std::string build_http_response_cgi(const std::string &cgi_output);

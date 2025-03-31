@@ -51,6 +51,7 @@ std::string extractFile(const std::string &filename)
 Location findLocation(const HttpRequest &httpRequest, std::vector<Location> locations) {
     std::string path(httpRequest.path);
     std::string host;
+     std::string root(httpRequest.path);
     std::string extension;
     std::string file;
     int i = 0;
@@ -70,7 +71,51 @@ Location findLocation(const HttpRequest &httpRequest, std::vector<Location> loca
     std::vector<std::string> pathSegments;
     pathSegments.push_back(path);
 
-    // Dividir la ruta en segmentos eliminando el último directorio en cada iteración
+
+    // Imprimir segmentos de la ruta para depuración
+    std::cout << "Segmentos de la ruta:" << std::endl;
+    for (std::vector<std::string>::const_iterator it = pathSegments.begin(); it != pathSegments.end(); ++it) {
+        std::cout << *it << std::endl;
+    }
+
+    std::vector<Location>::const_iterator matchLocation = locations.end();
+    for (std::vector<Location>::const_iterator locIt = locations.begin(); locIt != locations.end(); ++locIt)
+    {
+        std::cout << "file: " << file << std::endl;
+        std::cout << "location path: " << locIt->getPath() << std::endl;
+        std::cout << "extension: " << extension << std::endl;
+        std::cout << "path: " << path << std::endl;
+        std::string listen = host;
+        
+        // Eliminar espacio final si existe
+        if (!host.empty() && isspace(host[host.size() - 1])) 
+            listen = host.substr(0, host.size() - 1);
+
+        // Comparar el segmento de la ruta con la Location
+        if (i < 1 && extension.compare(locIt->getPath()) == 0  && listen == locIt->getListen())
+        {
+            std::cout << "encontrado hola" << std::endl;
+            matchLocation = locIt;
+        }
+        if (file.compare(locIt->getPath()) == 0 && listen == locIt->getListen())
+        {
+            std::cout << "ENCONTRADO FILE" << std::endl;
+            matchLocation = locIt;
+            i = 1;
+        }
+        if (path.compare(locIt->getPath()) == 0 && listen == locIt->getListen())
+        {
+            std::cout << "ENCONTRADO COMPLETO" << std::endl;
+            matchLocation = locIt;
+            break;
+        }
+    }
+    if (matchLocation != locations.end())
+    {
+        std::cout << "PARA DE BUSCAR" << std::endl;
+        return *matchLocation;
+    }
+        // Dividir la ruta en segmentos eliminando el último directorio en cada iteración
     while ( !path.empty() && path != "/") {
         std::size_t pos = path.find_last_of('/');
         if (pos == 0) {
@@ -80,8 +125,85 @@ Location findLocation(const HttpRequest &httpRequest, std::vector<Location> loca
         }
         pathSegments.push_back(path);
     }
-    // Imprimir segmentos de la ruta para depuración
-    std::cout << "Segmentos de la ruta:" << std::endl;
+    // Buscar la primera Location que coincide con los segmentos de la ruta y el host
+    for (std::vector<std::string>::const_iterator segmentIt = pathSegments.begin(); segmentIt != pathSegments.end(); ++segmentIt)
+    {   
+        std::cout << "buscado: " << *segmentIt << std::endl;
+        std::cout << "file: " << file << std::endl;
+        std::cout << "extension: " << extension << std::endl;
+        for (std::vector<Location>::const_iterator locIt = locations.begin(); locIt != locations.end(); ++locIt)
+        {
+            std::string listen = host;
+            
+            // Eliminar espacio final si existe
+            if (!host.empty() && isspace(host[host.size() - 1])) 
+                listen = host.substr(0, host.size() - 1);
+
+            if (*segmentIt == locIt->getPath() && listen == locIt->getListen())
+            {
+                std::cout << "encontrado" << std::endl;
+                return *locIt;
+            }
+            if (*segmentIt + "/" == locIt->getPath() && listen == locIt->getListen())
+            {
+                std::cout << "encontrado" << std::endl;
+                return *locIt;
+            }
+        }
+    }
+
+
+    std::string domain = host.substr(0, host.find(':'));
+    // Resolver el dominio a una IP
+    std::string resolvedIP = resolveHostnameToIP(domain);
+    if (!resolvedIP.empty())
+    {
+        host = resolvedIP + host.substr(host.find(':')); // Reemplazar el nombre con la IP
+    }
+    if ( path[0] != '/' )
+	    path = "/" + path;
+
+
+
+    matchLocation = locations.end();
+    for (std::vector<Location>::const_iterator locIt = locations.begin(); locIt != locations.end(); ++locIt)
+    {
+        std::cout << "file: " << file << std::endl;
+        std::cout << "location path: " << locIt->getPath() << std::endl;
+        std::cout << "extension: " << extension << std::endl;
+        std::cout << "path: " << path << std::endl;
+        std::string listen = host;
+        
+        // Eliminar espacio final si existe
+        if (!host.empty() && isspace(host[host.size() - 1])) 
+            listen = host.substr(0, host.size() - 1);
+
+        // Comparar el segmento de la ruta con la Location
+        if (i < 1 && extension.compare(locIt->getPath()) == 0  && listen == locIt->getListen())
+        {
+            std::cout << "encontrado hola" << std::endl;
+            matchLocation = locIt;
+        }
+        if (file.compare(locIt->getPath()) == 0 && listen == locIt->getListen())
+        {
+            std::cout << "ENCONTRADO FILE" << std::endl;
+            matchLocation = locIt;
+            i = 1;
+        }
+        if (root.compare(locIt->getPath()) == 0 && listen == locIt->getListen())
+        {
+            std::cout << "ENCONTRADO COMPLETO" << std::endl;
+            matchLocation = locIt;
+            break;
+        }
+    }
+    if (matchLocation != locations.end())
+    {
+        std::cout << "PARA DE BUSCAR" << std::endl;
+        return *matchLocation;
+    }
+
+    std::cout << "Segmentos de la ruta despues de dnc:" << std::endl;
     for (std::vector<std::string>::const_iterator it = pathSegments.begin(); it != pathSegments.end(); ++it) {
         std::cout << *it << std::endl;
     }
@@ -99,22 +221,7 @@ Location findLocation(const HttpRequest &httpRequest, std::vector<Location> loca
             // Eliminar espacio final si existe
             if (!host.empty() && isspace(host[host.size() - 1])) 
                 listen = host.substr(0, host.size() - 1);
-
-            // Comparar el segmento de la ruta con la Location
-            if (i == 1)
-            {
-                if (file == locIt->getPath() && listen == locIt->getListen())
-                {
-                    std::cout << "encontrado" << std::endl;
-                    return *locIt;
-                }
-                else if (extension == locIt->getPath() && listen == locIt->getListen())
-                {
-                    std::cout << "encontrado hola" << std::endl;
-                    return *locIt;
-                }
-                continue;
-            }
+                
             if (*segmentIt == locIt->getPath() && listen == locIt->getListen())
             {
                 std::cout << "encontrado" << std::endl;
@@ -126,67 +233,6 @@ Location findLocation(const HttpRequest &httpRequest, std::vector<Location> loca
                 return *locIt;
             }
         }
-        i ++;
-    }
-
-
-    std::string domain = host.substr(0, host.find(':'));
-    i = 0;
-    // Resolver el dominio a una IP
-    std::string resolvedIP = resolveHostnameToIP(domain);
-    if (!resolvedIP.empty())
-    {
-        host = resolvedIP + host.substr(host.find(':')); // Reemplazar el nombre con la IP
-    }
-    if ( path[0] != '/' )
-	    path = "/" + path;
-
-    std::cout << "Segmentos de la ruta despues de dnc:" << std::endl;
-    for (std::vector<std::string>::const_iterator it = pathSegments.begin(); it != pathSegments.end(); ++it) {
-        std::cout << *it << std::endl;
-    }
-
-    // Buscar la primera Location que coincide con los segmentos de la ruta y el host
-    for (std::vector<std::string>::const_iterator segmentIt = pathSegments.begin(); segmentIt != pathSegments.end(); ++segmentIt)
-    {
-        for (std::vector<Location>::const_iterator locIt = locations.begin(); locIt != locations.end(); ++locIt)
-        {
-            std::string listen = host;
-            
-            // Eliminar espacio final si existe
-            if (!host.empty() && isspace(host[host.size() - 1])) 
-                listen = host.substr(0, host.size() - 1);
-
-            // Comparar el segmento de la ruta con la Location
-            if (i == 1)
-            {
-                if (file == locIt->getPath() && listen == locIt->getListen())
-                {
-                    std::cout << "encontrado" << std::endl;
-                    return *locIt;
-                }
-            }
-            if (i == 2)
-            {
-                std::cout << "-------hola--------" << std::endl;
-                if (extension == locIt->getPath() && listen == locIt->getListen())
-                {
-                    std::cout << "encontrado hola" << std::endl;
-                    return *locIt;
-                }
-            }
-            if (*segmentIt == locIt->getPath() && listen == locIt->getListen())
-            {
-                std::cout << "encontrado" << std::endl;
-                return *locIt;
-            }
-            if (*segmentIt + "/" == locIt->getPath() && listen == locIt->getListen())
-            {
-                std::cout << "encontrado" << std::endl;
-                return *locIt;
-            }
-        }
-        i++;
     }
 
     // Si no se encuentra ninguna, devuelve un Location vacío
