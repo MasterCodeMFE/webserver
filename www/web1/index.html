@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Estática</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #cdcdcd;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+        .card {
+            padding: 20px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            text-align: center;
+        }
+        .button {
+            margin-top: 10px;
+            padding: 10px;
+            border: none;
+            background-color: #ff0000;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h2>GET</h2>
+            <a href="/GET/GET.html" class="button">GET</a>
+        </div>
+        <div class="card">
+            <h2>GET 404</h2>
+            <a href="/GET/GET404.html" class="button">GET 404</a>
+        </div>
+        <div class="card">
+            <h2>POST-</h2>
+            <a href="/POST/post-upload.html" class="button">post upload</a>
+        </div>
+        <div class="card">
+            <h2>POST-CGI</h2>
+            <a href="/POST/post-uploadcgi.html" class="button">post cgi</a>
+        </div>
+        <div class="card">
+            <h2>Cuadro 2</h2>
+            <a href="#" class="button">Otro botón</a>
+        </div>
+        <div class="card">
+            <h2>CGI PHP</h2>
+            <a href="/cgi/php.php" class="button">Ir a PHP</a>
+        </div>
+        <div class="card">
+            <h2>CGI PHP-POST</h2>
+            <form action="/cgi/php-post.php" method="POST">
+                <input type="text" name="mensaje" placeholder="Escribe algo...">
+                <button type="submit" class="button">Enviar</button>
+            </form>
+        </div>
+        <div class="card">
+            <h2>CGI PHP-GET</h2>
+            <form action="/cgi/get_cgi.php" method="GET">
+                <input type="text" name="mensaje" placeholder="Escribe algo...">
+                <button type="submit" class="button">Enviar</button>
+            </form>
+        </div>
+        <div class="card">
+            <h2>CGI PHP-infi</h2>
+            <a href="/cgi/php-infi.php" class="button">Ir a PHP-infi</a>
+        </div>
+    </div>
+    <div class="card">
+        <h2>CGI PHP-subida</h2>
+        <a href="/cgi/php-subida.php" class="button">Ir a PHP-subida</a>
+    </div>
+    <div class="card">
+        <h2>POST-uplosad</h2>
+        <a href="/POST/post-upload.html" class="button">Ir a PHP</a>
+    </div>
+    <div class="card">
+        <h2>DELETE</h2>
+        <a href="/DELETE/DELETE.html" class="button">Ir a PHP</a>
+    </div>
+</body>
+</html>

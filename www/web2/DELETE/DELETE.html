@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eliminar Archivo</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        input, button { padding: 10px; margin: 10px; font-size: 16px; }
+        #mensaje { margin-top: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h2>Eliminar un Archivo</h2>
+    <input type="text" id="filename" placeholder="Nombre del archivo (ej. archivo.txt)">
+    <button onclick="eliminarArchivo()">Eliminar</button>
+    
+    <p id="mensaje"></p>
+
+    <script>
+        function eliminarArchivo() {
+            let filename = document.getElementById("filename").value.trim();
+            if (!filename) {
+                document.getElementById("mensaje").innerText = "⚠️ Ingresa un nombre de archivo.";
+                return;
+            }
+    
+            // Reemplazar espacios con %20 y %20 con %2520
+            filename = filename.replace(/%/g, "%25").replace(/ /g, "%20");
+    
+            fetch(`${filename}`, { method: "DELETE" })
+                .then(response => {
+                    if (response.ok) {
+                        return response.text();
+                    } else {
+                        throw new Error("No se pudo eliminar el archivo.");
+                    }
+                })
+                .then(data => {
+                    document.getElementById("mensaje").innerText = "✅ Archivo eliminado con éxito.";
+                })
+                .catch(error => {
+                    document.getElementById("mensaje").innerText = "❌ Error: " + error.message;
+                });
+        }
+    </script>
+
+</body>
+</html>
