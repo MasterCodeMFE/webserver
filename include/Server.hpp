@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/11 08:42:57 by pabad-ap          #+#    #+#             */
-/*   Updated: 2025/03/20 16:11:51 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/31 19:24:09 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,6 @@ class Server
 		Server										&setCgi( std::string cgi );
 		Server										&setRoot( std::string root );
 
-		// Comprueba si hay pagina especificada, sino devuelve pagina de error por defecto.
 		std::string const							&getServerName( void )const;
 		std::string const							&getListen( void )const;
 		std::pair<int, std::string> const			&getRedirection( void ) const;
@@ -65,6 +64,5 @@ class Server
 
 };
 
-//std::ostream &operator<<( std::ostream &o, Server const &src );
 
 #endif

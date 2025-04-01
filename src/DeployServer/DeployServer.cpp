@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:07:34 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/31 16:42:11 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/31 19:59:02 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,6 @@ DeployServer::DeployServer( std::vector<Location> locations ): locations( locati
         this->listeners.insert( std::make_pair( it->getListen(), it->getServerName() ) );
     }
 
-    for ( std::set<std::pair<std::string, std::string> >::const_iterator it = listeners.begin(); it != listeners.end(); it ++ )
-        std::cout << "listening: " << it->first << " server name: " << it->second << "\n\n" << std::endl;
 }
 
 DeployServer::~DeployServer( void ){}
@@ -42,19 +40,16 @@ int             DeployServer::_dispatch_http_request(int client_fd, HttpRequest&
     std::string response;
     Location location;
 
-    std::cout << "path: " << httpRequest.path << std::endl;
-    
-    location = findLocation(httpRequest, this->locations);
+       location = findLocation(httpRequest, this->locations);
     if (httpRequest.headers.find("Content-Length") != httpRequest.headers.end() && string_to_int (httpRequest.headers.at("Content-Length")) >  static_cast<int>(location.getClienteMaxBodySize()) )
     {
         response = location.getErrorPage(413);
         Request::send_all(client_fd, response.c_str(), response.size());
         return ( 0 );
     }
-    std::cout << location << std::endl;
     bool is_valid_method = location.getSMethods().find(httpRequest.method) != location.getSMethods().end();    
 
-    if (location.getRedirection().first != 0) // Verifica si hay un código de redirección
+    if (location.getRedirection().first != 0)
     {
         response = _handle_redirection(location.getRedirection().first,  location.getRedirection().second, location);
         Request::send_all(client_fd, response.c_str(), response.size());
@@ -69,7 +64,6 @@ int             DeployServer::_dispatch_http_request(int client_fd, HttpRequest&
     {
         httpRequest.path = location.getRoot() + httpRequest.path;
     }
-    // Verificar si la solicitud es para un script CGI
     if (!httpRequest.path.empty()) 
     {
         std::string filename = httpRequest.path;
@@ -77,14 +71,8 @@ int             DeployServer::_dispatch_http_request(int client_fd, HttpRequest&
         if (questionMark != std::string::npos) {
             filename = filename.substr(0, questionMark);
         }
-        std::cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n --------------------------filename " << filename << "  \n\n\n\n\n\n\n\n\n\n\n\n";
         if (filename.size() >= 4 && filename.compare(filename.size() - 4, 4, ".php") == 0)
         {  
-            //size_t pos = httpRequest.path.find('?');
-            //httpRequest.body = (pos != std::string::npos) ? httpRequest.path.substr(pos + 1) : httpRequest.body;
-            std::cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n --------------------------funciona \n\n\n\n\n\n\n\n\n\n\n\n";
-            std::cout << "-----------path: "  << httpRequest.path << std::endl;
-            std::cout << "-----------query_string: "  << httpRequest.query_string << std::endl;
             response = Request::handle_cgi(httpRequest.path, httpRequest.body, httpRequest.method, httpRequest.body, location);
             Request::send_all(client_fd, response.c_str(), response.size());
             return 0;
@@ -94,36 +82,27 @@ int             DeployServer::_dispatch_http_request(int client_fd, HttpRequest&
         && httpRequest.path.compare(httpRequest.path.size() - 4, 4, ".php") != 0 \
         && httpRequest.method == "POST")
     {
-        std::cout << "CHISPAS!!" << std::endl;
         response = location.getErrorPage(400);
         Request::send_all(client_fd, response.c_str(), response.size());
         return 0;
     }
     if (!is_valid_method)
     {
-        std::string error = "Método no permitido\n";
-        std::clog << error << std::endl;
         response = location.getErrorPage(405);
     }
-    // Manejar solicitud GET
     else if (httpRequest.method == "GET") {
         response = Request::handle_get(httpRequest, location);
     }
-    // Manejar solicitud POST
     else if (httpRequest.method == "POST") {
         response = Request::handle_post(httpRequest, location);
     }
-    // Manejar solicitud DELETE
     else if (httpRequest.method == "DELETE") {
         response = Request::handle_delete(httpRequest, location);
     }
-    // Responder con error 405 si el método no es reconocido
     else {
         std::string error = "Método no permitido\n";
         response = location.getErrorPage(405);
     }
-
-    // Enviar la respuesta al cliente
     if ( 0 > Request::send_all(client_fd, response.c_str(), response.size()) )
     {
         response = location.getErrorPage(503);

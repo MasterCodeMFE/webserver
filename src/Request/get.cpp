@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:12:07 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/31 13:21:24 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/31 20:02:34 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,42 +14,32 @@
 
 std::string  Request::handle_get(const HttpRequest& request, Location location)
 {
-    // Obtiene la ruta del archivo solicitado
     std::string filepath = Request::_get_file_path(request.path, location);
 
     struct stat file_stat;
     
-    // Verifica si el archivo o directorio existe
     if (::stat(filepath.c_str(), &file_stat) != 0)
     {
-        std::cerr << "Error: No se encontró el archivo o directorio " << filepath << std::endl;
         return (location.getErrorPage(404));
     }
     
-    // Si es un directorio, genera un listado de su contenido
     if (S_ISDIR(file_stat.st_mode)  && location.getAutoindex() == true)
     {
-        std::cerr << "ENTRA EN DIRECTOREIO" << std::endl;
         return Request::_listDirectory(filepath, request.path, location);
     }
     else if(S_ISDIR(file_stat.st_mode)  && location.getAutoindex() == false)
     {
-        std::cerr << "Error: autoindex off."<< std::endl;
         return (location.getErrorPage(404));
     }
     
-    // Verifica si el archivo tiene permisos de lectura
     if (access(filepath.c_str(), R_OK) != 0)
     {
-        return Status::getErrorPage(403); // Retorna error 403 si no hay permisos
+        return Status::getErrorPage(403);
     }
 
-    // Lee el contenido del archivo
     std::string content = Request::_read_file(filepath);
-    // Obtiene el tipo de contenido (MIME type) del archivo
     std::string content_type = Request::_get_content_type(filepath);
 
-    // Construye y retorna la respuesta HTTP con el archivo solicitado
     return build_http_response(content, content_type, 200);
 }
 
@@ -59,7 +49,6 @@ bool containsIndexHtml(std::string directoryPath, std::string index)
     DIR *dir = opendir(directoryPath.c_str());
     if (!dir)
     {
-        std::cerr << "No se pudo abrir el directorio: " << directoryPath << std::endl;
         return false;
     }
 
@@ -77,25 +66,10 @@ bool containsIndexHtml(std::string directoryPath, std::string index)
     return false;
 }
 
-// ========================================
-//  FUNCIÓN: get_file_path
-// ========================================
-// Devuelve la ruta de un archivo en el servidor basada en la solicitud HTTP.
-//
-// Se encarga de:
-// 1. Retornar la ruta del archivo solicitado dentro del directorio "www".
-// 2. Si la solicitud es "/", se devuelve "www/index.html".
-//
-// Parámetros:
-// - request_path: Ruta solicitada por el cliente.
-//
-// Retorno:
-// - Cadena con la ruta del archivo en el sistema.
 std::string Request::_get_file_path(const std::string &request_path, Location location) {
     struct stat file_stat;
     std::string index = location.getIndex();
 
-    std::clog << index << std::endl;
     if (index.empty()) {
         index = "index.html";
     }
@@ -105,7 +79,6 @@ std::string Request::_get_file_path(const std::string &request_path, Location lo
     }
     if (S_ISDIR(file_stat.st_mode)) {
         if (containsIndexHtml(path, index) == true) {
-            // Evita dobles "//" en la ruta final
             if (path[path.size() - 1] != '/') {
                 path += "/";
             }
@@ -117,37 +90,18 @@ std::string Request::_get_file_path(const std::string &request_path, Location lo
     return request_path;
 }
 
-// ========================================
-//  FUNCIÓN: listDirectory
-// ========================================
-// Genera una lista en formato HTML con el contenido de un directorio.
-//
-// Se encarga de:
-// 1. Intentar abrir el directorio especificado.
-// 2. En caso de error, devolver una página de error 404.
-// 3. Recorrer los archivos y directorios dentro del directorio dado.
-// 4. Generar una lista en HTML con enlaces a cada archivo/directorio.
-//
-// Parámetros:
-// - dirPath: Ruta del directorio a listar.
-// - requestPath: Ruta de la solicitud HTTP, utilizada para construir los enlaces.
-//
-// Retorno:
-// - Una cadena con la respuesta HTTP en formato HTML.
 std::string Request::_listDirectory(const std::string &dirPath, const std::string &requestPath, Location location)
 {
-    // Verifica si el directorio existe y si tiene permisos de lectura
     if (access(dirPath.c_str(), F_OK) != 0) {
-        return location.getErrorPage(404); // No existe el directorio
+        return location.getErrorPage(404);
     }
     if (access(dirPath.c_str(), R_OK) != 0) {
-        return location.getErrorPage(403); // No hay permisos de lectura
+        return location.getErrorPage(403);
     }
-    // Intenta abrir el directorio
     DIR *dir = opendir(dirPath.c_str());
     if (!dir) {
-        return location.getErrorPage(500); // Otro error inesperado
-    }    // Construye la respuesta HTML con el índice del directorio
+        return location.getErrorPage(500);
+    } 
     std::stringstream responseBody;
     responseBody << "<!DOCTYPE html>\n"
                  << "<html>\n"
@@ -197,27 +151,23 @@ std::string Request::_listDirectory(const std::string &dirPath, const std::strin
             continue;
         std::string fullPath = dirPath + (dirPath[dirPath.size() - 1] == '/' ? "" : "/") + fileName;
         struct stat fileStat;
-        // Verifica si stat() falla para evitar errores
         if (stat(fullPath.c_str(), &fileStat) != 0) {
-            continue; // Si hay error al obtener información, ignora este archivo
+            continue;
         }
 
-        std::string icon = "📄"; // Icono por defecto para archivos
+        std::string icon = "📄";
         if (S_ISDIR(fileStat.st_mode)) {
-            icon = "📁"; // Si es un directorio
+            icon = "📁";
             responseBody << "<li>" << icon << " <a href=\"" << fullPath.substr(5) << "\">" << fileName << "</a>";
         }
-        // Agrega el botón de borrado para archivos
-        if (!S_ISDIR(fileStat.st_mode)) { // Solo agregar botón para archivos
+        if (!S_ISDIR(fileStat.st_mode)) { 
             responseBody << "<li>" << icon << " <a href=\"" << requestPath.substr(location.getRoot().size()) + "/" + fileName << "\">" << fileName << "</a>";
             responseBody << "<button onclick=\"deleteFile('" << requestPath.substr(location.getRoot().size()) + "/" + fileName << "')\">Borrar</button>";
         }
         responseBody << "</li>\n";
     }
-    // Cierra el directorio y finaliza la respuesta HTML
     closedir(dir);
     responseBody << "</ul>\n</body>\n</html>";
-    // Construye la respuesta HTTP con el contenido generado
     std::stringstream response;
     response << "HTTP/1.1 200 OK\r\n"
              << "Content-Type: text/html\r\n"

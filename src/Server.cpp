@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/13 16:55:10 by pabad-ap          #+#    #+#             */
-/*   Updated: 2025/03/20 13:44:24 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/31 20:09:20 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 
 Server::Server( void )
 {
-	this->_client_max_body_size = 1 * 1024 * 1024; // 1MB by default
+	this->_client_max_body_size = 1 * 1024 * 1024; 
 	this->_autoindex = false;
 	this->_index = "index.html";
 	this->_root  = "./www";
@@ -96,7 +96,6 @@ Server								&Server::setRedirection( std::string red_code, std::string url)
 	return ( *this );
 }
 
-/** Obtiene la pagina de error asociada a un error code. */
 std::string		 					Server::getErrorPage( unsigned int status_code ) const
 {
 	std::map<int, std::string>::const_iterator	it;
@@ -139,7 +138,7 @@ Server								&Server::setClienteMaxBodySize( std::string size )
 	long unsigned int max_body_size = 0;
 
 	if (size.empty()) {
-		this->_client_max_body_size = 1 * 1024 * 1024; // 1MB by default
+		this->_client_max_body_size = 1 * 1024 * 1024;
 		return ( *this );
 	}
 	std::string value = size.substr(0, size.length() - 1);

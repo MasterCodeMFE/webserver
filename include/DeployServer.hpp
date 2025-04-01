@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:13:35 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/28 11:20:33 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/31 19:23:17 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,35 +47,23 @@ extern volatile sig_atomic_t g_signal;
 
 typedef std::set<std::pair<std::string, std::string> > listenSet;
 
-// ========================================
-//  ESTRUCTURA: HttpRequest
-// ========================================
-// Representa una solicitud HTTP con su método, ruta, protocolo y datos.
-//
-// Atributos:
-// - method: Método HTTP (GET, POST, DELETE, etc.).
-// - path: Ruta solicitada en el servidor.
-// - protocol: Protocolo HTTP utilizado (ej. HTTP/1.1).
-// - headers: Cabeceras HTTP en formato clave-valor.
-// - body: Cuerpo del mensaje (para solicitudes POST).
-// - query_string: Parámetros de la URL (para CGI y GET).
-// ========================================
+
 struct HttpRequest {
 	std::string method;
 	std::string path;
 	std::string protocol;
 	std::map<std::string, std::string> headers;
-	std::string body;          // 🔹 Cuerpo del mensaje (para POST)
-	std::string query_string;  // 🔹 Parámetros en la URL (para CGI y GET)
+	std::string body;          
+	std::string query_string;  
 };
 
 
 class DeployServer
 {
 	private:
-		listenSet				listeners; // lista de parejas unicas entre server name y listen
-		std::vector<int>		server_fds; // vector de fids de servidores
-		std::vector<Location>	locations; //listas de rutas
+		listenSet				listeners; 
+		std::vector<int>		server_fds; 
+		std::vector<Location>	locations; 
 		std::vector<pollfd>     fds;
 		
 		DeployServer( void );
@@ -101,7 +89,6 @@ class DeployServer
 		int initialize_server_sockets( void );
 };
 
-int create_socket();
 int configure_and_bind_socket(int server_fd, std::pair<std::string, std::string> const &config);
 Location findLocation(const HttpRequest& httpRequest, std::vector<Location> locations);
 

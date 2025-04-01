@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/11 08:54:05 by pabad-ap          #+#    #+#             */
-/*   Updated: 2025/03/12 16:55:48 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/31 19:24:40 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ Location::~Location( void )
 Location	&Location::operator=( Location const &src )
 {
 	if (this != &src) {
-		// Llamar al operador de asignación por copia de la clase base
 		Server::operator=(src);
 		this->_path = src._path;
 		this->_s_methods = src._s_methods;

@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:11:50 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/31 18:30:59 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/31 20:09:43 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,10 @@
 
 
 
-// Función de espera no bloqueante compatible con C++98
+
 void fake_sleep(int seconds) {
     clock_t start_time = clock();
     while (static_cast<double>(clock() - start_time) / CLOCKS_PER_SEC < seconds) {
-        // Espera activa
     }
 }
 
@@ -27,11 +26,9 @@ std::string Request:: handle_cgi(const std::string &script_path, std::string &qu
     int pipe_stdout[2];
     int pipe_stdin[2];
 
-    // Parseo de ruta y parámetros
     size_t pos = script_path.find('?');
     std::string clean_script_path = script_path;
 
-    // Solo procesamos query_string para métodos GET
     if (method == "GET") {
         query_string.clear();
         if (pos != std::string::npos) {
@@ -39,11 +36,9 @@ std::string Request:: handle_cgi(const std::string &script_path, std::string &qu
             clean_script_path = script_path.substr(0, pos);
         }
     } else {
-        // Para otros métodos (POST, etc.), mantenemos la ruta original
         clean_script_path = script_path;
     }
 
-    // Verificación del script CGI
     struct stat file_stat;
     if (stat(clean_script_path.c_str(), &file_stat) != 0 || 
         !S_ISREG(file_stat.st_mode) || 
@@ -51,7 +46,6 @@ std::string Request:: handle_cgi(const std::string &script_path, std::string &qu
         return location.getErrorPage(404);
     }
 
-    // Creación de pipes
     if (pipe(pipe_stdout) == -1 || pipe(pipe_stdin) == -1) {
         return location.getErrorPage(500);
     }
@@ -64,7 +58,7 @@ std::string Request:: handle_cgi(const std::string &script_path, std::string &qu
         close(pipe_stdin[1]);
         return location.getErrorPage(500);
     } 
-    else if (pid == 0) { // Proceso hijo
+    else if (pid == 0) {
         close(pipe_stdout[0]);
         dup2(pipe_stdout[1], STDOUT_FILENO);
         close(pipe_stdout[1]);
@@ -75,11 +69,9 @@ std::string Request:: handle_cgi(const std::string &script_path, std::string &qu
         }
         close(pipe_stdin[0]);
 
-        // Configuración del entorno
         std::vector<char*> env;
         _setup_cgi_env(clean_script_path, query_string, method, body, env);
 
-        // Búsqueda del intérprete PHP
         std::string interpreters[] = {"/usr/bin/php-cgi", "/usr/local/bin/php-cgi"};
         bool found = false;
         std::string php_cgi_path;
@@ -100,19 +92,18 @@ std::string Request:: handle_cgi(const std::string &script_path, std::string &qu
                          const_cast<char*>(clean_script_path.c_str()), NULL };
         execve(argv[0], argv, &env[0]);
         
-        return ""; // Fallo en execve
+        return ""; 
     } 
-    else { // Proceso padre
+    else { 
         close(pipe_stdout[1]);
         close(pipe_stdin[0]);
 
-        // Envío de datos POST
         if (method == "POST" && !body.empty()) {
             write(pipe_stdin[1], body.c_str(), body.size());
         }
         close(pipe_stdin[1]);
 
-        // Espera con timeout
+
         int status;
         int timeout = 10;
         while (timeout > 0) {
@@ -136,7 +127,7 @@ std::string Request:: handle_cgi(const std::string &script_path, std::string &qu
             return location.getErrorPage(502);
         }
 
-        // Lectura de la salida CGI
+
         std::string cgi_output;
         char buffer[1024];
         ssize_t bytes_read;
@@ -160,12 +151,10 @@ void Request::_setup_cgi_env(const std::string &script_path, const std::string &
                            std::vector<char*>& env) {
     env.clear();
 
-    // Variables esenciales
     env.push_back(strdup("REDIRECT_STATUS=200"));
     env.push_back(strdup(("SCRIPT_FILENAME=" + script_path).c_str()));
     env.push_back(strdup(("REQUEST_METHOD=" + method).c_str()));
     
-    // Variables específicas por método
     if (method == "GET" && !query_string.empty()) {
         env.push_back(strdup(("QUERY_STRING=" + query_string).c_str()));
     }
@@ -175,8 +164,7 @@ void Request::_setup_cgi_env(const std::string &script_path, const std::string &
         env.push_back(strdup(("CONTENT_LENGTH=" + oss.str()).c_str()));
         env.push_back(strdup("CONTENT_TYPE=application/x-www-form-urlencoded"));
     }
-    
-    // Variables estándar CGI/1.1
+
     env.push_back(strdup("GATEWAY_INTERFACE=CGI/1.1"));
     env.push_back(strdup("SERVER_PROTOCOL=HTTP/1.1"));
     env.push_back(strdup("PATH_INFO="));
@@ -200,7 +188,6 @@ std::string Request::build_http_response_cgi(const std::string &cgi_output) {
     std::string headers = cgi_output.substr(0, header_end);
     std::string body = cgi_output.substr(header_end + 4);
 
-    // Parseo de headers CGI
     std::string content_type = "text/html";
     std::string status = "200 OK";
 
@@ -220,7 +207,6 @@ std::string Request::build_http_response_cgi(const std::string &cgi_output) {
         status = headers.substr(start, end - start);
     }
 
-    // Construcción de respuesta HTTP/1.1
     std::ostringstream response;
     response << "HTTP/1.1 " << status << "\r\n"
              << "Content-Type: " << content_type << "\r\n"
