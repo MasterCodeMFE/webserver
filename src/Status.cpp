@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/03/20 13:48:12 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/31 19:25:33 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,19 +16,15 @@
 #include "Request.hpp"
 
 
-/** Variable that stores default status codes and their default description */
 std::map<int, std::string>	Status::_m_status_responses;
 
-/** Non member function to load default status codes and descriptions (responses) */
 void	Status::_setStatusResponses( void )
 {
-	//1xx informational response
 	Status::_m_status_responses.insert(std::make_pair(100, "Continue"));
 	Status::_m_status_responses.insert(std::make_pair(101, "Switching Protocols"));
 	Status::_m_status_responses.insert(std::make_pair(102, "Processing (WebDAV; RFC 2518)"));
 	Status::_m_status_responses.insert(std::make_pair(103, "Early Hints (RFC 8297)"));
 	
-	//2xx success
 	Status::_m_status_responses.insert(std::make_pair(200, "OK"));
 	Status::_m_status_responses.insert(std::make_pair(201, "Created"));
 	Status::_m_status_responses.insert(std::make_pair(202, "Accepted"));
@@ -40,7 +36,6 @@ void	Status::_setStatusResponses( void )
 	Status::_m_status_responses.insert(std::make_pair(208, "Already Reported (WebDAV, RFC 5842)"));
 	Status::_m_status_responses.insert(std::make_pair(226, "IM Used (RFC 3229)"));
 	
-	//3xx redirection
 	Status::_m_status_responses.insert(std::make_pair(300, "Multiple Choices"));
 	Status::_m_status_responses.insert(std::make_pair(301, "Moved Permanently"));
 	Status::_m_status_responses.insert(std::make_pair(302, "Found (Previously \"Moved temporarily\")"));
@@ -51,7 +46,6 @@ void	Status::_setStatusResponses( void )
 	Status::_m_status_responses.insert(std::make_pair(307, "Temporary Redirect (since HTTP/1.1)"));
 	Status::_m_status_responses.insert(std::make_pair(308, "Permanent Redirect"));
 		
-	//4xx client errors
 	Status::_m_status_responses.insert(std::make_pair(400, "Bad Request"));
 	Status::_m_status_responses.insert(std::make_pair(401, "Unauthorized"));
 	Status::_m_status_responses.insert(std::make_pair(402, "Payment Required"));
@@ -81,8 +75,7 @@ void	Status::_setStatusResponses( void )
 	Status::_m_status_responses.insert(std::make_pair(429, "Too Many Requests (RFC 6585)"));
 	Status::_m_status_responses.insert(std::make_pair(431, "Request Header Field Too Large (RFC 6585)"));
 	Status::_m_status_responses.insert(std::make_pair(451, "Unavailable For Legal Reasons (RFC 7725)"));
-	
-	//5xx server errors
+
 	Status::_m_status_responses.insert(std::make_pair(500, "Internal Server Error"));
 	Status::_m_status_responses.insert(std::make_pair(501, "Not Implemented"));
 	Status::_m_status_responses.insert(std::make_pair(502, "Bad Gateway"));
@@ -119,9 +112,6 @@ bool	Status::_inErrorRange( int status_code )
 	return( inRange );
 }
 
- /** Devuelve la respues asociada al `status_code`. Usado como mensaje de cabecera
-  * jusnto con el codifo de error.
-  */
 std::string			Status::getStatusResponse( int status_code )
 {
 	if ( Status::_m_status_responses.empty() )
@@ -129,12 +119,6 @@ std::string			Status::getStatusResponse( int status_code )
 	return ( Status::_m_status_responses[status_code] );
 }
 
-/** Devuelve una plantilla de error predefinida, en la que se ajustan el código de error
- * y el mensaje asociado en base al `status_code`recibido como parametro.
- * @param status_code Codigo de error del que se quiere obtener la página.
- * 
- * @return String que mostrar como error.
- */
 std::string Status::getErrorPage(int status_code)
 {
     std::stringstream msg_page;
@@ -184,8 +168,6 @@ std::string Status::getErrorPage(int status_code)
 
 
 
-
-/** Devuelve el contenido del fichero asociado al `code_file_path` */
 std::string			Status::getErrorPage( std::string code_file_path, int status_code )
 {
 	std::ifstream file(code_file_path.c_str());
@@ -197,9 +179,8 @@ std::string			Status::getErrorPage( std::string code_file_path, int status_code 
 	std::string content = Request::_read_file(code_file_path);
     if (content.empty())
     {
-        return Status::getErrorPage(500); // Retorna error 500 si hay un problema interno
+        return Status::getErrorPage(500);
     }
 	std::string content_type = Request::_get_content_type(code_file_path);
-//
     return Request::build_http_response(content, content_type, status_code);
 }

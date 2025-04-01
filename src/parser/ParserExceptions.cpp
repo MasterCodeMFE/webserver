@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:10:44 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/19 15:29:24 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/31 19:30:38 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,9 @@
 
 static int	isWrongPort(const std::string& port);
 
-/** Excepciónes de parseo */
 Parser::ParsingException::ParsingException ( std::string const &msg ): \
 	std::logic_error(msg){}
 
-/** Compueba que el número de comillas dobles `"` es  par, lo que garantiza el cierre de literales
- * entrecomillados.
- */
 Parser	&Parser::_forbidenCharsCheck( void )
 {
 	if ( this->_cleanedConfigFile.str().find('\'') != std::string::npos \
@@ -30,12 +26,6 @@ Parser	&Parser::_forbidenCharsCheck( void )
 	return ( *this );
 }
 
-/** Comprueba si la directiva recibida como argumento forma parte de las directivas 
- * reconocidas en el fichero de configuración.
- * @param directive String de la directiva a comprobar.
- * 
- * @return Auto referencia al objeto Parser para poder encadenar metodos de la clase.
- */
 Parser					&Parser::_checkDirective( std::string directive )
 {
 	std::ostringstream oss;
@@ -50,13 +40,6 @@ Parser					&Parser::_checkDirective( std::string directive )
 	return ( *this );
 }
 
-/** Comprueba si en el `current_context` está autorizada la directiva `directive`
- * @param current_context Valor de la enumeración `t_context` que especifica el bloque 
- * 		en el que se encuentra actualmente el parser.
- * @param directive String de la directiva a comprobar.
- * 
- * @return Auto referencia al objeto Parser para poder encadenar metodos de la clase.
- */
 Parser					&Parser::_checkContext( t_context current_context, \
 	std::string directive )
 {
@@ -72,13 +55,6 @@ Parser					&Parser::_checkContext( t_context current_context, \
 	return ( *this );
 }
 
-/** Chequea que la directiva esté acompañada de los argumentos esperados
- * y cerrada por el delimitador esperado.
- * @param kw Iterador que apunta al identificador de la directive.
- * @param end Iterador que apunta al final de la cadena de tokens a analizar.
- * 
- * @return Auto referencia al objeto Parser para poder encadenar metodos de la clase.
- */
 Parser				&Parser::_checkArgs( tokenIter kw, tokenIter end )
 {
 	std::ostringstream	oss;
@@ -107,12 +83,6 @@ Parser				&Parser::_checkArgs( tokenIter kw, tokenIter end )
 	return ( *this );
 }
 
-/** Comprueba que las directivas de tipo bloque estén cerradas con `}`.
- * @param begin Iterador que apunta al identificador de la directiva.
- * @param end Iterador al final del vector de tokens a analizar. 
- * 
- * @return Auto referencia al objeto Parser para poder encadenar metodos de la clase.
- */
 Parser					&Parser::_checkClosedBlock( tokenIter begin, tokenIter end )
 {
 	std::ostringstream	oss;
@@ -125,15 +95,6 @@ Parser					&Parser::_checkClosedBlock( tokenIter begin, tokenIter end )
 	return ( *this );
 }
 
-/** Comprueba si una directiva en un bloque `server` está declarada  tras la directiva `location`,
- * la cual tiene que ser obligatoriamente la última en declararse dentro del bloque.
- * 
- * @param directive Identificados de la directiva.
- * @param locationInSever Booleano que identifica si ya se a procesado alguna directiva `location`
- * 	dentro del bloque `server`
- * 
- * @return Auto referencia al objeto Parser para poder encadenar metodos de la clase.
- */
 Parser					&Parser::_checkLocationLast( std::string directive, bool locationInServer )
 {
 	std::ostringstream	oss;
@@ -147,13 +108,6 @@ Parser					&Parser::_checkLocationLast( std::string directive, bool locationInSe
 	return ( *this );
 }
 
-/** Comprueba las directivas que tienen que tener una única declaración por bloque `server`.
- * @param directive Directiva que tiene que estar declarada una vez o ninguna por `server`
- * @param alreadyHasValue Booleano que indica si dicha directiva ya ha sido declarada en el
- * 			bloque `server`.
- * 
- * @return Resultado de la comprobación 
- */
 bool					Parser::_checkUniqueDirective( std::string directive, bool alreadyHasValue )
 {
 	std::ostringstream	oss;
@@ -169,12 +123,6 @@ bool					Parser::_checkUniqueDirective( std::string directive, bool alreadyHasVa
 }
 
 
-/** Comprueba que las rutas declaradas en un servidor son únicas`.
- * @param path Ruta de la nueva `location`.
- * @param server_lcoations localizaciones actuales en el bloque `server`.
- * 
- * @return Resultado de la comprobación 
- */
 Parser					&Parser::_checkUniqueLocation( std::string path, \
 	std::vector<Location> server_locations )
 {
@@ -190,11 +138,6 @@ Parser					&Parser::_checkUniqueLocation( std::string path, \
 	return ( *this );
 }
 
-/** Comprueba que la ip y puerto de `listen`esten en el formato y rango correcto.
- * @param hostPort Contiene un string con la IP y puerto a escuhar. Para 
- * 		ser correcto debe tener el formato [0-255].[0-255].[0-255].[0-255]:[0-65535].
- * @return `true` si el formato es correcto. Lanza un excepción sin no se cumplen las condiciones. 
- */
 bool		Parser::_checkHostPort( std::string hostPort )
 {	
 	std::ostringstream	oss;
@@ -218,12 +161,6 @@ bool		Parser::_checkHostPort( std::string hostPort )
     return ( true );
 }
 
-/** Comprueba si `port` tiene el formato correcto,
- * un numero entre 0 y 65535.
- * @param port Valor a chequear.
- * 
- * @return 1 si falla, 0 si es correcta
- */
 static int isWrongPort(const std::string& port) 
 {
     int value = std::atoi(port.c_str());

@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:14:01 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/31 18:13:40 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/31 20:09:15 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,6 @@ class Request
 {
 	private:
 
-		int tmp; //Atributo aleatorio, pdte. definir atributos reales
 
 		Request( void );
 		Request( Request const &src );
@@ -57,14 +56,13 @@ class Request
 
 		Request &operator=( Request const &src );
 
-		//GET
 		static std::string _get_file_path(const std::string& request_path, Location location); 
 		static std::string	_listDirectory(const std::string &dirPath, const std::string &requestPath, Location location);
 
-		//HTTP UTILS
+
 		static std::string	_int_to_string(int number);
 
-		//CGI
+
 		static void _setup_cgi_env(const std::string &script_path, const std::string &query_string, const std::string &method, const std::string &body, std::vector<char*>& env);
 
 	public:

@@ -6,7 +6,7 @@
 /*   By: manufern <manufern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 19:12:34 by manufern          #+#    #+#             */
-/*   Updated: 2025/03/20 14:22:53 by manufern         ###   ########.fr       */
+/*   Updated: 2025/03/31 19:24:48 by manufern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,10 +38,6 @@ int main( int argc, const char **argv )
     return 0;
 }
 
-/** Gestiona las señales que causan paradas abruptas del sistema
- * para que se ejecuten los destructores y evitar leaks.
- * @param signal Número asociado a la señal recibida.
- */
 static void handle_sigint(int signal)
 {
    (void) signal;
