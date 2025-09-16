@@ -14,7 +14,9 @@
         }
         .container {
             display: flex;
+            flex-wrap: wrap; /* Para que los elementos se ajusten si hay muchos */
             gap: 20px;
+            justify-content: center; /* Centrar los elementos en la fila */
         }
         .card {
             padding: 20px;
@@ -28,6 +30,17 @@
             padding: 10px;
             border: none;
             background-color: #ff0000;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .bad-request {
+            margin-top: 10px;
+            padding: 10px;
+            border: none;
+            background-color: #ff9900;
             color: white;
             cursor: pointer;
             border-radius: 5px;
@@ -80,18 +93,27 @@
             <h2>CGI PHP-infi</h2>
             <a href="/cgi/php-infi.php" class="button">Ir a PHP-infi</a>
         </div>
-    </div>
-    <div class="card">
-        <h2>CGI PHP-subida</h2>
-        <a href="/cgi/php-subida.php" class="button">Ir a PHP-subida</a>
-    </div>
-    <div class="card">
-        <h2>POST-uplosad</h2>
-        <a href="/POST/post-upload.html" class="button">Ir a PHP</a>
-    </div>
-    <div class="card">
-        <h2>DELETE</h2>
-        <a href="/DELETE/DELETE.html" class="button">Ir a PHP</a>
+        <div class="card">
+            <h2>CGI PHP-subida</h2>
+            <a href="/cgi/php-subida.php" class="button">Ir a PHP-subida</a>
+        </div>
+        <div class="card">
+            <h2>POST-uplosad</h2>
+            <a href="/POST/post-upload.html" class="button">Ir a PHP</a>
+        </div>
+        <div class="card">
+            <h2>DELETE</h2>
+            <a href="/DELETE/DELETE.html" class="button">Ir a PHP</a>
+        </div>
+        <div class="card">
+            <h2>DELETE</h2>
+            <a href="/DELETE/🤣​.html" class="button">🤣​</a>
+        </div>
+        <div class="card">
+            <h2>Bad Request (400)</h2>
+            <!-- Enlace que provocará un 400 Bad Request -->
+            <a href="http://localhost/%" class="bad-request">Provocar 400</a>
+        </div>
     </div>
 </body>
 </html>
